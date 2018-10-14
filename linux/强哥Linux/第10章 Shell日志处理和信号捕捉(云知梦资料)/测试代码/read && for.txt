@@ -1,0 +1,11 @@
+#!/bin/bash
+#read && for
+
+echo -n "which moon is your love best ? : "
+read num
+for kk in $num
+do
+  echo "I love the moon of $kk"
+  echo "*****************************************************************"
+  sleep 1
+done

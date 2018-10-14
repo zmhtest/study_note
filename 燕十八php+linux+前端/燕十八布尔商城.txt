@@ -1,0 +1,334 @@
+# 布尔商城开发全程记录
+
+init.php
+作用：框架初始化 (最先运行)
+1.过滤参数，用递归的方式过滤$_GET,$_POST
+
+2.设置错误报错级别 error_reporting()
+
+3.运行日志：将运行的信息记录在文件中，并以日期为文件夹
+
+4.数据库类
+
+
+config.inc.php
+作用：配置文件
+一个数组，放置一系列的配置信息。
+
+conf.class.php
+作用：读取配置文件的类,把读取到的信息存放到对象中，他是专门管理配置文件的，其他要读取配置文件的类在需要配置信息时，只需要调用conf中的属性或者方法即可
+
+配置文件的类需要做成单例模式，要确保大家读取到的都一样
+
+单例模式就是，一个只能创建一个对象的类
+
+文件和目录创建
+
+读取文件
+file_get_contents('路径');他封装了打开，读取，关闭 文件
+一次性读取整个文件到内存中，大文件时不适用
+可以是一个网址,读取远程资源
+\r\n表示回车换行
+
+file_put_contents('');写文件
+
+string fread  ( resource $handle  , int $length  )
+
+fread()  从文件指针 handle 读取最多 length 个字节。
+
+
+'r+'  读写方式打开，将文件指针指向文件头。  
+
+'a+'  读写方式打开，将文件指针指向文件末尾。如果文件不存在则尝试创建之。  
+
+
+int filemtime  ( string $filename  )
+
+本函数返回文件中的数据块上次被写入的时间，也就是说，文件的内容上次被修改的时间。 
+
+int filesize  ( string $filename  )
+
+取得指定文件的大小。 
+
+
+
+int fileatime  ( string $filename  )
+
+取得文件的上次访问时间。 
+
+
+int filectime  ( string $filename  )
+
+取得文件的 inode 修改时间
+
+string fgets  ( resource $handle  [, int $length  ] )
+从文件指针中读取一行。文件的指针一直再往后移动, 
+ 模式里面可以加b,表示以2进制来处理 ,不受编码的干扰
+$fh = fopen($file,'rb');
+while(!feof($fh)) {
+    echo fgets($fh),'<br />';
+}
+
+说明
+
+string fgetss  ( resource $handle  [, int $length  [, string $allowable_tags  ]] )
+
+和 fgets()  相同，只除了 fgetss()  尝试从读取的文本中去掉任何 HTML 和 PHP 标记。
+
+注意: 各操作系统下,换行符并不一致
+win: \r\n
+*nix: \n
+mac: \r
+
+$cont = file_get_contents($file);
+//下面这个用\n区分,通用性并不好
+print_r(explode("\n",$cont));
+
+file函数,直接读取文件内容,并按行拆成数组,
+返回该数组
+
+
+// 匹配文件,把txt后缀的文件找出来,返回数组
+print_r(glob('./article/*.txt'));
+
+删文件：unlink()
+
+目录操作：
+
+CSV就是用逗号分割的文件。
+
+opendir($file)
+readdir($fh) 返回目录下的一个文件，然后指针下移
+
+目录前面有 . .. 分别表示当前目录和上一级目录
+
+<?php
+ if ( $handle  =  opendir ( '.' )) {
+    while ( false  !== ( $file  =  readdir ( $handle ))) {
+        if ( $file  !=  "."  &&  $file  !=  ".." ) {
+            echo  " $file \n" ;
+        }
+    }
+     closedir ( $handle );
+}
+ ?> 
+
+isdir() ：判断给定路径是不是目录
+
+closedir()：关闭目录
+
+mkdir($path) 创建目录
+rmdir($path)删除空的目录  
+
+如何打印目录树？
+
+增加日志功能：
+
+file:log.class.php
+作用：记录信息到日志
+
+思路：给定内容，写入文件（fopen、fwrite）
+如果文件大于1M，重新写一份
+
+class log{
+	const LOGFILE = 'curr.log'; //建一个常量，代表日志文件名称
+
+	//写日志
+	public static function write($cnt){
+		self::isBak();
+	}
+
+	//备份日志
+	public static function bak(){
+
+	}
+
+	//读取并判断日志大小
+	public static function isBak(){
+
+	}
+}
+
+
+
+
+缓存作祟
+解决方法：在读取文件大小之前，先用 clearstatecache($file)
+
+递归：
+
+使用递归的方法计算1...100的和：
+
+function sum($n){
+	if($n>1){
+		return sum($n-1)+$n;
+	}else{
+		return 1;
+	}
+}
+
+递归打印级联目录：
+
+function recdir($path){
+	$dh - opendir($path);
+	while($row = readdir($dh) !== false){
+		if($row == '.' || $row == '..'){
+			continue;
+		}
+		echo $row.'<br />'
+		//如果$row还是一个目录呢？
+		//注意：去掉 . .. 给过滤掉
+		if(is_dir($path.'./'.$row)){
+			recdir($path.'./'.$row);
+
+		}
+	}
+	closedir($dh);
+}
+
+函数的调用是非常耗资源的，而递归就是在一个函数还没有结束时，继续调用函数，所以如果递归的层数很深的话，是消耗很多资源的。
+
+递归往往有结合一个判断！！！
+
+最先调用的最后返回。
+
+理解递归就要把函数的调用理解成一个很慢的过程。
+
+注意：
+
+function sum($n){
+	if($n>1){
+		echo $n;
+		return sum($n-1)+$n;
+	}else{
+		return 1;
+	}
+}
+
+function sum($n){
+	if($n>1){
+		return sum($n-1)+$n;
+		echo $n;
+	}else{
+		return 1;
+	}
+}
+
+注意以上两个函数所打印的值的顺序！
+分清是调用时打印的，还是返回后打印的！
+
+注意：在实际开发中，PHP的mkdir本身就可以创建级联目录！！！
+
+递归删除目录：
+rmdir只能删除空目录
+
+理论上，递归都是可以写成迭代的。
+
+建议写成迭代，迭代占用的资源较少。
+递归是会占用很多资源的。
+
+使用for循环求1到10的和就是属于迭代。
+
+
+
+
+
+
+
+
+
+
+无限级分类：
+
+在函数中声明的静态static变量，无论次函数被调用多少次，这个变量只初始化一次，以后就会直接沿用这个变量。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：154 20分
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

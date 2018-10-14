@@ -1,0 +1,165 @@
+燕十八mongo教程笔记
+
+mongoDB：文档数据库，json bson：json的二进制对象；它的内部引擎用js实现
+
+表下的每篇文档都可以有自己的结构
+
+只有在系统服务中启动了mongodb，才能打开mongo客户端，否则闪退
+
+win10下安装MongoDB的配置 以管理员身份在cmd中运行
+sc create mongodb binPath= "D:\phpStudy\mongodb\bin\mongod.exe --service --dbpath D:\phpStudy\mongodb\data\db --logpath=D:\phpStudy\mongodb\data\log\mongodb.log --logappend --directoryperdb"
+
+如果无法使用mis文件安装，直接下载 zip 包，解压，然后自己配置即可！！
+
+linux下安装MongoDB的步骤：
+
+1. 解压到 /usr/local/mongo 目录
+
+2. 运行： ./bin/mongod --dbpath /path/to/database --logpath /path/to/log.log --fork --port 27017
+
+参数说明：--fork 以后台方式启动
+
+[root@localhost bin]# ./mongod --dbpath /mongodb/ --logpath /mongolog/m17.log --fork
+about to fork child process, waiting until server is ready for connections.
+forked process: 59287
+child process started successfully, parent exiting
+[root@localhost bin]# ps -A | grep mongod
+ 59287 ?        00:00:00 mongod
+
+启动客户端：
+./mongo
+
+基本命令：
+查看MongoDB版本：db.version()
+显示当前数据库：db
+查看当前库信息：db.stats()
+
+库的帮助信息：db.help()
+集合的帮助信息：db.mycoll.help()
+
+
+
+show dbs
+show databases
+
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+
+创建库：
+直接use db
+然后 db.createCollection('user');
+
+插入数据：
+db.user.insert({name:'zmh',age:23})
+
+查询所有
+db.user.find();
+
+可以隐式创建表：原本没有goods表
+> db.goods.insert({goods_name:'apple',price:6});
+WriteResult({ "nInserted" : 1 })
+> show tables;
+goods
+user
+
+删除表：
+> db.goods.drop();
+true
+
+删除当前数据库：注意区分大小写
+> db.dropDatabase();
+{ "dropped" : "shop", "ok" : 1 }
+
+删除一条记录，删除时必须指定删除条件
+> db.user.remove({'name':'朱杏子'});
+WriteResult({ "nRemoved" : 1 })
+
+根据条件查找
+> db.user.find({'name':'朱明浩'});
+{ "_id" : ObjectId("5ac86ce85fe802a935968642"), "name" : "朱明浩", "age" : 23 }
+
+一次性插入多条数据：
+db.user.insert([{},{},{},{},{}])
+
+update操作
+ db.user.update({age:25},{$set:{age:26,name:'zmh'}})
+注意：如果不设置$set会直接覆盖原来的value
+
+！
+
+索引部分：
+ db.user.find({name:'xxx25'}).explain()
+
+"indexFilterSet" : false,#表示没有采用索引
+
+获取索引：
+db.user.getIndexes()
+
+创建索引：
+ db.user.ensureIndex({name:-1})
+ 1、-1分别表示升序、降序
+
+删除索引：
+db.user.dropIndex({name:-1})
+
+添加多列索引：
+db.user.ensureIndex({name:1,age:1})
+        {
+                "v" : 2,
+                "key" : {
+                        "name" : 1,
+                        "age" : 1
+                },
+                "name" : "name_1_age_1",
+                "ns" : "test.user"
+        }
+意思是将两个列绑定在一起，然后加一个索引
+多列索引的效率比在每个列加索引的效率更高，因为多个索引只能利用到一个索引！！！
+
+更改子文档的属性：
+ db.user.update({name:'nokia'},{$set:{'spc.area':'taiwan'}} )
+
+通过子文档查找
+db.user.find({'spc.area':'taiwan'})
+
+给子文档添加索引：
+db.user.ensureIndex({'spc.area':1})
+
+唯一索引：该列的值不能重复
+db.user.ensureIndex({'email':1},{unique:true})
+只能有一个
+
+稀疏索引：
+
+
+hash索引:数据放在什么位置都是通过hash计算出来的，速度非常快
+hash的特点：数据在硬盘的位置是随机的
+所以hash不适用于范围查找。
+
+用户管理：
+
+添加管理员用户：
+use admin
+db.createUser({user:"root",pwd:"root",roles:[{role:"readWrite",db:"admin"}]})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：第10节
+

@@ -1,0 +1,592 @@
+HTML5 高级应用
+
+HTML5专注内容与结构，而不专注于表现，比如增加了 header footer article nav ，这些都是语义标签，这样书写更加利于搜索引擎来抓取网页的内容，传统的做法是<div class=header></div>
+
+HTML5中可以完全省略的标签html，head，body，tbody
+虽然我们不写，但是浏览器是会自动加上的！！！
+
+新增的标记：
+aside 侧边栏 
+hgroup 定义头部的组
+datalist 定义下拉列表的数据
+details 详细内容
+dialog 定义一个会话框
+mark 定义有标记的文本
+section 定义一个区域
+source 视频或者音频的源
+time 定义一个日期时间 作用是更加利于搜索引擎抓取这个时间点的网页
+<time datetime=2017-3-21>纪念日 </time>
+ruby 有字库的支持
+address 地址
+
+document.createElement('article');
+只需要用js创建标签，然后用css设置样式即可显示，而不用append到body上，因为body是可以省略的！！！
+
+
+并列选择器：header,article,time
+
+datalist的用法，结合text框
+例子：
+<datalist id='mydata'>
+	<option value='php100' lable='top1'>
+	<option value='php' lable='top2'>
+	<option value='php1000' lable='top3'>
+</datalist>
+<input type=text list=mydata/>
+
+视频，音频，编码格式组成视频的三要素
+格式：
+mp4 
+ogg：完全开源的
+
+视频属性：
+loop 循环播放
+preload 只有视频加载完才播放 不建议使用
+autoplay 不建议使用
+快进：currentTime+=10
+加速播放：playbackRate++
+音量增加：volume+=0.1
+静音：muted=true
+
+实现全屏：注意在使用jQuery调用video的API是一定要转换成原生的dom对象，也就是[0]或者get(0)
+$('#full').click(function(){
+	video[0].webkitEnterFullscrenn();
+	video[0].mozRequestFullscrenn();
+
+	});
+
+桌面提醒功能Notification API 
+实际上就是浏览器和系统桌面的一个交互
+注意：尽量少用桌面提醒，减少对用户的干扰
+
+以下已经停止支持
+window.webkitNotifications
+requestPermission:请求通讯许可
+checkPermission:检查通讯许可
+createNotification：创建通讯
+show： 
+
+最新桌面提醒对象 window.Notification对象
+
+在jQuery中可以通过on给一个jQuery对象绑定多个事件
+比如：
+e.preventDefault();移除浏览器原有的效果，比如打开文件...
+	$(document).on(
+	{
+		dragstart:function(e){
+			e.preventDefault();
+		},
+		drag:function(e){
+			e.preventDefault();
+		},
+		dragend:function(e){
+			e.preventDefault();
+		},
+		dragenter:function(e){
+			e.preventDefault();
+		},
+		dragover:function(e){
+			e.preventDefault();
+		},
+		dragleave:function(e){
+			e.preventDefault();
+		},
+		drop:function(e){
+			e.preventDefault();
+		}
+	});
+	
+也就是把原生的on提取出去！！！
+
+xxx.addEventListener("drop",function(e){
+
+	})
+
+form表单新属性
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>表单新属性</title>
+</head>
+<body>
+<form action="" > 
+<!--novalidate="true" -->
+	<input type="time" name="" id="">\
+	<input type="date" name="" id="">
+	<!-- 如果是非法的URL或者email再提交时会发出警告，阻止提交 -->
+	<input type="email" name="" id="">
+	<input type="url" name="" id="">
+	<!-- 可以设置数字值的范围 min 和max属性-->
+	<input type="number" name="" id="" min="1" max="12">
+	<!-- range显示为一个滚动条 -->
+	<input type="range" name="" max="12" min="1" id="">
+	<!-- 定义一个搜索文本域 -->
+	<input type="search" name="" id="">
+	<!-- 直接在pattern属性后面写正则表达式！！！ -->
+	<!-- title属性就是规定鼠标悬浮在上面时显示的文字 -->
+	<input type="text" name="country_code"
+pattern="[A-z]{3}" title="Three letter country code" placeholder="请输入三位字母" />
+<!-- placeholder 属性
+placeholder 属性提供一种提示（hint），描述输入域所期待的值。
+
+ -->
+
+<!-- novalidate 属性
+novalidate 属性规定在提交表单时不应该验证 form 或 input 域。
+
+注释：novalidate 属性适用于 <form> 以及以下类型的 <input> 标签：text, search, url, telephone, email, password, date pickers, range 以及 color.
+
+ -->
+
+ <!-- multiple 属性
+multiple 属性规定输入域中可选择多个值。
+ -->
+	<input type="file" name="" multiple="multiple" id="">
+<!-- required 属性
+required 属性规定必须在提交之前填写输入域（不能为空）。
+ -->
+	<input type="text" name="usr_name" required="required" />
+
+	<input type="color" name="" id="">
+	<input type="submit" value="提交">
+	</form>
+</body>
+</html>
+
+以前表单的submit按钮只能写在form里面，现在可以给form设置id属性，然后在submit添加form属性=form_id即可
+-----------------------------------
+实现鼠标跟随移动效果：
+
+<div id="one" style="width: 100px;height: 100px;background: yellow;position: absolute;"></div>
+	<script>
+	var one = document.getElementById('one');
+	one.onmousedown = function(){
+		document.onmousemove = function (e) {
+			var x = e.clientX+'px';
+			var y = e.clientY+'px';
+			one.style.left = x;
+			one.style.top = y;
+		}
+	}
+	</script>
+
+注意：修改css属性时，必须是在 对象.style.属性=值 的方法！！！
+
+
+鼠标拖拽效果：
+<!-- 必须设置draggable属性才能拖动此元素 -->
+	<div id="one" ></div>
+	<div id="two" draggable="true"></div>
+
+<script>
+var one = document.getElementById('one');
+var two = document.getElementById('two');
+
+// 拖拽区事件
+//开始拖拽
+two.ondragstart = function(e){
+	// console.log(e);
+	// one.innerHTML = '开始拖拽';
+}
+
+two.ondrag = function(e){
+	// one.innerHTML += '开始移动';
+}
+
+two.ondragend = function(e){
+	// one.innerHTML += '移动结束';
+}
+
+//投放区事件
+//进入投放区
+one.ondragenter = function (e) {
+	e.preventDefault();
+	// one.innerHTML = '已经进入';
+}
+//在投放区移动
+one.ondragover = function (e) {
+	e.preventDefault();
+
+	// one.innerHTML += '移动';
+}
+//离开投放区
+one.ondragleave = function (e) {
+	e.preventDefault();
+
+	// one.innerHTML += '移出';
+}
+
+//必须阻止投放区的默认事件才能正常投放
+one.ondrop = function (e) {
+	one.appendChild(two);
+}
+</script>
+---------------------------------
+文件拖拽上传：
+
+	<div id="one" >请拖入文件，我来上传</div>
+	<!-- <div id="two" draggable="true"></div> -->
+
+<script>
+var one = document.getElementById('one');
+var two = document.getElementById('two');
+
+one.ondragenter = function (e) {
+	// console.log(e);
+	e.preventDefault();
+}
+one.ondragover = function (e) {
+	// one.innerHTML = '轻松开';
+	e.preventDefault();
+
+}
+one.ondragleave = function (e) {
+	// one.innerHTML = '请回来';
+	e.preventDefault();
+
+}
+
+one.ondrop = function (e) {
+	var file = e.dataTransfer.files[0];
+	var fd = new FormData();
+	fd.append('obj',file);
+// 使用Ajax上传
+	var xhr = new XMLHttpRequest();
+	xhr.open('post','demo4.php',1);
+	xhr.onreadystatechange = function () {
+		if (xhr.readyState==4 && xhr.status==200) {
+			alert(xhr.responseText);
+		}
+	}
+	xhr.send(fd);
+
+
+	//dataTransfer.files返回的是一个文件列表
+/*FileList {0: File, length: 1}
+0:File
+lastModified:1483068000183
+lastModifiedDate:Fri Dec 30 2016 11:20:00 GMT+0800 (中国标准时间)
+name:"禁令.docx"
+size:18669
+type:application/vnd.openxmlformats-officedocument.*/
+	//console.log(e.dataTransfer.files);
+	// 注意：不能通过dataTransfer对象直接查看文件信息，必须要e.dataTransfer.files[n]
+	e.preventDefault();
+}
+</script>
+
+php文件中
+<?php 
+	if ($_FILES) {
+
+		print_r($_FILES['obj']);
+
+		//可以看到
+/* 
+$_FILES['obj']具有如下内容，其中tmp_name代表这个文件，error=0表示上传成功
+name:1.css
+type:text/css
+tmp_name:C:\Windows\phpBD6F.tmp
+error:0
+size:110 
+*/
+		file_put_contents('./FILES.txt', $_FILES['obj']);
+		move_uploaded_file($_FILES['obj']['tmp_name'], './'.$_FILES['obj']['name']);
+	}
+	echo "上传成功！！！";
+ ?>
+
+文件上传的原理：
+首先通过H5提供的接口e.dataTransfer.files[n]来取得这个文件的所有内容，把文件file绑定到FormData对象上，然后通过Ajax的send(fd)进行发送，在PHP处理页面中，通过move_uploaded_file($data,$path);来接收
+
+注意：PHP把上传过来的文件信息，全部保存在一个超全局数组$_FILES中，可以通过表单中设置的name,$_FILES['name']来获取这个文件的所有信息（是一个包含这个文件所有信息的数组）
+-----------------------------
+多媒体：
+video和audio的接口是一样的！！！
+
+<body>
+<!-- 注意：如果要使用下面的源，video标签不能有src ie10已经支持video-->
+<!-- poster就是视频播放之前的那张图片 -->
+	<video  id='video' poster="./logo.jpg" controls="controls" width="320" height="240">
+		<source src="./movie.mp4" type="video/mp4">
+		<source src="./movie.ogg" type="video/ogg">
+		你的浏览器不支持video标签
+	</video>
+	<input id='play' type="button" value="播放">
+	<input id='pause' type="button" value="暂停">
+<script>
+var video = document.getElementById('video');
+var play = document.getElementById('play');
+var pause = document.getElementById('pause');
+play.onclick = function () {
+	video.play();
+}
+
+pause.onclick = function () {
+	video.pause();
+}
+</script>
+</body>
+--------------------------------
+本地存储：localStorage
+cookie的限制是4k
+HTML5的本地存储为5M
+首先验证浏览器是否兼容
+if(window.localStorage){
+	alert('支持');
+}else{
+	alert('不支持');
+}
+
+三种设置本地存储的方法：
+localStorage.t1 = 'php100';
+localStorage['t2'] = 'HTML5';
+localStorage.setItem('t3','jQuery');
+
+访问的三种方法：
+localStorage.t1
+localStorage['t2']
+localStorage.getItem('t3')
+
+更新也就是覆盖，写一个重名的即可
+
+清除
+localStorage.removeItem('t1') //清除
+localStorage.clear() //清除所有
+localStorage.length //有多少条
+localStorage.key(0)//获取键的内容,0表示第一个设置项的内容，在不知道key时使用
+比如：localStorage.getItem(localStorage.key(0));所以，可以利用for循环读取出所有的值
+for(var i=0;i<localStorage.length;i++){document.write(localStorage.getItem(localStorage.key(0)));}
+这样就可以充当小型数据库了
+
+
+测试：访问了一次该网页，注释掉第一行，重新打开浏览器访问该网页，同样可以输出 “朱明浩” 这就是本地存储
+//localStorage.t1 = '朱明浩';
+document.write(localStorage.t1);
+
+实际开发中，首先要判断有没有本地缓存，如果有，则从本地取
+
+-------------------------------
+websql:
+打开数据库：open
+Database('mydb数据库名','1.0版本','数据库描述',20000数据库大小单位字节,function(){});这个函数是创建库时执行的，返回一个数据库对象
+
+事务transaction()方法，所有的executeSql()都有事务中匿名函数的一个回调对象来调用
+数据库对象.transaction(function(obj){})
+
+执行sql语句：obj.executeSql(sql语句,sql参数,执行成功时执行的函数,执行失败时执行的函数);
+
+浏览器里面集成的是一个sqllite数据库，也是关系型数据库
+
+对于已有的数据库，再次刷新时不会创建，也不会继续执行下面的两个成功函数，但是会执行失败函数
+
+例子：
+<script>
+var db = window.openDatabase('mydb','1.0','我的第一个websql数据库',2*1024);
+if(db){
+	alert('支持');
+	db.transaction(function (obj) {
+		//创建表
+		obj.executeSql(
+			'create table test (id int ,title text ,timestamp real )'
+			);
+
+		//插入数据
+		obj.executeSql(
+			'insert into test (title,timestamp) values (?,?)',['web database',new Date().getTime()],null,null
+			);
+	});
+}else{
+	alert('不支持');
+}
+</script>
+
+-----------------------------
+<script>
+var db = window.openDatabase('mydb','1.0','我的第一个websql数据库',2*1024,function(){});
+if(db){
+	//alert('支持');
+	db.transaction(function (fx) {
+		//创建表
+		/*fx.executeSql(
+			'create table mytable (id int ,title text  )',
+			[],//这个[]不能少
+			function(){alert('成功');},
+			function(){alert('失败');}
+		);
+*/
+		//插入数据 更新也是这样写
+		fx.executeSql(
+			'insert into mytable (id,title) values (?,?)',
+			[2,'html'],
+			function(){
+				alert('插入成功');
+			},
+			function(){
+				alert('插入失败');
+			}
+		);
+
+		//查询数据
+		fx.executeSql(
+			'select * from mytable',
+			[],
+			function(fx,res){
+				//查询出来的结果放在res中
+				// console.log(res);
+				for(var i=0;i<res.rows.length;i++){
+					document.write(res.rows[i]['title']+'<br>');
+				}
+			},
+			function(){
+
+			}
+		);
+
+		//删除数据
+		/*fx.executeSql(
+			'delete from mytable where id=?',
+			[1],
+			function () {
+				alert('删除成功');
+			},
+			function () {
+				alert('删除失败');
+			}
+		);*/
+	});
+}else{
+	alert('不支持');
+}
+</script>
+
+--------------------------------
+
+离线缓存：需要在Apache中开启 
+搜索添加 addtype text/cache-manifest .manifest 
+创建 xxx.manifest 文件
+格式如下：
+CACHE MANIFEST
+#这句必须放在开头
+CACHE
+#指明要缓存的文件名
+NETWORK
+#声明不需要缓存的内容
+FALLBACK
+#这里声明允许资源不可用的情况下，将用户重定向到一个特定的页面
+
+案例：
+
+CACHE MANIFEST
+CACHE:
+#允许缓存到本地的文件名
+1.html
+1.js
+1.css
+NETWORK:
+#不允许缓存的文件
+1.jpg
+2.jpg
+FALLBACK:
+
+注意：以上测试必须要连上服务器，本地测试是没有效果的
+
+使用原生js 时特别要注意 window.onload = function(){
+
+}
+
+在html标签中加 manifest属性 manifest='1.manifest' 也就是manifest文件路径
+
+websocket：只是一个网络通信协议
+就像Http ftp 只不过websocket是一个持久性的连接，就像打电话
+
+websocket在发送请求的时候会借助Http的一部分，区别部分是
+Upgrade websocket
+sec-WebSocket-Version 13
+Connection keep-alive Upgrade
+而且请求的host有端口，而不是默认的80端口
+host:192.168.12.22:2212
+
+所以websocket与Http是有部分交集的
+
+服务器也是支持websocket的
+
+websocket执行原理：客户端的请求头中带有Http部分和Upgrade:websocket 和 connection:Upgrade 两根管，当Http请求完了，Http断开，但是websocket还有两根管连着，客户端还可以继续和服务器通信
+
+
+Ajax轮询就是不断建立Http连接，等待服务器处理返回 是一个很被动的过程 而且 请求结束后，服务武器将客户端的所有信息全部丢失
+下次请求必须重新携带过来，也就是每次都要发送很冗余的请求头
+
+websocket就是恰好解决了这个问题
+
+问题是：websocket要Linux环境支持
+前端HTML和js部分
+
+还可以监听连接关闭
+ws.onclose = function(ev){}
+监听连接错误
+ws.onerror = function(ev){}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>测试websocket</title>
+</head>
+<body>
+<div id="res"></div>
+	<form action="">
+		<p><input type="text" id="con"></p>
+		<p><input type="button"  id="bt" onclick="sendmessage()"></p>
+	</form>
+
+<script>
+//创建websocket对象
+var wsurl = "ws://192.168.25.22:2020";
+var ws = new websocket(wsurl);
+//可以利用这个对象发送，接受由服务器返回的信息 
+ws.onopen = function(ev){//服务器会返回一个事件对象
+	console.log(ev.readyState);//表示当前的状态 1：表示连接成功打开，可以进行通信
+}
+function sendmessage(){
+	//下面获取表单内容，利用ws发送
+	var con = document.getElementById('con').value;
+	ws.send(con);
+	//发送完成，清空表单
+	document.getElementById('con').value= '';
+	//接受返回的信息，输出到HTML页面
+	ws.onmessage = function(ev){//监听服务器推送，ev这个事件对象包含服务器返回的信息
+		// console.log(ev.data);
+		document.getElementById('res').innerHTML = ev.data;
+
+	}
+}
+</script>	
+</body>
+</html>
+可以很方便完成多人聊天功能
+
+有时间，可以深入学习Swoole这个PHP对象，需要额外下载，在PHP.ini 中引入
+他就可以当做服务器来用
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

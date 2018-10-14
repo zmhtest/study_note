@@ -1,0 +1,96 @@
+## inline-block布局
+
+一种更易于控制和更为健壮的网页布局技术。
+
+网页布局的发展历程：
+
+	1. table布局
+
+	2. table+css布局
+		table用于区块布局，css用于修饰。
+
+	3. div+css浮动布局技术
+
+		优势：
+		1. 更快的网页呈现速度
+		2. 更佳的后台编程支持
+		3. 搜索引擎友好
+		4. 更容易修改维护
+
+		劣势：
+		1. 一行盒子高度有出入，会导致下一行盒子“卡住”
+		2. 浮动元素导致父级盒子高度塌陷（父级元素没有设置height时）
+		3. 浮动元素导致其后的元素跟着浮动元素同一行
+
+	4. div+css的inline-block布局
+
+什么是inline：
+	答：一个盒子在一行内连续排列出来，知道碰到行尾自然换到下一行。行内盒子不能设置宽高，没有上下的margin和padding，但有左右的margin、padding。
+
+什么是block盒子？
+	答：一个盒子独占一行！
+
+什么是inline-block布局？
+
+	既可以充分发挥浮动布局的优势，有可以克服它的劣势。
+
+	inline-block布局就是，首先一个盒子在一行连续排列，当放不下时，整个盒子在另一行显示（整体下行显示），如果是行内元素，它是部分在该行，部分在下一行显示，也就是不再是一个整体！！！
+
+	inline-block布局最贴切的类比就是 img 标签
+
+常见行内元素：span a img b i u
+
+常见块元素：div hr p ul/li ol/li dl/dt/dd h1-h6 pre form
+
+*display:inline; 专门给IE6和IE7用的兼容语法
+
+vertical-align: middle; top bottom
+
+核心代码：
+	
+	父级元素
+	.p{
+		border: 1px solid red;
+		margin: 5px auto;
+		font-size: 0px;/*去除间隙*/
+		width: 500px;
+		text-align:center;//文字居中
+	}
+
+	需要inline-block布局的子元素
+	.p div{
+		border: 1px solid red;
+		font-size:14px;
+		display: inline-block;
+		vertical-align: middle;
+	}
+
+	.p div{
+		*display:inline;专门给IE6和IE7用的兼容语法
+	}
+
+---
+
+第二天：
+
+	解决苹果浏览器的兼容问题：
+	1.父盒子设置
+	letter-spacing:-8px;负值对其他浏览器无效
+	2.初始化css设置：letter-spacing:normal;
+	因为设置时的属性比继承时的属性优先级要高！！！
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+

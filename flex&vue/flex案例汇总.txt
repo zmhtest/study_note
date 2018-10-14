@@ -1,0 +1,226 @@
+flex案例汇总
+
+1.flex容器的特性：
+
+	.container{
+		display: flex;
+		width: 500px;
+		height: 500px;
+		border: 1px solid red;
+		background: gray;
+	}
+
+	项目不设置height属性，它将会向下拉伸充满容器的高度，这一特性为 使用margin:auto来实现垂直居中提供了可能！！！
+	.item{
+		width: 100px;
+		background: #ccc;
+	}
+
+---
+2. flex容器的项目没有margin重叠与浮动。
+
+	<div class="container">
+		<div class="item" style="float:left;">1</div>
+		<div class="item" style="float:right;">2</div>
+	</div>
+
+	<style>
+
+		/*初始化代码*/
+		*{
+			margin:0;
+			padding: 0;
+			list-style:none;
+		}
+		.container{
+			display: flex;
+			width: 300px;
+			height: 500px;
+			border: 1px solid red;
+			background: gray;
+			margin: 20px;
+		}
+
+		/*使用flex后，量元素之间margin正常相加，没有margin重叠现象*/
+		/*就算项目设置了float，也是不起任何作用！*/
+		.item{
+			width: 100px;
+			height: 100px;
+			margin:10px 10px;
+			background: #ccc;
+		}
+	</style>	
+
+---
+
+3. 有关margin重叠 
+
+	/*初始化代码*/
+		*{
+			margin:0;
+			padding: 0;
+			text-decoration:none;
+			list-style:none;
+		}
+		.container{
+			width: 300px;
+			height: 500px;
+			border: 1px solid red;
+			background: gray;
+			margin: 20px;
+		}
+
+		/*浮动元素不存在margin重叠问题，元素间的距离是两个margin值之和。*/
+		.item{
+			float:left;
+			width: 100px;
+			height: 100px;
+			margin:10px 10px;
+			background: #ccc;
+		}
+
+		/*普通块元素，margin重叠，只显示其中较大margin值*/
+		.item{
+			width: 100px;
+			height: 100px;
+			margin:10px 10px;
+			background: #ccc;
+		}
+	</style>
+
+---
+
+4. flex容器直接子元素转为block
+
+	<div class="container">
+		<a href="#">1</a>
+		<a href="#">2</a>
+	</div>
+
+	<style>
+		.container{
+			display: flex;
+			width: 500px;
+			height: 500px;
+			border: 1px solid red;
+			background: gray;
+		}
+		
+		/*flex容器内的a转为了block，可以设置width，height.
+		文字垂直居中：line-height=height即可*/
+		a{
+			height: 50px;
+			width: 50px;
+			text-decoration: none;
+			color:white;
+			text-align: center;
+			line-height: 50px;
+		}
+	</style>	
+
+---
+
+5. 容器属性测试：
+
+	<div class="container">
+		<div class="item" >1</div>
+		<div class="item" >2</div>
+		<div class="item" >3</div>
+		<div class="item" >4</div>
+		<div class="item" >5</div>
+		<div class="item" >6</div>
+	
+	</div>
+
+		.container{
+			display: flex;
+
+			/*设置主轴方向 换行*/
+			flex-flow:row wrap;
+
+			/*设置项目在主轴方向上的排列*/
+			/*justify-content: flex-start;*/
+
+			/*justify-content: flex-end;*/
+
+			/*justify-content: center;*/
+
+			/*justify-content: space-around;*/
+
+			/*justify-content: space-between;*/
+
+			/*设置项目在交叉轴上的排列方式*/
+			/*align-items: flex-start;*/
+
+			/*align-items: flex-end;*/
+
+			/*align-items: center;*/
+			align-items: baseline;
+			
+			/*有多行时，设置每条主轴之间的位置*/
+			/*align-content: stretch;*/
+			/*align-content: flex-start;*/
+			/*align-content: flex-end;*/
+			/*align-content: space-around;*/
+			align-content: space-between;
+			
+			width: 300px;
+			height: 500px;
+			border: 1px solid red;
+			background: gray;
+			margin: 20px auto;
+		}
+
+		
+		.item{
+			width: 150px;
+			background: #ccc;
+		}
+	</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,214 @@
+es6知识回顾
+/*function test() {
+	1
+	2setTimeout(function() { //这是异步
+		var name = 'zmh';4
+	}, 1000);
+
+	3return name ; //报错：name is not defined
+}
+
+function test() {
+	1
+	2setTimeout(function() { //这是异步
+		var name = 'zmh';4
+		return name ; 
+	}, 1000);
+
+}3 //在这里，函数结束，函数的返回值就是false！！！
+
+console.log(test())*/
+
+// 通过回调函数访问异步函数中的数据
+/*function test(callback) {
+	
+	let name = 'zmh';//在它的字块中也可以访问到！！！
+	setTimeout(() => {
+		callback(name) ; 
+	}, 1000)
+}
+test(function (data) {
+	console.log(data)
+})*/
+
+// 通过promise来解决
+
+var p = new Promise((resolve,reject)=> {
+
+	//resolve和reject分别表示成功的方法，失败的方法。是方法，可以调用！
+	setTimeout(() => {
+		let name = 'zmh';
+
+		if(Math.random()<0.5){
+			resolve(name);//成功时调用，一般都是成功的
+		}else{
+			reject("失败")
+		}
+	}, 1000)
+})
+
+//then方法接收两个参数，一个是成功的回调处理函数，一个是失败的处理函数（可忽略）
+p.then((data)=>{
+	console.log(data)
+},(err)=>{
+	console.log(err)
+})
+
+function test(resolve,reject) {
+	
+	setTimeout(() => {
+		let name = 'zmh';//在它的字块中也可以访问到！！！
+		resolve(name)
+	}, 1000)
+}
+
+var p = new Promise(test)
+
+p.then(data=>{
+	console.log(data);
+})
+
+// async 和 await
+
+function test() {
+	return "hello world";
+}
+
+console.log(test()); //hello world
+
+// async的作用就是将一个方法编程promise异步方法
+async function test() {
+	return "hello world";
+}
+
+// console.log(test()); //Promise { 'hello world' }
+
+// 获取async方法中的数据
+// 方法1
+var p = test()
+p.then(data=>{
+	console.log(data)
+})
+
+// 方法2,注意await必须设置在async中，也就是说await必须要卸载2一个异步的方法里，因为await会阻塞代码往下执行，直接放在全局是不行的！！！
+async function test_await() {
+	var d = await test() //await 的作用是等待方法执行完，相当于将一个异步的方法变成同步。
+	console.log(d)
+}
+
+// test_await();
+
+async function test() {
+	console.log(2)
+	return "hello world";
+}
+
+async function test_await(){
+	console.log(1)
+	await test()
+	console.log(3)
+}
+
+test_await(); //1 2 3
+
+function getData(){
+
+	return new Promise((resolve,reject)=>{
+
+		setTimeout(() => {
+			var username = "朱明浩";
+			resolve(username);
+		}, 1000)
+	})
+}
+
+// 传统的方法
+var p = getData()
+// console.log(p)
+p.then(data=>{
+	console.log(data)
+})
+
+// 使用await
+async function test(){
+	var data = await getData();//居然直接可以获得promise中resolve的值！！！
+	console.log(data);
+}
+
+test();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：5

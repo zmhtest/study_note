@@ -1,0 +1,53 @@
+第一课
+
+简单介绍：是一款开源的博客系统，但可以二次开发作为cms，商城...门户，咨询网站，
+
+腾讯，新浪，百度，淘宝...都在用，他是非常强大的，务必学好WordPress！！！
+
+第二课
+
+WordPress的本地搭建
+xampp、APPserver
+
+安装好xampp无法启动Apache原因是：httpd-ssl.conf文件中listen 443 监听端口冲突，注释掉即可
+
+还有可能是80端口被其他程序占用，修改httpd.conf文件中listen 80  和servername 80 为其他端口
+
+xampp默认是没有密码的
+
+可以使用flashfxp将WordPress源码上传到服务器空间上，通过访问服务器网站相应目录进行安装
+
+openssl：强大的开源的安全套接字层密码库
+
+MariaDB与MySQL是同一个人写的，用法几乎一样
+
+CGI：common gateway interface 公共网关接口
+
+local value 是当前目录的设置；master value是php.ini 中的设置，前者会覆盖后者
+
+directive：指令  ssl：加密套接字协议层
+
+iconv命令可以将一种字符集文件转换成另一种字符集文件
+
+json：基于js对象的一种数据交换格式
+
+sqlite是一个轻量级别数据库，多用于嵌入式开发，速度快
+
+bitnami是一个开源项目，它产生很多开源软件包，可以直接在浏览器上安装，也就是web应用程序
+
+可以修改php.ini 文件的一下选项改变上传文件大小限制
+upload_max_filesize=2M	
+post_max_size=8M
+
+字符乱码问题真让人搞不懂，一般set names xxx 即可
+最好确保在建表时指定字符集，否则会按照库的字符集，如果建库的时候也没有指定字符集，则会按照mysql服务器中配置文件character_set_server=utf8来作为字符集。
+
+set names gbk 相当于：
+--------------------------+-----
+ character_set_client     | gbk
+ character_set_connection | gbk
+ character_set_results    | gbk
+
+ APPSERV 是很难用的，不建议使用，最好使用PHPstudy或者wampserver，使用起来很方便
+
+ 

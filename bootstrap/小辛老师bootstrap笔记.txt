@@ -1,0 +1,231 @@
+布尔教育bootstrap教程笔记
+
+首先： meta:vp 自动生成 响应式布局 的视口 viewport
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+必须要引入三个文件 
+引入顺序为 bootstrap.min.css-> jquery.min.js-> bootstrap.min.jquery.min.js
+尤其是这两个js文件的顺序不能乱，因为 bootstrap.min.js 是基于 jQuery.min.js 写成的 没有引入jQuery是不能使用的
+
+Bootstrap 是完全开源的。它的代码托管、开发、维护都依赖 GitHub 平台。
+
+在线教程网 http://v3.bootcss.com/getting-started/
+
+如果提示文件找不到很可能是单词拼错了！！！
+
+HTML中
+目录的表示方法：如果是当前目录，直接写 文件名 
+上级目录用两个点 .. 表示 
+/ 只是目录分隔符 
+
+但是在Linux中 / 表示根目录
+
+测试bootstrap是不用连接服务器的，因为他只是用来布局，用到的知识HTML和css以及js，这些都可以直接本地获取，且浏览器就能解释
+
+比较原生的button和 加了 class=btn btn-info 可以看出 bootstrap使用了扁平化设计，更加美观
+
+特别注意：虽然HTML5新标准中 允许标签的属性值不加引号，但是如果是一个属性有多个值的情况，必须要用引号包起来
+比如 class="btn btn-info"
+
+他把全局的字体大小设置为 14px 行高为20px p标签内元素为10px
+
+原生的 字体 是没有任何样式的
+
+bootstrap其实就是内置了很多美观了css类样式，只需要通过简单设置即可形成美丽效果，我们只需要在标签内添加相应的 class 即可
+
+<del>123</del>删除效果
+class='text-left' text-center text-right 可以实现文字位置
+
+为了确保适当的绘制和触屏缩放，需要在 <head> 之中添加 viewport 元数据标签。
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+禁用缩放：在移动设备浏览器上，通过为视口（viewport）设置 meta 属性为 user-scalable=no 
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+Bootstrap 排版、链接样式设置了基本的全局样式。分别是：
+为 body 元素设置 background-color: #fff;
+为所有链接设置了基本颜色 @link-color ，并且当链接处于 :hover 状态时才添加下划线
+
+.container 类 用于固定宽度并支持响应式布局的容器。
+
+.container-fluid 类用于 100% 宽度，占据全部视口（viewport）的容器。
+
+以上这两种 容器类 不能互相嵌套
+
+栅格系统
+随着屏幕或视口（viewport）尺寸的增加，系统会自动分为最多12列
+
+慢一点无所谓 学会就行
+
+使用bootstrap的优点，好处：各个平台兼容，任何大小尺寸的屏幕都可以自适应
+
+内置大量优美的组件，比如按钮，图标，有丰富的字体库，还要分页效果，这一切都只需要加一个 class 即可实现，效率极高
+
+第一次公开课：
+栅格系统：会根据屏幕分辨率的大小自动显示相应数目的列数，最多12列
+一行分为12列
+
+通知IE浏览器采用最新模式
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+对于emmet语法不支持的缩写，可以在snippet.json中相应的位置的添加，但是必须要重启sublime才能生效
+
+容器有两种布局：container ：固定布局，这个容器局页面中间 两边有空白，这是bt对容器div所做的优化
+
+可以看出对于一个固定容器，如果没有设置高度，那么他的高度由他的内容决定，如果加了高度，则显示实际高度，不指定宽度时，默认占满页面宽度
+
+流式布局 class=container-fluid 占满这个屏幕宽度
+
+如何实现苹果那种特效呢？
+
+class=row 表示一行 一行分为12列，列用 col-lg-3 等表示
+
+所有的容器、行、列...都是div加上不同的class组成表示的
+
+以下代码没有一行四列，为什么？无法解释！！！
+		<div class="container" style="">
+			<div class="row">
+				<div class="col-lg-3">第1列</div>
+				<div class="col-lg-3">第2列</div>
+				<div class="col-lg-3">第3列</div>
+				<div class="col-lg-3">第4列</div>
+			</div>
+		</div>
+其实代码是没有错的，只是col-lg 是大屏幕 1200px以上的范围
+
+栅格系统:栅格参数 必须熟记
+
+col-lg-*：lg，large(屏幕>=1200px) PC
+col-md-*：md，middle（992px-1200px）
+col-sm-*：sm,small（768px-992px）小平板
+col-xs-*	（小于768px）手机（超小屏幕）
+
+注意：要在所有的div列中都要设置栅格参数，这样才能自适应显示多少行！！！
+
+一般来说，屏幕越大 我们让他显示越多列 所以 * 就越小
+比如有24列很大的内容，为了兼容各个屏幕，我们可以在每一列div的class中做如下设置
+<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6"></div>
+这样就实现了大屏幕6列，、、、4列，3列，2列
+
+注意：这些列div都包含在一个行div class='row'中，无需设置很多行，记住，行是自动适应的
+
+这样理解，看不见的是12小列，看得见的是由若干小列组成的一个大列 col-lg-2 就是表示一个大列占两个小列  用 12/大列所占的小列数=在这种尺寸屏幕自适应的列数 地方不够再往下添加新的一行
+栅格系统就是这样工作的
+
+在css中 逗号 , 表示并列选择器 将同样的定义应用于多个选择符，可以将选择符以逗号分隔的方式并为组。
+
+辅助类：
+文本颜色，统一整体样式 
+class=text-primary
+class=text-success
+class=text-warning
+class=text-danger
+class=text-info
+class=text-muted
+
+关闭按钮图标，一个小 x 在最右边：<button class="close"><span>&times;</span></button>
+在最左表有一个小三角图标：<span class="caret"></span>
+
+快速浮动：
+块元素、霸道，不管多少内容，始终沾满一行
+行内元素：低调，有多少内容占多大空间
+
+左浮动：pull-left
+右浮动：pull-right
+浮动会将块元素转换成行内元素，不占原来的位置，有多少内容占多大的空间
+清除浮动：clearfix，由于浮动元素是飘在半空中的，所以要在父元素中设置清除浮动，让父元素不受浮动的影响 比如让父元素的边框正常显示
+
+如果想要固定布局，那么整个网页的所有元素标签必须放在container这个div里面
+
+让块元素居中：class=center-block 这里是水平居中
+文本居中：text-center
+
+如何实现垂直居中呢？
+传统方法是：定义好父元素的宽和高，用公式：（父-子）/2的值分别作为left、top
+但是在这里，由于是响应式的，我们并不知道父元素的宽和高
+
+所以方法为；
+在块素中添加css
+
+#div1{
+	position:absolute;
+	left:50%;
+	top:50%;
+	transform:translate(-50%,-50%);/*这句话的意思是，从左从上减去这个父元素的一半，如果只有上面两句，则只是这个块元素的左上角点与父元素的中心对齐，而我们想要的是 子元素的中心点对齐父元素的中心点*/
+}
+应用场景：比如在页面正中间弹出一个登陆注册表单
+
+显示和隐藏
+	visible-lg：只有是大屏幕的时候显示 小屏幕是隐藏
+	hide-lg：只有是大屏幕的时候隐藏 小屏幕是显示
+
+深入理解绝对定位和相对定位：absolute relative
+absolute:将对象从文档流中拖出，使用 left，right，top ， bottom 等属性相对于其最接近的一个最有定位设置的父对象进行绝对定位。
+ 如果不存在这样的父对象，则依据 body 对象。
+ 而其层叠通过 z-index 属性定义,所以只有绝对定位才有层的概念，相当于直升飞机，谁飞得高，重叠部分就显示谁！！！
+
+relative  :　 对象不可层叠，但将依据 left ， right ， top ， bottom 等属性在正常文档流中偏移位置，用的较少
+
+要激活对象的绝对(absolute)定位，必须指定 left ， right ， top ， bottom 属性中的至少一个，并且设置此属性值为 absolute 。
+也就是absolute必须和left top bottom right 配合使用，只有这样才能进行定位
+
+表格 table 
+在table中加 class=table 相当于去了一趟韩国
+
+其他细节：
+1. 条纹状表格：class=table-striped 也就是隔行换色特效
+2. 带边框表格：class=table-bordered 扁平边框
+3. 鼠标悬停效果：class=table-hover 
+4. 表格的颜色：active、success、warning、danger、info 只能在tr或者td上面设置 class=success
+注意：thead 和 tbody 都不是必须的，所以，不能在他们上面设置颜色
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：第三天：
+

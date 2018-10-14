@@ -1,0 +1,42 @@
+第8章 Shell编写字符菜单管理
+
+一.shell函数定义
+function menu(){
+	echo 'this is a func!!';
+}
+
+二.shell函数使用
+menu
+
+三.cat命令的heredoc使用方法
+cat << eof
+	aaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaa
+eof
+
+四.字符界面下字体的颜色控制
+echo -e "\033[30;47m test \033[0m"
+
+五.shell如何包含文件
+vi func.sh
+. menu.sh
+menu  #执行menu.sh中的menu函数
+
+六.while如何写一个死循环
+while true
+do
+	#执行代码
+done
+
+
+字符菜单制作:
+1. 用户添加
+2. 用户删除
+3. 修改密码
+4. 查看硬盘空间使用情况
+5. 查看内存空间使用情况
+6. 退出菜单
+

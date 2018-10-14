@@ -1,0 +1,137 @@
+less教程笔记
+
+BS中使用到less，BS3使用的是less，BS4使用的是sass。
+
+安装与使用：
+
+服务器端：
+npm install -g less
+文件夹中安装： npm install less
+
+lessc example.less example.css
+
+----------------------------------------
+
+在node中运行less
+var less = require('less');
+
+less.render('.class{width:(2+2)}',function(e,output){
+	console.log(output.css);
+});
+
+D:\WWW\less>node test.js
+.class {
+  width: 4;
+}
+
+----------------------------------------
+
+浏览器端使用
+
+1.下载LESSCSS的.js文件。
+
+2.在页面中引入.less文件:<link rel="stylesheet/less" href="example.less" />
+
+注意rel属性的值是stylesheet/less
+
+3.引入 lesscss-1.4.0.min.js
+<script src="lesscss-1.4.0.min.js"></script>
+
+完整代码：
+<link rel="stylesheet/less" tyle="text/css" href="style.less"><!-- less样式文件一定要在引入less.js前先引入 -->
+<script src="less.min.js"></script>
+
+注意：一定要通过 localhost 的方式访问才可以，因为它是基于 xmlhttprequest 对象的 ！！！
+
+sass是基于Rubby编译的，所以不能在浏览器端运行。
+
+dependencies是运行时依赖，devDependencies是开发时的依赖
+与之对应的是 --save 和 --save-dev
+
+----------------------------------------
+gulp中使用：
+1.全局安装gulp cnpm install -g gulp
+2.项目内安装: cnpm install gulp
+3.项目安装gulp-less: cnpm install gulp-less
+4.编写js文件：gulpfile.js
+
+	var gulp = require('gulp');
+
+	var less = requier('gulp-less');
+
+	//定义一个任务less
+	gulp.task('less',function(){
+
+	//指定源，并通过管道函数处理，gulp.dest()定义处理后文件的路径
+		gulp.src('css/*.less').pipe(less()).pipe(gulp.dest('css'));
+
+		// 监视文件变化，只要目录文件发生更改，用 less 任务进行处理。
+		gulp.watch('src/css/*.less',['less']);
+	})
+
+----------------------------------------
+
+变量：
+//指定字符集
+@charset:utf-8;
+
+@color:#ccc;
+
+混入：就是定义一个样式，可以在其他地方引用
+
+支持嵌套：
+	
+	#header{
+
+		h1 {
+
+		}
+
+		h3 {
+
+		}
+
+	}
+
+使用函数：
+
+	#footer {
+		color:func(@red,10%);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

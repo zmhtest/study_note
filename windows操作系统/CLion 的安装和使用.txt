@@ -1,0 +1,143 @@
+CLion 的安装和使用
+
+破解：
+ Install instructions:
+
+ 1) Unpack & Install the software.
+ 2) Chose the license server for your desired platform:
+
+    - ./darwin  - MacOSX  ( x86, x64 )
+    - ./freebsd - FreeBSD ( x86, x64, arm )
+    - ./linux   - Linux   ( x86, x64, arm, arm64 )
+    - ./windows - Windows ( x86, x64 )
+ 
+    You can either run the license server on your pc,
+    or on a (dedicated) server. Independently of the
+    platform, the license server can license clients
+    of any platform.
+
+ 3) Copy the binary of the license server to a permanent
+    directory, such as C:\dvt-jb-lic-server\ or 
+    /opt/dvt-jb-lic-server/
+
+ 4.1) Windows:
+    - Start a command prommpt as an Administrator.
+    - Go to the directory, where you put the license
+      server, using "cd".
+    - Install the license server:
+
+      x64: dvt-jb_licsrv.386.exe -mode install
+      x64: dvt-jb_licsrv.amd64.exe -mode install
+
+      This will install the license server as a 
+      windows service. If you want to remove it
+      again, use "-mode uninstall".
+
+    - Open services.msc and start the service.
+      Alternatively, use "net start" or reboot
+      your pc/server.
+
+ 4.2) *nix:
+   - Go to the directory, where you put the license
+     server.
+
+   - Execute, either as root or using sudo:
+
+     dvt-jb_licsrv.[platform].[arch] -mode install
+
+     where platform is your OS and arch is your system
+     architecture. To uninstall, you can use -mode uninstall.
+     This will install (depending on your service system)
+     a new service.
+
+   - Start this service using your standard service
+     tools.
+
+  5) Start the application and point it to the license server.
+     If you are running the license server on the same host,
+     you can point it to "http://127.0.0.1:1337". Otherwise, 
+     use the ip or hostname of your license server.
+
+  6) Enjoy!
+
+
+  1)解压并安装该软件。
+
+2)选择的许可证服务器所需的平台：
+
+- ./darwin - MacOSX ( x86, x64 )
+
+- ./freebsd - FreeBSD ( x86, x64, arm )
+
+- ./linux - Linux ( x86, x64, arm, arm64 )
+
+- ./windows - Windows ( x86, x64 )
+
+您可以在您的PC上运行的许可证服务器，或(专用)的服务器上。独立的平台，许可证服务器可以许可客户端任何平台。minixiazai
+
+3)许可证服务器的二进制文件复制到永久目录，C:\dvt-jb-lic-server\ or /opt/dvt-jb-lic-server/
+
+4.1)的Windows：
+
+- 启动命令prommpt为管理员。
+
+- 进入目录，其中你把执照服务器，使用“CD”。
+
+- 安装许可证服务器：
+
+64：DVT-jb_licsrv.386.exe - 模式安装
+
+64：DVT-jb_licsrv.amd64.exe - 模式安装minixiazai
+
+这将安装许可证服务器作为Windows服务。如果你想删除它再次，用“ - 模式卸载”。
+
+- 打开services.msc，然后启动该服务。
+
+另外，使用“网启动”或重启您的PC /服务器。
+
+4.2)* nix中：
+
+- 进入目录，其中你把执照服务器。
+
+- 执行，无论是作为root或使用sudo：
+
+DVT-jb_licsrv。[platform]。[arch]安装-MODE其中，平台是您的操作系统和arch是您的系统建筑。要卸载，你可以使用 - 模式卸载。
+
+这将安装(取决于您的服务系统上)
+
+一个新的服务。
+
+- 使用标准的服务启动此服务
+
+工具。
+
+5)启动应用程序并将其指向许可证服务器。
+
+如果在同一台主机上运行的许可证服务器，
+
+你可以点到“http://127.0.0.1:1337”。除此以外，
+
+使用许可证服务器的IP或主机名。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

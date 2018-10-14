@@ -1,0 +1,371 @@
+燕十八git教程
+
+安装 :  command prompt 命令提示符
+terminal emulator 终端仿真程序
+console window 控制台窗口
+custom setup 自定义安装
+
+
+git是一个分布式版本控制工具（每台电脑都是对等的），他与svn不同的是，git有一个本地服务器，有本地仓库，同时可以连接到远程服务器，比如github
+
+在git中，每个用户的电脑本地都有这个项目的完整信息，可以完全脱离网络服务器来独立使用，网络服务器只是本地的一个副本 
+
+也就是说git相当于有两个服务器，一个是每个开发者独有的本地服务器库，另一个是在网络上的服务器库（一般用于共享代码），本地用户完成了一个项目，commit到本地服务器，然后在把本地服务器上的所有代码push到远程的服务器上
+
+git的特点：
+分布式，强调个体
+公共服务器压力和数据量都不会太大 如果是svn 所有开发者都要连接到一个svn服务器
+速度快、灵活 本地仓库读取，自然很快
+任意两个开发者之间可以很容易的解决冲突
+离线工作
+每日工作备份
+可以吃后悔药
+
+开源项目的工作流程：人物：主开发者 普通开发者 公共服务器 每个开发者本地服务器 
+权限：主开发者可以往公共服务器push权威代码
+普通开发者只能通过pull拉取公共服务器上由主开发者提供的代码，不能直接往公共服务器提交代码，如果确实要，只能把补丁发给主开发者，审核，在决定是否push到公共服务器
+普通开发者之间也是通过发补丁的方法解决冲突
+
+git的常用命令：
+
+1. 创建git资源库
+	git init --bare 库名称
+	
+2. 在用户文件夹下把资源clone下来
+	git clone <仓库目录> /g/software/repository/git/itheima <用户目录> .
+	注意：clone时候用户目录必须为空
+
+3. 创建一个文件，纳入到版本控制中。
+	git add <文件名>
+	第一次执行会出警告：warning: LF will be replaced by CRLF in readme.txt.
+						The file will have its original line endings in your working directory.
+	警告处理：需要配置用户信息
+					git config user.name = "zhangsan"
+					git config user.email = "itheima@gmail.com"
+					
+4. 提交到本地版本库里。
+	git commit <文件名>
+	
+5. 推送到远程共享版本库中
+	git push origin master origin为远程库URL地址，master为本地主分支
+	
+6. 切换用户，拉取最新的文件，也就是拉去别人提交到服务器上的最新文件
+	git pull
+
+
+git与svn的命令对比：
+
+git命令 	svn命令
+
+clone		checkout
+pull		update
+push		commit
+commit
+
+git pull 之后有冲突:
+
+$ git pull
+remote: Counting objects: 5, done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 0), reused 0 (delta 0)
+Unpacking objects: 100% (3/3), done.
+From g:/software/repository/git/itheima26
+   50db030..a04027a  master     -> origin/master
+Auto-merging readme.txt
+CONFLICT (content): Merge conflict in readme.txt
+Automatic merge failed; fix conflicts and then commit the result.
+
+
+解决方法:
+1.git mergetool
+	调用上面命令之后会提示你输入编辑方法,输入:beyond compare 进入编辑器.解决冲突时只要编辑红色部分，确定要保存那部分内容
+
+2.编辑完之后.调用git commit -a 把当前目录中所有都提交到本地库中.
+
+3.git push origin master 提交到远程库中.
+
+
+由于tortoisegit和tortoisesvn是同一个公司出的，所以，操作雷同
+只是该类对应的命令 clone（首次使用git时，签出服务器的所有代码） pull（相当于update本地数据为服务器最新版本） push（推送到服务器） commit（提交到本地）
+
+解决冲突的方法也是一样的，
+当push到服务器提示冲突时，使用pull拉取服务器最新版本回来，此时又提示冲突，然后编辑冲突edit conflict 保存 标记为resolve 然后提交 提交完后再push 
+git很只能，以上操作都是一环扣一环的！！！
+
+
+如何打包补丁，合并补丁呢？
+在目录下点击 create patch serial
+普通开发者之间可以通过邮件发送补丁，当收到补丁后，放到指定目录，apply patch应用补丁，此时又生成新的合并过后的补丁，然后再通过邮件发送给主开发者，让他审核，判断是否推送到公共服务器上
+
+ 注意：如果有多个补丁，在打补丁的时候一定要按照先后顺序，因为有些补丁是建立在其他补丁的基础之上的
+
+ 如果本地文件和补丁文件有冲突，是不能合并补丁的，此时又回到编辑冲突了（注意先不关闭应用补丁窗口，解决冲突后再关），解决完冲突后，再次应用补丁即可
+
+我的开源中国上的账号 1780858508@qq.com pwd:zmh123
+
+传智播客github详细教程笔记
+
+官网：https://github.com/
+
+在gitbash中利用命令行的方式创建一个版本库，克隆远程github上的
+
+echo "# yii2" >> README.md
+//往个readme文件写入内容，如果不存在文件则创建，在写入，这是markdown的写法
+
+git init
+//初始化本地库，产生一个.git隐藏文件夹，这是本地master分支
+
+git add README.md
+//添加到暂存区
+
+git commit -m "first commit"
+//提交到本地版本库里
+
+git remote add origin https://github.com/zmh19941223/yii2.git
+在本地库的 config文件中加了：
+[remote "origin"]
+	url = https://github.com/zmh19941223/yii2.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+这样，origin就代表URL地址下的远程库
+
+
+git push -u origin master
+把本地的分支master推送到远程仓库
+此时，会弹出一个窗口，要求输入github的用户名和密码
+如果当前分支与多个主机存在追踪关系，则可以使用-u选项指定一个默认主机，这样后面就可以不加任何参数使用Git push。
+
+注意：只要本地目录用 git init生成了.git文件夹，无论是用gitbash 或者用 小乌龟 都是可以识别的，也就是都可以修改，读取.git 下的配置文件...所以可以正常提交commit，push，推送到远程！！！
+
+什么是pull request呢？也就是两个开发者 交流，合并分支
+有一个仓库，叫Repo A。你如果要往里贡献代码，首先要Fork这个Repo，于是在你的Github账号下有了一个Repo A2,。然后你在这个A2下工作，Commit，push等。然后你希望原始仓库Repo A合并你的工作，你可以在Github上发起一个Pull Request，意思是请求Repo A的所有者从你的A2合并分支。如果被审核通过并正式合并，这样你就为项目A做贡献了
+
+
+注意：使用哪个github账号登录，就代表你有权限修改哪个用户的信息，你可以通过你的账号访问任何人的github仓库，只要你有他们仓库的地址即可
+fork操作：把别人的整个项目全部拷贝到你的一个新的仓库中，一个项目对应一个仓库
+fork后仓库是独立存在的
+
+watch：意思即是查看 关注 订阅，当你关注的项目有了更改，就会显示在你的github首页，也就是动态
+
+starred：收藏你喜欢的项目
+
+Issue事务卡片，用于交流，沟通
+
+删文件：git rm xxx.txt
+		git commit -m "xxx"
+
+问题及解决方法：
+D:\gitrepo>git push -u origin master
+fatal: unable to access 'https://gitee.com/zmh_mm/lianshou.git/': error setting certificate verify locations:
+  CAfile: D:/soft/Gitbash/mingw32/libexec/ssl/certs/ca-bundle.crt
+  CApath: none
+
+D:\gitrepo>git config --system http.sslverify false		
+重新执行命令即可。
+
+
+燕十八Git教程
+
+
+#全局设置本地仓库的用户名和邮箱
+git config --global user.name "forever"
+git config --global user.email "1780858508@qq.com"
+
+
+创建 git 仓库:
+
+mkdir lianshou
+cd lianshou
+git init
+touch README.md
+git add README.md
+git commit -m "first commit"
+
+# 这个origin仅仅是远程的名字！
+git remote add origin https://gitee.com/zmh_mm/lianshou.git
+
+#下面的origin也可以直接用一个地址代替。
+git push -u origin master
+回车后，提示输入用户和密码，这个是远程仓库的用户名和密码，一般是项目经理提供给开发者的。注意区分和本地仓库的用户名和密码区分。本地仓库的用户就相当于一个个不同的开发者！！！
+
+已有项目?
+cd existing_git_repo
+git remote add origin https://gitee.com/zmh_mm/lianshou.git
+git push -u origin master
+
+团队开发：
+以码云为例：
+1.在项目管理中添加项目成员，添加成员只是给他一个提交的权限，在码云或者GitHub上显示的通过 git config --global user.name "xxx" 设置的名字，一般来说，一台电脑对应一个开发者。
+2.git clone 远程仓库地址
+
+another developer：
+更新：git pull origin(远程仓库地址)
+
+查看日志：git log
+D:\gittest>git log
+commit 31edcaf2e0701d633dcfa5b6f2e0c4b1451287f9
+Author: forever <1780858508@qq.com>
+Date:   Tue Feb 13 09:18:21 2018 +0800
+
+    new 2.txt
+查看简短日志：git log --pretty=oneline
+
+利用版本号来回退：git reset --hard 版本号
+
+注意：只需要能够区分出各个版本即可。
+
+D:\gittest>git reset --hard 65a7a
+HEAD is now at 65a7afa new 1.txt
+
+详细日志：git reflog
+看准，然后再切换版本。
+
+分支管理：
+为什么要分支：方便开发者添加新功能或者修bug，git中的分支只记住差异的部分，而svn是直接复制一份。
+不要轻易改动master主分支，
+正确的操作是：先创建分支，进行开发或者维护，然后提交到主分支。
+
+查看分支：git branch
+
+创建分支：git branch WeChat
+
+切换分支：git checkout wechat
+
+创建分支
+D:\gittest>git branch wechat
+
+D:\gittest>git branch
+* master #当前分支
+  wechat
+
+#切换分支
+D:\gittest>git checkout wechat
+Switched to branch 'wechat'
+
+#在新分支下改动后，再次add和commit
+D:\gittest>git add .
+
+D:\gittest>git status
+On branch wechat
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        modified:   1.txt
+
+
+D:\gittest>git commit -m "add branch"
+[wechat 989206d] add branch
+ 1 file changed, 1 insertion(+)
+
+#提交完成，继续修改新bug
+
+#切换到主分支
+D:\gittest>git checkout master
+Switched to branch 'master'
+Your branch is up-to-date with 'origin/master'.
+
+#创建一个新分支，以便修bug
+D:\gittest>git branch ali
+
+#切换到新分支
+D:\gittest>git checkout ali
+Switched to branch 'ali'
+
+#修完bug后add和commit
+D:\gittest>git add .
+
+D:\gittest>git commit -m "fixbugfoorali"
+[ali 832b6ad] fixbugfoorali
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 fixbugforali.txt
+
+#最后，将两次分支改动合并到主分支
+
+#切换到主分支
+D:\gittest>git checkout master
+Switched to branch 'master'
+Your branch is up-to-date with 'origin/master'.
+
+#合并分支
+D:\gittest>git merge ali
+Updating 31edcaf..832b6ad
+Fast-forward
+ fixbugforali.txt | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 fixbugforali.txt
+
+#再次合并
+D:\gittest>git merge wechat
+Merge made by the 'recursive' strategy.
+ 1.txt      | 1 +
+ wechat.txt | 0
+ 2 files changed, 1 insertion(+)
+ create mode 100644 wechat.txt
+
+如果出现冲突，手动编辑，然后add，commit即可。
+
+删除分支：git branch -d wechat
+
+快速创建和切换分支:git checkout -b newBranch
+
+远程仓库：
+
+#查看远程仓库别名
+D:\gittest>git remote
+origin
+D:\gittest>git remote -v
+origin  https://gitee.com/zmh_mm/lianshou.git (fetch)
+origin  https://gitee.com/zmh_mm/lianshou.git (push)
+
+#移除远程仓库别名
+D:\gittest>git remote remove origin
+
+D:\gittest>git remote -v
+
+#此时已经不能通过origin进行push了！！！
+D:\gittest>git push origin master
+fatal: 'origin' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+配置ssh公钥：
+1.删掉https的origin
+2.
+
+查看配置信息：git config -l
+C:\Users\Administrator>git config -l
+http.sslverify=false
+user.name=forever
+user.emai=1780858508@qq.com
+user.email=1780858508@qq.com
+
+1.如何生成ssh公钥
+
+你可以按如下命令来生成 sshkey: 
+
+ssh-keygen -t rsa -C "xxxxx@xxxxx.com"  
+
+# Generating public/private rsa key pair...
+# 三次回车即可生成 ssh key
+
+查看你的 public key，并把他添加到码云（Gitee.com） SSH key添加地址:https://gitee.com/profile/sshkeys)
+
+添加后，在终端（Terminal）中输入
+$ ssh -T git@gitee.com
+Welcome to Gitee.com, forever!
+则证明添加成功。
+
+
+重要说明：
+如果配置 ssh 公钥
+克隆时如果采用ssh方式克隆到本机，git remote -v 是 ssh 地址，push时也是不需要输入账号密码的！！！
+如果采用 https 方式，同样要输入已授权的用户和密码！！！
+
+windows命令行不能运行 ssh-keygen 
+要用 gitbash.exe 运行，然后复制公钥 .pub 到GitHub中的公钥，然后生成。
+
+
+
+
+

@@ -1,0 +1,706 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"succe",
+				"successfully"
+			],
+			[
+				"bo",
+				"body"
+			],
+			[
+				"resol",
+				"resolve\t.resolve()"
+			],
+			[
+				"resolve",
+				"resolve"
+			],
+			[
+				"set",
+				"setTimeout\tsetTimeout()"
+			],
+			[
+				"func",
+				"func (*myhandel)\tfunc (...) {...} ʂ"
+			],
+			[
+				"fun",
+				"func"
+			],
+			[
+				"Hand",
+				"HandlerFunc\tfunc(http.ResponseWriter, *http.Request) ʈ"
+			],
+			[
+				"Wri",
+				"WriteString\tn int, err error ƒ"
+			],
+			[
+				"htt",
+				"http\t package ρ"
+			],
+			[
+				"respo",
+				"ResponseWriter\tinterface ¡"
+			],
+			[
+				"imp",
+				"import\timport (...) ʂ"
+			],
+			[
+				"im",
+				"import\timport (...) ʂ"
+			],
+			[
+				"fmt",
+				"fmt.Println"
+			],
+			[
+				"requ",
+				"require('http"
+			],
+			[
+				"var",
+				"var〔keyword〕"
+			],
+			[
+				"font",
+				"font-size"
+			],
+			[
+				"fu",
+				"function"
+			],
+			[
+				"wid",
+				"width"
+			],
+			[
+				"displ",
+				"display"
+			],
+			[
+				"j",
+				"jquery.min.js"
+			],
+			[
+				"display",
+				"displayCount"
+			],
+			[
+				"prepa",
+				"prepare(\"select"
+			],
+			[
+				"hello",
+				"helloworld"
+			],
+			[
+				"var_dump",
+				"var_dump($res"
+			],
+			[
+				"func_get_",
+				"func_get_args"
+			],
+			[
+				"age",
+				"age=23"
+			],
+			[
+				"file",
+				"filename"
+			],
+			[
+				"PDO",
+				"PDOException"
+			],
+			[
+				"tex",
+				"text-center"
+			],
+			[
+				"btn-",
+				"btn-default"
+			],
+			[
+				"ajax",
+				"ajax_del"
+			],
+			[
+				"tag",
+				"strip_tags"
+			],
+			[
+				"k",
+				"ku.jpg"
+			],
+			[
+				"json_",
+				"json_encode"
+			],
+			[
+				"tr",
+				"true"
+			],
+			[
+				"ife",
+				"ife\tif … else"
+			],
+			[
+				"mouse",
+				"mouseout"
+			],
+			[
+				"col",
+				"color"
+			],
+			[
+				"de",
+				"development"
+			],
+			[
+				"consol",
+				"console.log"
+			],
+			[
+				"inner",
+				"innerHTML"
+			],
+			[
+				"has",
+				"has-error"
+			],
+			[
+				"f",
+				"f\tAnonymous Function"
+			],
+			[
+				"flex",
+				"flex-end"
+			],
+			[
+				"cono",
+				"console.log"
+			],
+			[
+				"for",
+				"for\tfor (…) {…}"
+			],
+			[
+				"new",
+				"newBook"
+			],
+			[
+				"spa",
+				"space-around"
+			],
+			[
+				"space",
+				"space-between"
+			],
+			[
+				"ex",
+				"exports.str"
+			],
+			[
+				"con",
+				"console.log"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					""
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Run"
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Test"
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Install"
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Cross-Compile (Interactive)"
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Clean"
+				],
+				[
+					"Packages/GoSublime/GoSublime.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/Golang Build/Go.sublime-build",
+				"Run"
+			]
+		],
+		[
+			[
+				[
+					"Packages/SASS Build/SASS - Compressed.sublime-build",
+					""
+				],
+				[
+					"Packages/SASS Build/SASS.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/SASS Build/SASS.sublime-build",
+				""
+			]
+		],
+		[
+			[
+				[
+					"Packages/lessc/lessc.sublime-build",
+					""
+				],
+				[
+					"Packages/lessc/lessc.sublime-build",
+					"Non-Minified"
+				]
+			],
+			[
+				"Packages/lessc/lessc.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 203.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control in",
+				"Preferences: Package Control Settings – Default"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package→安装插件"
+			],
+			[
+				"Package Control: i",
+				"Package Control: Install Package"
+			],
+			[
+				"autop",
+				"Autoprefix CSS"
+			],
+			[
+				"auto",
+				"Autoprefix CSS"
+			],
+			[
+				"Package Control:i",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				":q",
+				"Snippet: header&footer-quote"
+			],
+			[
+				":w",
+				":w - Save"
+			],
+			[
+				":G",
+				"Snippet: groups"
+			],
+			[
+				"Package Control: in\t",
+				"Package Control: Install Package→安装插件"
+			],
+			[
+				"install",
+				"Package Control: Install Package→安装插件"
+			],
+			[
+				"in",
+				"Package Control: Install Package→安装插件"
+			],
+			[
+				"i",
+				"Package Control: Install Package→安装插件"
+			]
+		],
+		"width": 540.0
+	},
+	"console":
+	{
+		"height": 130.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)",
+			"node 01.js",
+			"node"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/F/学习笔记",
+		"/F/学习笔记/linux",
+		"/F/学习笔记/windows操作系统",
+		"/F/学习笔记/素质拓展"
+	],
+	"file_history":
+	[
+		"/F/学习笔记/linux/1-5-Vim编辑器和恢复ext4下误删除的文件-Xmanager工具-随堂笔记.docx",
+		"/F/学习笔记/linux/debian 的使用.txt",
+		"/F/学习笔记/linux/1-4-文件系统的管理方法和xfs文件系统备份恢复-随堂笔记.docx",
+		"/F/学习笔记/linux/fori.sh",
+		"/F/大学/我的简历/我的简历",
+		"/D/soft/Sublime Text/Data/Packages/Package Control/Package Control.sublime-settings",
+		"/F/学习笔记/linux/shell脚本编程.txt",
+		"/F/学习笔记/linux/云之梦-强哥shell教程笔记",
+		"/F/学习笔记/linux/MK-centos6.txt",
+		"/F/学习笔记/linux/MK-centos 7的使用.txt",
+		"/F/学习笔记/linux/荔枝.txt",
+		"/F/学习笔记/linux/强哥Linux/第2章 Shell文件权限和脚本执行(云知梦资料)/授课笔记.txt",
+		"/D/soft/Sublime Text/Data/Packages/User/Preferences.sublime-settings",
+		"/D/soft/Sublime Text/Data/Packages/Default/Preferences.sublime-settings",
+		"/F/学习笔记/linux/1-2-Linux基本操作和自己动手组装服务器-随堂笔记.docx",
+		"/F/学习笔记/linux/物理机安装ubuntu.txt",
+		"/F/学习笔记/linux/test.sh",
+		"/F/学习笔记/linux/老段Linux教程笔记.txt",
+		"/C/Users/Administrator/AppData/Local/Temp/scp17038/root/test.sh",
+		"/C/Users/Administrator/Desktop/test.sh",
+		"/C/Users/Administrator/Desktop/新建文本文档.txt",
+		"/D/基于PHP面向对象的自定义MVC框架高级项目开发12天视频video/PHP-视频下载必看.txt",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/Default/Preferences.sublime-settings",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/User/Preferences.sublime-settings",
+		"/C/Users/Administrator/Desktop/百度网盘直接下载助手修改版 (1).user.js",
+		"/E/小米路由器/breed_Web/使用说明.txt",
+		"/F/学习笔记/燕十八php+linux+前端/燕十八shell编程.txt",
+		"/F/学习笔记/账号文件.txt",
+		"/E/小米路由器/breed_Web/breed.txt",
+		"/D/WWW/docker/docker-training/centos7/Dockerfile",
+		"/E/Program/Vim/vim80/01.txt",
+		"/C/Users/Administrator/Desktop/docker-ce.repo",
+		"/C/Users/Administrator/Documents/NetSarang Computer/6/Xftp/Temporary/Dockerfile.txt",
+		"/C/Users/Administrator/AppData/Local/Temp/passwd",
+		"/C/Users/Administrator/AppData/Local/Temp/package-lock.json",
+		"/D/rt-n56u/readme.eng.txt",
+		"/D/rt-n56u/changes.eng.txt",
+		"/D/rt-n56u/readme.rus.txt",
+		"/G/xiaomi_config/xiaomi_extSharePath.cfg",
+		"/C/Users/Administrator/Desktop/adm",
+		"/C/Users/Administrator/Desktop/User/GoSublime/windows-x32/log.txt",
+		"/C/Users/Administrator/Desktop/百度网盘直接下载助手修改版.user.js",
+		"/C/Users/Administrator/Desktop/百度网盘直接下载助手.user.js",
+		"/G/linux/鸟哥的私房菜linux视频教程/目录.txt",
+		"/G/linux/linux资料/linux用户管理.txt",
+		"/F/学习笔记/linux/ubuntu的使用.txt",
+		"/D/WWW/docker/docker-training/wordpress/init.sh",
+		"/D/WWW/docker/docker-training/mysql/scripts/firstrun_maria",
+		"/D/WWW/docker/docker-training/testent/Dockerfile",
+		"/D/WWW/docker/docker-training/test/Dockerfile",
+		"/F/学习笔记/linux/Ubuntu17的配置.txt",
+		"/G/linux/shell视频讲解/笔记.txt",
+		"/G/linux/尚观Linuxshell视频讲解/笔记.txt",
+		"/C/Users/Administrator/Downloads/mima.txt",
+		"/C/Users/Administrator/Desktop/测试乱码.txt",
+		"/F/下载/01 angular4.x、anuglar2、angular5入门实战视频教程 1-8讲 基础-IT营/03angularjs组件 声明属性 绑定数据 绑定属性 数据循环1(上)/angulardemo03/package.json",
+		"/F/学习笔记/docker相关/docker.txt",
+		"/D/WWW/docker/docker-training/php-fpm/Dockerfile",
+		"/D/WWW/docker/docker-training/mysql/Dockerfile",
+		"/D/WWW/docker/docker-training/README.md",
+		"/C/Users/Administrator/AppData/Local/Temp/HZ$D.358.3075/HZ$D.358.3076/观看说明（必看）.txt",
+		"/C/ProgramData/Docker/config/daemon.json",
+		"/D/WWW/angular5/package.json",
+		"/D/WWW/koa/middleware.js",
+		"/D/WWW/koa/中间件执行流程.js",
+		"/D/WWW/go/src/template.go",
+		"/D/WWW/koa/router.js",
+		"/D/WWW/koa/01.js",
+		"/F/下载/02Koa2+MongoDB基础免费教程-（20讲）IT营大地2018年录制/03学习Koa之前的一些准备工作Promise async await 的使用方法（必看）/es6常用语法  async await/02async await.js",
+		"/D/WWW/koa/es6.js",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/User/Base File.sublime-settings",
+		"/F/下载/02Koa2+MongoDB基础免费教程-（20讲）IT营大地2018年录制/01Koa框架介绍以及Koa环境搭建/01 hello_koa/app.js",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/HTML-CSS-JS Prettify/HTMLPrettify.sublime-settings",
+		"/D/WWW/koa/koa2/package.json",
+		"/F/下载/02Koa2+MongoDB基础免费教程-（20讲）IT营大地2018年录制/01Koa框架介绍以及Koa环境搭建/01 hello_koa/package.json",
+		"/D/WWW/koa/package.json",
+		"/F/下载/02Koa2+MongoDB基础免费教程-（20讲）IT营大地2018年录制/完整教程地址(1).txt",
+		"/D/WWW/go/src/http1.go",
+		"/D/GO/无闻go-web-foundation-1/lectures/lecture1/lecture1.md",
+		"/D/WWW/koa/koa2/app.js",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/Theme - Soda/Soda Dark 3.sublime-theme",
+		"/F/下载/GO/go-fundamental-programming-master/lectures/lecture10.md",
+		"/D/GO/beedoc-master/zh-CN/about.md",
+		"/D/GO/beedoc-master/zh-CN/quickstart.md",
+		"/D/WWW/go/src/hello.go",
+		"/C/Users/Administrator/Desktop/go-fundamental-programming-master/lectures/lecture1.md",
+		"/C/Users/Administrator/Desktop/go-fundamental-programming-master/README.md",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/GoSublime/9o.md",
+		"/F/学习笔记/IDE的使用/Atom使用笔记.txt",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/GoSublime/CHANGELOG.md",
+		"/D/WWW/go-test/src/main.go",
+		"/H/开发软件/SVN相关/Apple/新建文本文档.txt",
+		"/D/WWW/node-itying/router/service1_model.js",
+		"/F/学习笔记/IDE的使用/nodepad++的使用.txt",
+		"/F/学习笔记/nodejs/nodejs.txt",
+		"/D/soft/npp.7.5.6.bin/readme.txt",
+		"/D/WWW/node-itying/router/model/service1_router.js",
+		"/F/学习笔记/软件安装/如何给nodepa++安装插件.txt",
+		"/D/WWW/node-itying/mongodb/expressservice_model.js",
+		"/D/WWW/node-itying/express_ejs/express_ejs.js",
+		"/D/WWW/node-itying/filesystem.js",
+		"/D/WWW/node-itying/common.js",
+		"/D/WWW/node-itying/async.js",
+		"/D/WWW/node-itying/router/expressservice_model.js",
+		"/D/WWW/node-itying/router/model/express_router.js",
+		"/F/下载/nodejs-IT营/21NodeJs操作MongoDb数据库 查询数据ejs显示列表 - avi/nodejs_mongodb/package.json",
+		"/F/下载/nodejs-IT营/21NodeJs操作MongoDb数据库 查询数据ejs显示列表 - avi/nodejs_mongodb/03nodejs_mongodb.js",
+		"/F/下载/nodejs-IT营/15 Nodejs封装一个类似express框架的路由（下）-avi/08 nodejs router/model/express-route.js",
+		"/F/下载/nodejs-IT营/23 express  ejs使用 静态文件托管 - avi/express_ejs 路由_demo/package.json",
+		"/F/下载/nodejs-IT营/21NodeJs操作MongoDb数据库 查询数据ejs显示列表 - avi/说明.txt",
+		"/F/学习笔记/数据库与缓存/燕十八mogodb.txt",
+		"/F/学习笔记/数据库与缓存/mogodb.txt",
+		"/D/WWW/GoodsController.php",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/ColorPicker/ColorPicker.sublime-settings",
+		"/D/WWW/inline-block/01.html",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/User/ColorHighlighter.sublime-settings",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/Color Highlighter/ColorHighlighter.sublime-settings",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/ConvertToUTF8/ConvertToUTF8.sublime-settings",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/User/ConvertToUTF8.sublime-settings",
+		"/D/WWW/web.php",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/AutoFileName/autofilename.sublime-settings",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/User/ColorPicker.sublime-settings",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/DocBlockr/README.md",
+		"/D/WWW/testCodeintel/test.js",
+		"/D/soft/Sublime Text 3.3142 x86/Data/Packages/User/SublimeCodeIntel.sublime-settings",
+		"/D/WWW/testCodeintel/phpinfo.php",
+		"/D/WWW/phpinfo.php",
+		"/F/学习笔记/自动化构建工具/gulp.txt"
+	],
+	"find":
+	{
+		"height": 29.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"elif",
+			"tr",
+			"statements",
+			"shell",
+			"statements",
+			"shell",
+			"shell基础",
+			"shell编程",
+			"init2",
+			"init1",
+			">\n",
+			"shell",
+			"bigfile"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"int1"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"folders":
+	[
+		{
+			"path": "F:\\学习笔记"
+		}
+	],
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 29.0
+	},
+	"input":
+	{
+		"height": 45.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.9o://D:\\WWW\\go\\src":
+	{
+		"height": 155.0
+	},
+	"output.9o://D:\\WWW\\koa":
+	{
+		"height": 275.0
+	},
+	"output.GoSublime-output":
+	{
+		"height": 175.0
+	},
+	"output.exec":
+	{
+		"height": 40.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.git":
+	{
+		"height": 156.0
+	},
+	"output.godoc-output":
+	{
+		"height": 175.0
+	},
+	"output.golang_build":
+	{
+		"height": 175.0
+	},
+	"output.gotools_syntax_errors":
+	{
+		"height": 149.0
+	},
+	"output.markdown":
+	{
+		"height": 175.0
+	},
+	"output.mdpopups":
+	{
+		"height": 0.0
+	},
+	"output.nodejs":
+	{
+		"height": 63.0
+	},
+	"pinned_build_system": "Packages/Nodejs/Nodejs.sublime-build",
+	"project": "",
+	"replace":
+	{
+		"height": 54.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"E:\\softTestcode\\day4\\前端基础.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 351.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

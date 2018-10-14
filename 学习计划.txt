@@ -1,0 +1,24 @@
+- 还需要学习的知识有git、svn部分的visualsvn server
+ 
+- 老段的鸟哥私房菜基础到服务器，
+ 
+-  韩忠康的MySQL，了解更多关于虚拟机方面的知识，了解云计 算知识 
+
+- 学会使用刘道诚tp和韩顺平zf框架
+
+- 学会使用angularjs和bootstrap
+ 
+- 学会使用smarty模板，能够自己写模板
+ 
+- 重新温习李炎恢jQuery，刘道成JavaScript高级
+ 
+- 重新温习正则、session、cookie、错误处理
+ 
+- 学会使用H5来开发手机应用，学会使用hbuilder
+ 
+- 韩顺平的微信开发系列教程
+ 
+- 还要接触了解ngix和nodejs服务器，常用的nosql型数据库
+ 
+- 有时间的话，深入学习java、Android、c++
+ 

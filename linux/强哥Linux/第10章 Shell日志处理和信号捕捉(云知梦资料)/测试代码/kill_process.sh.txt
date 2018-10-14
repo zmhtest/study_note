@@ -1,0 +1,28 @@
+#!/bin/bash
+#kill_process.sh
+#取得当前进程号
+clear
+#获得特定进程的进程号并重定向到一个临时文件中
+service httpd restart
+sleep 2
+ps -ef |grep httpd|grep -v "grep"
+echo "##########################################################################################"
+pp=$$
+ps -ef |grep "httpd" |grep -v "grep"|awk '{print $2}' >/root/$pp.txt
+ls
+echo "##########################################################################################"
+#命令块开始
+for pid in `cat /root/$pp.txt`
+do
+{
+echo -e "kill -9 $pid\n"
+kill -9 $pid
+}
+done
+#命令块结束
+#删除临时文件
+ls
+echo "##########################################################################################"
+rm -rf /root/$pp.txt
+ls
+~

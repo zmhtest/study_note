@@ -1,0 +1,16 @@
+# Atom的使用
+
+1. 手动安装各种插件：
+先到这个网站搜索插件名：https://atom.io/packages/
+然后：
+cd ~/.atom/packages
+git clone https://github.com/emmetio/emmet-atom
+cd emmet-atom
+npm install
+
+npm install 的作用是，将这个插件包的所有依赖都安装好，这样这个插件包才能正常使用
+
+2. 安装简体中文支持
+同样到https://atom.io/packages/搜索，在GitHub上下载压缩包到~/.atom/packages，直接解压即可使用
+
+这个软件运行速度很慢！！！

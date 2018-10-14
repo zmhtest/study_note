@@ -1,0 +1,136 @@
+sqlite教程笔记 超级简单的
+
+sqlite> .schema department
+CREATE TABLE department(
+id int primary key not null,
+dept char(50) not null,
+emp_id int not null
+);
+
+sqlite> .schema company
+CREATE TABLE company(
+id int primary key not null,
+name text not null,
+age int not null,
+address char(50),
+salary real
+);
+
+.databases
+
+sqlite> .tables
+company     department
+
+sqlite> insert into company (id,name,age,address,salary) values (1,'paul',32,'Califonia',20000.00);
+
+sqlite> INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY)
+ VALUES (5, 'David', 27, 'Texas', 85000.00 ),(6, 'Kim', 22, 'South-Hall', 45000.00 );
+
+sqlite> INSERT INTO COMPANY VALUES (7, 'James', 24, 'Houston', 10000.00 );
+
+sqlite> .header on
+sqlite> .mode column
+sqlite> select * from company;
+id          name        age         address     salary
+----------  ----------  ----------  ----------  ----------
+1           paul        32          Califonia   20000.0
+2           Teddy       23          Califonia   15000.0
+3           Allen       25          hainan      123000.0
+4           Mark        25          Rich-Mond   65000.0
+5           David       27          Texas       85000.0
+6           Kim         22          South-Hall  45000.0
+7           James       24          Houston     10000.0
+
+
+sqlite> select count(*) from company ;
+4
+sqlite> select avg(age) from company;
+26.25
+sqlite> select sum(age) from company;
+105
+
+sqlite> select current_timestamp;
+current_timestamp = 2018-04-08 12:19:33
+
+sqlite> select (15+5) as addtion;
+
+其实，select更多的是一个输出语句。
+
+DELETE FROM COMPANY WHERE ID = 7;
+
+ UPDATE COMPANY SET ADDRESS = 'Texas' WHERE ID = 6;
+
+
+百分号（%）代表零个、一个或多个数字或字符。下划线（_）代表一个单一的数字或字符。
+
+
+
+SQLite 的 GLOB 运算符是用来匹配通配符指定模式的文本值。如果搜索表达式与模式表达式匹配，GLOB 运算符将返回真（true），也就是 1。与 LIKE 运算符不同的是，GLOB 是大小写敏感的
+星号（*）代表零个、一个或多个数字或字符。问号（?）代表一个单一的数字或字符。
+
+
+SELECT * FROM COMPANY LIMIT 3 OFFSET 2;
+== select * from company order by id limit 2,3;
+
+SELECT * FROM COMPANY ORDER BY NAME DESC;
+
+
+SELECT DISTINCT name FROM COMPANY;
+
+
+CREATE TABLE person(_id integer PRIMARY KEY AUTOINCREMENT,name text,salary real);
+
+--注释
+DROP TABLE IF EXISTS person;
+
+/*创建person表结构*/--注释
+CREATE TABLE IF NOT EXISTS person ( _id integer PRIMARY KEY AUTOINCREMENT, name text, salary real );
+
+--查询库中的所有表,sqlite_master为系统表，存储视图、索引、表结构等信息
+select * from sqlite_master where  type='table';
+
+select * from person  LIMIT 1,3;
+
+--查询表的构造语句，相当于 .schema tablename
+select sql from sqlite_master where tbl_name='person';
+
+insert into person (name,salary) values ('小花',NULL),('小李',5000.00),('明浩',7000.00),('杏子',4000.00),('宇轩',8000.00),('名师',5500.00);
+
+SELECT MIN(salary) '最低工资',max(salary) '最高工资',avg(salary) '平均工资',COUNT(*) '总人数' from person;
+
+
+select salary from person GROUP BY salary ;
+
+
+
+测试：
+1.黑盒：测试功能是否满足要求，如果满足，则不需要考虑性能。
+2.白盒：测试代码性能
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：sqlite表达式
+
+

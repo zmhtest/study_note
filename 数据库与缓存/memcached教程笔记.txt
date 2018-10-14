@@ -1,0 +1,185 @@
+燕十八memcached教程笔记
+
+memcached介绍：自由开源、高性能、分布式内存对象缓存系统。是一个老牌的nosql应用。
+
+nosql：not only SQL 不仅仅是关系型数据库
+显著特点:key-value键值对存储，或基于文档存储。
+
+安装：
+1.Windows下：
+安装：memcached.exe -d install
+启动：memcached.exe -d start
+停止：memcached.exe -d stop
+增长因子：memcached.exe -f
+用户：memcached.exe -u 
+查看帮助：memcached.exe -h
+卸载：memcached.exe -d uninstall
+设定最大缓存多大：memcached.exe -m 512
+
+自定义启动：memcached.exe -m 64 -p 11211 -vvv
+memcached 的连接：使用的基于文本协议，而不是二进制协议。可使用Telnet与memcached交互。
+
+打开Telnet：首先要在Windows程序和功能中勾选telnet客户端。
+
+hash函数的特点：某个范围内随机；碰撞几率低
+所以说某个数据在内存中的位置是通过函数算出来的，所以查找的速度非常快
+
+语法：add key flag expire length
+
+key:键
+
+flag：标记，可以自定义约定的
+
+expire：有效期，单位 s ，也可以是一个时间戳，作用：做一个限时抢购功能。
+当expire=0表示不自动失效，默认30天，或者等不到30天被挤出去。
+
+length：数据的长度 字节
+
+删除：delete key [time second]
+
+修改数据：replace key flag expire length 
+
+replace b 0 0 5
+hello
+STORED
+
+查数据：
+get b
+VALUE b 0 5
+hello
+END
+
+set 设置和修改值，参数和add一样，功能不一样，没有key时，会add；有这个key时，会replace！
+
+replace只能对已经存在的key修改，而add只能对不存在的key，才能建立此键，但是set是很霸道的，它同时具有add和replace两者的功能！！！
+
+set age 0 0 2
+23
+STORED
+
+incr age 3
+26
+
+get age
+VALUE age 0 2
+26
+END
+
+decr age 2
+24
+无符号的，最小为0
+值是32位无符号+操作，值在0-2^32-1 范围内
+
+应用场景：秒杀功能
+下单要牵涉数据库读取，事务，写磁盘等操作，给服务器带来巨大的压力。
+利用decr，设定一个库存量count=10000，然后逐个递减
+
+stats
+STAT pid 4008
+STAT uptime 3054540510
+STAT time 278088171
+STAT version 1.4.4-14-g9c660c0
+STAT pointer_size 64
+STAT curr_connections 10
+STAT total_connections 18
+STAT connection_structures 11
+
+计算缓存命中率。
+STAT cmd_get 16
+STAT cmd_set 5
+STAT cmd_flush 0
+STAT get_hits 12
+STAT get_misses 4
+
+STAT delete_misses 0
+STAT delete_hits 0
+STAT incr_misses 0
+STAT incr_hits 1
+STAT decr_misses 0
+STAT decr_hits 1
+STAT cas_misses 0
+STAT cas_hits 0
+STAT cas_badval 0
+STAT auth_cmds 0
+STAT auth_errors 0
+STAT bytes_read 400
+STAT bytes_written 484
+STAT limit_maxbytes 67108864
+STAT accepting_conns 1
+STAT listen_disabled_num 0
+STAT threads 4
+STAT conn_yields 0
+STAT bytes 141
+STAT curr_items 2
+STAT total_items 4
+STAT evictions 0
+END
+
+flush_all：清空所有存储对象
+
+stats items 出现 很多的items行
+
+stats cachedump 3 0 这里的3表示items后面的数字，0表示显示全部数据，3表示显示3条数据
+
+memcached内存管理机制：
+
+内存碎片：空闲但又不能被利用的空间。
+
+内存的浪费是不可避免的，看谁能利用的更多而已。
+
+chunk slab
+
+memcached首先把申请到的内存划分成不同的仓库slab，每个slab又划分成一定大小的chunk。
+
+当存取数据时，会自动根据数据的大小，选择适当的chunk来存放。
+
+注意：当合适的chunk满了，并不会选择更大的chunk来存放，而是把合适chunk的旧数据剔除掉！！！
+
+问题：到底踢掉哪些旧数据？根据什么原则？
+
+LRU删除机制：least recently used 最近最少使用
+当请求某个数据时，这个数据就变成最新，其他的数据相应就变旧了一点，当chunk满了，再次add数据时，就会把最旧的数据踢掉。
+
+FIFO：fist in，first out 先进先出（队列）
+
+
+过期与删除机制：
+1.当某个值过期后，并没有立即从内存删除，stats统计是curr_item有其信息。
+这种特性称为惰性失效，lazy expiration。
+好处：节省CPU时间和检测成本。
+
+2.当取值时，判断是否过期，如果过期返回空，并且清空，curr_item 减少
+
+3.没有get一个过期的数据，不会删除，当某个新值去占用它的空间，当成空chunk来占用。
+
+Linux编译memcached
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：3
+
+
+
+
+
+
+
+

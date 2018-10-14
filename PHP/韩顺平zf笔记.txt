@@ -1,0 +1,312 @@
+学习进度：6
+
+如果服务器出现问题无法启动，可以查看Apache目录下的log日志文件
+总结一下使用zf开发的一般步骤：
+1.创建空项目
+2.将zf框架目录结构复制到该项目底下
+3.开启php.ini中的pdo模块
+4.开启Apache的rewrite模块，将所有的allowoverride 设为all，这样.htaccess中所设置的重写规则才能起作用
+5.配置我们的虚拟主机：开启Include conf/extra/httpd-vhosts.conf
+6.在httpd-vhosts.conf文件中加入
+<VirtualHost *:100>#设置端口为100，前提是在Apache的配置文件中有监听100端口，即是listening 100
+    DocumentRoot "D:\zmhzf\public"#这个是我们框架的public目录
+    ServerName  myzf.com #服务器名，在浏览器上输入服务器名:端口即可访问这个虚拟主机目录
+    DirectoryIndex index.php   #设置默认的访问页面
+    <Directory />#注意这里的 / 不能少，表示根目录，否则Apache无法启动
+    Options FollowSymLinks #一下都是设置public这个目录的规则和权限的
+    AllowOverride None #不允许对这个目录进行重写，因为有风险
+    Order allow,deny #设置访问权限 更多详细设置方法请看韩顺平php经典教程
+    Allow from all
+    </Directory>
+</VirtualHost>>
+访问一个网页的详细流程：...总控apache读取htaccess中的重写规则，访问到服务器上的public\index.php文件->Bootstrap.php->相关的控制器->控制器下面的某个方法，这里面的方法一般用来实例化model类，从而实现对数据库的操作->通过$this->render();引入某个模板，并把内容通过$this->view->res=$res的方法把$res分配到view中的$this->res，->在模板中显示
+Model主要是用来操作数据库的，是各种工具类
+为了更方便连接数据库，我们抽象出一个基类控制器（他就是继承zend_controller_Action,在init方法里初始化的数据库），用来操作数据库的。这样以后在需要连接数据库的控制器，只要继承这个基类，而那些不需要操作数据库的控制器，直接继承zend_Controller_Action即可
+一个控制器对应script下的一个文件夹，控制器下的方法对应该文件夹下的一个模板文件
+抽象出一个BaseController出错的原因：因为在basecontroller中已经通过init方法初始化过了数据库适配器，然而在新的controller中如果有init方法就会覆盖原来BaseController中的init方法。解决办法：xxxController中无需再有init方法
+
+empadmin中的emp表是一个海量表 testdb中的emp也是海量表
+案例：完成一个数据采集系统
+根据需求，我们分析应当有三张表.
+创建一个投票数据库votedb
+--选项表  item
+create table item(
+id bigint unsigned primary key auto_increment,
+name varchar(64) not null ,
+description varchar(128) not null,
+vote_count bigint unsigned) engine MyISAM 
+
+--投票的日志表 vote_log
+create table vote_log(
+id bigint unsigned primary key auto_increment,
+ip varchar(20) not null,
+vote_date bigint not null,
+item_id bigint not null
+) engine MyISAM
+
+--过滤ip的表  filter
+create table filter(
+id bigint unsigned primary key auto_increment,
+ip varchar(20)) engine MyISAM
+使用zf.bat 创建zf框架
+第三步：在path里添加你得PHP的安装目录：
+第四步：点击确定。
+第五步：进入dos界面
+进入dos输入如下命令创建项目
+ cd E:\ZendFramework-1.11.10\bin(此路径为你的实际存放路径)
+第六步：在dos下输入如下命令:
+zf.bat create project E:/my_zend_project(此路径为你的实际存放路径)
+
+出现网页无法访问：An error Occured 的解决方法
+是服务器没配好，还是程序本身有问题呢？
+ 是软件本身错了！但是错在哪里了呢？原来是不小心把数据库删了，导致无法访问数据库，所以提示application 错误
+
+由于没有引入BaseController.php导致网页无法访问
+
+数据库的配置文件
+[mysql]
+db.adapter=PDO_MYSQL
+db.params.host=localhost
+db.params.username=root
+db.params.password=root
+db.params.dbname=myzf
+
+数据库适配器：
+ public function init() {
+	      $url = constant ( "APPLICATION_PATH" ) . DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . 'application.ini';		
+			$dbconfig = new Zend_Config_Ini ( $url, "mysql" );
+			$db = Zend_Db::factory ( $dbconfig->db );		
+			$db->query ( 'SET NAMES UTF8' );
+			Zend_Db_Table::setDefaultAdapter ( $db );  ;
+	    }
+
+通过实例化model来取出表中的记录
+ $user=new User();
+      $userList=$user->fetchAll()->toArray();
+
+把数组分配到view文件夹下的模板中
+ $this->view->userlist=$userList;
+
+ 在模板中通过$this->userlist来取值
+ 
+ 实验证明：在配置虚拟主机的时候是可以一个端口配多个serverName的，他会根据servername访问对应的目录
+
+ 对于框架的使用要特别小心，一些不相关的错误也会导致整个页面无法跑起来，比如required 一个不存在的文件
+
+问题：为什么我要输入index.php才能实现跳转到其他页面呢？
+因为我所配置的网站的虚拟目录没有开启覆盖，也就是allowoverride 设置成了 None，这样Apache就无法读取虚拟目录下面的.htaccess，所以就无法重写
+
+在调试的时候一定要善于利用exit，否则会出现意想不到的错误
+
+虽然控制器也可以用echo输出内容到浏览器，但我们一般是用view下的某个html文件来显示内容，这样更符合mvc规范
+在控制器中输出内容只是为了调试用，看程序有没有运行到这个控制器
+
+print_r()函数是以数组形式打印，var_dump()则是打印出很详细的信息，包括类型，长度
+
+echo语句和print语句是一样的，exit和exit()也是一样的
+
+在HTML和PHP的混编中，所有的<??>是一个部分的，他们是并列拼接在一起的，比如我们要循环将数据表中的记录输出到表格中可以使用
+<table>
+<tr bgcolor='gray'><td>名称</td><td>描述</td><td>投票</td></tr>
+<?foreach($arr as $res){?>
+//循环打印内容行
+<tr><td><?echo $res['name']?></td><td><?echo $res['description']?></td><td><a href='#'>投票</a></td></tr>
+<?}?>//封口部分
+</table>
+
+在zf中输入地址时 是不区分大小写的
+
+如果控制器/方法，在view下面没有对应的目录和文件，就会提示APPLICATION ERROR
+
+取得参数item所对应的值
+  $item_id=$this->getRequest()->getParam('itemid','no');
+  取得主机ip地址
+  $ip=$this->getRequest()->getServer("REMOTE_ADDR");
+
+  增加过滤ip
+  每个跳转都必须走一个控制器
+
+  最好在新建项目或者数据库的时候就指定字符编码
+
+  find() 直接放入主键字段对应内容
+   $res=$studentModel->find('20040001')->toArray();
+        $res=$studentModel->find(array('20040001','20040002'))->toArray();
+
+  可以放入一个数组array(主键1，主键2)，查出几条记录
+  方法是查出指定主键id的那条记录，放在一个二维数组中
+  fetchall()方法是查出符合where条件的所有记录，放在一个二维数组中
+  
+
+  还需要深入学习JavaScript的事件和dom节点操作，不，主要学习jQuery，ajax
+
+   多表的操作，如果存在 多对多 的情况，一般通过设置第三个表来解决冗余
+
+
+   使用适配器来重整where语句可以防止sql注入
+   先用表模块创建适配器，调用适配器的quoteinto方法对where部分进行重整，
+    $db=$studentModel->getAdapter();
+        $where=$db->quoteInto("sdept=?", "计算机系");
+       $students=$studentModel->fetchAll($where)->toArray();
+
+   对于一个同名变量多次出现，后面的会覆盖前面的    
+
+   如果要取出其中某些字段的信息，只能通过适配器的方法
+   创建适配器，调用适配器的quoteInto方法组织sql语句，在调用适配器的query方法->fetchall();此时返回的已经是一个二维数组，无需再toarray()
+
+   配置php.ini显示错误日志
+   error_reporting =  E_ALL
+   display_errors = On
+   error_log = D:/php_log/php_error.log 
+
+   设置错误报告级别的方法：
+ 
+1. 修改PHP的配置文件php.ini
+这种方式设置error_reporting后，重启web服务器，就会永久生效。
+这里以xampp集成软件包为例，打开配置文件php.ini，查看错误报告级别error_reporting的默认值，如下：
+error_reporting=E_ALL & ~E_DEPRECATED & ~E_STRICT
+意思是报告所有的错误，但除了E_DEPRECATED和E_STRICT这两种。
+将其修改为：
+error_reporting=E_ALL &  ~E_NOTICE
+意思是报告所有的错误，但除了E_NOTICE这一种。这也是最常用的错误报告级别，它不会报告注意类（如：使用了未定义的变量）的错误。
+保存，重启web服务器后生效。
+ 
+2. 使用error_reporting()函数
+这种方式设置后，可以立即生效。但仅限于在当前脚本中的error_reporting()函数调用的后面区域。
+int error_reporting ([ int $level ] )
+参数可以是整型或对应的常量标识符，推荐使用常量的形式。返回值为当前位置处起作用的错误报告级别的值（整型值）。
+下面列举一些错误报告级别：
+值          常量                     说明
+1           E_ERROR             报告导致脚本终止运行的致命错误
+2           E_WARNING       报告运行时的警告类错误（脚本不会终止运行）
+4           E_PARSE             报告编译时的语法解析错误
+8           E_NOTICE           报告通知类错误，脚本可能会产生错误
+32767   E_ALL                  报告所有的可能出现的错误（不同的PHP版本，常量E_ALL的值也可能不同）
+ 
+error_reporting(E_ALL ^ E_NOTICE);    // 除了E_NOTICE之外，报告所有的错误
+error_reporting(E_ERROR);       // 只报告致命错误
+echo error_reporting(E_ERROR | E_WARNING | E_NOTICE);   // 只报告E_ERROR、E_WARNING 和 E_NOTICE三种错误
+ 
+注意：配置文件php.ini中display_errors的默认值为On，代表显示错误提示，如果设置为Off，就会关闭所有的错误提示。
+
+
+还有一种调试的方法：就是把看不见的信息或者错误，直接输出到本地文件中
+        file_put_contents("d:/mylog.log", __FILE__."--".date("Y-m-d H:i:s",time()));
+
+删除多条记录
+delete("cid in(11,21)")
+
+如果数据库没有配置正确，在操作表模型的页面是会出错的
+
+如果出现插入不成功，那么很可能是，你说插入的字段可能是在数据库中是唯一的，比如主键或者设置的unique的字段属性，我们只需保证每次插入数据不一样即可实现插入
+
+使用distinct修饰字段，可以取回多条重复条件记录中的一条记录，比如只想知道学生主要来自什么系的，就可以用一下sql语句
+select distinct sdept from student order by sid desc;
+第一个参数是条件，第二个参数是排序order,根据什么字段排序
+ $res=$studentModel->fetchRow("ssex='M'",'sdept')->toArray();
+
+ $res=$db->query("select distinct sdept from student")->fetchAll();
+
+ select * from student where sdept in('计算机系','外语系')"
+
+显示各个系的平均年龄（因为有很多学生 所以要分组group by）
+select sdetp,avg(sage) from student group by sdept;
+
+
+得出的结论是：如果是字段名，在sql语句中是不用加引号的；如果是属于表中，也就是记录中的某个字段所对应的内容，如果是字符串，就必须加引号，其他可以不用加
+
+下面这句话意思是：先按照系来分组，然后在计算没组的人数
+ $res=$db->query("select sdept,count(sid) renshu from student group by sdept having renshu>=1")->fetchAll();
+ 这里的count(任意字段)，count(*)
+ 里面的参数可以使任意非空的（每条记录都有内容的）字段
+having 条件部分  就是增加一个条件查询
+ 无论是char 还是varchar 在PHP中都是可以用单引号
+
+按照某个字段分组，然后在每组里面操作比如count() avg(),最后通过having限定操作结果
+$res=$db->query("select sdept,count(ssex) girls from student where ssex='F' group by sdept having girls>0" )->fetchAll();
+
+购物车系统：
+定长的字段最好用char ，无论实际的密码是多长，在经过md5加密后都是32位
+
+设置用户级别，让不同的用户有不同的折扣
+
+设计数据库
+用户表
+create table users (
+id int primary key,
+name varchar(64) not null default '',
+pwd char(32) not null default '',
+email varchar(128) not null default '',
+tel varchar(32) not null default '',
+grade tinyint unsigned not null default 1
+);
+初始化数据
+insert into users values (100,'minghao',md5('minghao')
+,'minghao@sohu.com','100',1
+);
+insert into users values (103,'明浩',md5('103')
+,'xiaoming@163.com','103',2
+);
+创建商品表
+create table book(
+id int primary key ,
+name varchar(64) not null default '',
+author varchar(64) not null default '',
+publishHouse varchar(128) not null default '',
+price float not null default 0,
+nums int not null default 10
+ ) ;
+ 初始化数据
+ insert into  book(name,author,publishHouse,price ,nums)
+ values(
+'php web服务开发','萧峰','电子工业出版社',59,100
+ );
+  insert into  book(name,author,publishHouse,price ,nums)
+ values(
+'php应用开发详解','谭美君','电子工业出版社',45,100
+ );
+  insert into  book(name,author,publishHouse,price ,nums)
+ values(
+'php编程指南','王芳','电子工业出版社',99,100
+ );
+  insert into  book(name,author,publishHouse,price ,nums)
+ values(
+'php编程思想','小红','机械工业出版社',10,1000
+ );
+   insert into  book(name,author,publishHouse,price ,nums)
+ values(
+'php参考手册','小建','机械工业出版社',20,60
+ );
+   insert into  book(name,author,publishHouse,price ,nums)
+ values(
+'php开发实战','小星','机械工业出版社',25,60
+ );
+
+ 可以通过alter table 表名 modify 字段设置 ,来更改字段信息
+
+ 购物车表：保存用户准备购买的商品
+ create table mycart(
+id int unsigned primary key auto_increment,
+userid int ,
+bookid int,
+nums int unsigned,
+cartDate int unsigned,
+foreign key(userid) references users(id),
+foreign key(bookid) references book(id)
+ );/*注意最后一个字段设置是不需要逗号的*/
+
+时间使用int类型存放一个时间戳，可以方便计算
+
+外键不是必须的，可以通过程序来控制
+外键的设置：foreign key(外键名) references 表名(字段名)
+外键名一般是表名和字段名的组合，便于阅读
+
+
+订单表：两张 1.总表，2.订单详细表
+
+create table 
+
+
+思路：将验证和数据处理分开在两个控制器
+
+必须要对提交过来的数据进行md5（）加密，在与数据库比较才能匹配
+

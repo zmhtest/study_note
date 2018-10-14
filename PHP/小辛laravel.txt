@@ -1,0 +1,523 @@
+小辛老师laravel框架教程笔记
+
+
+<?php
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+//get路由，解析用户get请求
+Route::get('/hello',function (){
+    return 'hello world';
+});
+//post路由，解析用户发出的post请求
+Route::get('/testPost',function (){
+    //获得token
+    $csrf = csrf_token();
+   $form = <<<FROM
+    <form action="/itbull/public/index.php/post" method="post">
+       <input type="hidden" name="_token" value="{$csrf}"> 
+       <input type="submit" value="提交"/>
+    </form>
+FROM;
+   return $form;
+});
+// 定义post路由
+Route::post('/post',function (){
+    return '这是post路由';
+});
+
+//通过match方法绑定多个路由
+/* Route::match(['get','post'],'/post',function (){
+   return 'get 或 post 请求都可以接收'; 
+}); */
+ 
+//通过any响应所有的http请求
+Route::any('/any',function (){
+    return 'any会响应所有的http请求';
+});
+
+//必选参数
+// Route::any('/goods/{id}',function ($id){
+//     return $id;
+// });
+
+//可选参数
+// Route::any('/goods/{id?}',function ($id=null){
+//     return $id;
+// });
+
+
+//路由别名，方便获得获得路由地址
+Route::any('/goods/list',['as'=>'list',function(){
+    return route('list');
+}]);
+
+// Route::any('/list',['uses'=>'GoodsController@cat_list']);
+
+// Route::any('/test',function(){
+//     return 'this is a test';
+// });
+
+//路由分组
+Route::group(['prefix'=>'home'],function(){
+    Route::any('/test1',function(){
+        return 'test1';
+    });
+    Route::any('/test2',function(){
+         return 'test2';
+    });
+    Route::any('/test3',function(){
+        return 'test3';
+    });
+});
+
+//将路由分配到控制器的方法
+Route::any('/test1',['uses'=>'GoodsController@test1']);
+Route::any('/test2',['uses'=>'GoodsController@test2']);
+Route::any('/response',['uses'=>'GoodsController@response']);
+Route::any('/response2',['uses'=>'GoodsController@response2']);
+
+Route::any('/sess1',['uses'=>'GoodsController@session1']);
+Route::any('/sess2',['uses'=>'GoodsController@session2']);
+
+Route::any('/view1',['uses'=>'GoodsController@view1']);
+Route::any('/view2',['uses'=>'GoodsController@view2']);
+
+Route::any('/set',['uses'=>'GoodsController@setCookie']);
+Route::any('/get',['uses'=>'GoodsController@getCookie']);
+
+Route::any('/view3',['uses'=>'GoodsController@view3']);
+Route::any('/view4',['as'=>'v','uses'=>'GoodsController@view4']);
+
+Route::any('/build',['uses'=>'GoodsController@builder']);
+Route::any('/orm',['uses'=>'GoodsController@orm']);
+
+----------------------------
+
+artisan命令工具的使用：
+	控制台进入到项目根目录：
+	创建控制器：
+	php artisan make:controller GoodsController
+
+	创建模型：
+	php artisan make:model User
+
+	创建中间件：
+	php artisan make:middleware Middle
+
+好处：会在创建时，同时引入相关的类
+
+路由的职责就是负责分配请求，把不同的请求分配到控制器中
+
+控制器是用来接收http请求，处理响应，逻辑代码都写在控制器中。
+
+控制器接收http请求：
+说明：是通过依赖注入Request类实现的。
+
+-------------------
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class GoodController extends Controller
+{
+    public function test1(Request $request)
+    {
+        
+       /*  $url = $request->url();
+        $path = $request->path();
+        echo $url,'<br/>',$path; */
+        // http://itbull.com/test1
+        // test1
+
+        //判断是否是某个路由
+       /*  $res = $request->is('test1s');
+        var_dump($res); */
+
+        // 获取请求方法 get、post
+        /* $res = $request->method();
+        var_dump($res);
+ */
+        // 是否是某种请求类型
+       /*  $res = $request->ismethod('get');
+        var_dump($res); */
+
+        // 获取用户输入的数据
+        // 获取指定key的数据
+        // $res = $request->input('age');
+
+        //接收所有的数据 
+       /*  $res = $request->all();
+        var_dump($res); */
+
+        // 判断是否有 name
+        /* $res = $request->has('name');
+        var_dump($res); */
+
+        // 只接受 name
+        /* $res = $request->only('name');
+        var_dump($res); */
+
+        // 除了 name
+       /*  $res = $request->except('name');
+        var_dump($res); */
+        
+        // 将所有数据闪存到session中，只保存一次
+        // $res = $request->flash();
+
+        // 只闪存 name
+        // $res = $request->flashOnly('name');
+
+        // 除了不闪存 name，其他都闪存
+        // $res = $request->flashExcept('name');
+
+        // 重定向到test2路由，携带闪存信息
+        return redirect('test2')->withInput(['message'=>'欢迎您','info'=>'China']);
+
+    }
+
+    public function test2(Request $request)
+    {
+        // 接收闪存 使用过程：带参数访问test1，然后访问test2，打印出test1传递过来的
+        // 数据，但是再次刷新test2，内容消失。
+
+        $res = $request->old('info');//接收指定key
+        $res = $request->old();//接收所有
+        var_dump($res);
+    }
+}
+
+----------------
+
+模板
+
+<!-- 这里是注释 -->
+
+{{--这里是隐式的注释--}}
+
+{{time()}}直接使用PHP的函数
+
+{{date('Y-m-d h:m:s',time())}} 
+
+进行了实体转化，防止跨站攻击
+{{$script}}
+
+{!!$script!!} 没有进行实体转换，js代码会执行
+
+{{$name}}
+@{{$name}}不会解释原样输出{{$name}}
+
+模板中的流程控制
+@if($money>3000)
+钱攒够了，去旅游。
+@else
+    还没攒够钱，好好工作。
+@endif
+
+<br>
+
+@unless($money<3000)
+    <!-- 如果不 -->
+    去旅游,前不少于3000
+@endunless
+
+
+循环
+@foreach($user as $key=>$value)
+    {{$key}}---{{$value}} <br>
+@endforeach
+
+
+@foreach($user as $value)
+   {{$value}} <br>
+@endforeach
+
+
+@forelse($user as $value)
+   {{$value}} <br>
+@empty
+    暂时没有你要的数据
+@endforelse
+
+
+@for($i=0;$i<5;$i++)
+	{{$i}}
+@endfor
+
+
+@foreach($user as $key=>$value)
+    @if($loop->first)
+        第一次循环
+    @endif
+
+    @if($loop->last)
+        最后一次循环
+    @endif
+
+    {{$loop->index}}<br>
+@endforeach
+
+
+<a href="{{asset('css/app.css')}}">asset()方法获取静态资源的路径也就是public目录下的文件</a>
+
+<a href="{{url('hello')}}">url()方法获取路由的绝对路径</a>
+
+<a href="{{route('list')}}">route()方法获取路由别名的路径</a>
+
+<a href="{{action('GoodController@response2')}}">action()方法获取控制器方法的地址</a>
+
+模板继承：
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模板继承@yield('title')</title>
+</head>
+<body>
+    <div class="header">
+        @section('header')
+        头部，公共的
+        @show
+    </div>
+    <div class="content">
+        @section('content')
+            
+        @show
+    </div>
+    <div class="footer">
+        @section('footer')
+        底部，公共的
+        @show
+    </div>
+</body>
+</html>
+
+
+@extends('good.layout')
+@section('content')
+    @parent  
+    <!-- 这里的意思是，继承父模板的全部内容，然后单独设置子模板的content部分，在父模板中content部分留空 -->
+    子模板中扩展的内容
+    <h1>模板继承</h1>
+@stop
+
+
+@extends('good.layout')
+@section('content')
+    @parent  
+    <!-- 这里的意思是，继承父模板的全部内容，然后单独设置子模板的content部分，在父模板中content部分留空 -->
+    子模板中扩展的内容
+    <h1>模板继承</h1>
+    @include('good.good_list1',['data'=>'这是携带的数据','name'=>'朱明浩'])
+    <!-- 可以使用include()引入其他子模板文件,不能乱写注释，注释中不能有@开头的方法 -->
+@stop
+
+
+
+这里是good_list.blade.php模板
+{{$data}}
+{{$name}}
+
+--------------
+
+模型：
+
+1.数据库迁移：
+	
+	php artisan make:migration create_test2_table --create=test2
+
+然后编辑；
+	public function up()
+    {
+        Schema::create('test2', function (Blueprint $table) {
+            $table->increments('id');
+            // $table->timestamps();
+            $table->string('names');
+            $table->integer('age');
+        });
+
+最后运行：php artisan migrate
+
+数据库将生成test2表
+
+-----------
+
+    public function view4()
+    {   
+        // 插入数据
+        // DB::insert("insert into goods value(null,?,?)",['诺基亚',3000]);//占位符不需要单引号,value values都可以
+
+        // 查询数据
+        // $res = DB::select("select * from goods");
+
+        // 更新数据
+        // $res = DB::update("update goods set goods_name=? where id=?",['iphone',3]);
+
+        // 删除数据
+        // $res = DB::delete("delete from goods where id=?",[3]);
+        echo "<pre>";
+        var_dump($res);
+    }    public function view4()
+    {   
+        // 插入数据
+        // DB::insert("insert into goods value(null,?,?)",['诺基亚',3000]);//占位符不需要单引号,value values都可以
+
+        // 查询数据
+        // $res = DB::select("select * from goods");
+
+        // 更新数据
+        // $res = DB::update("update goods set goods_name=? where id=?",['iphone',3]);
+
+        // 删除数据
+        // $res = DB::delete("delete from goods where id=?",[3]);
+        echo "<pre>";
+        var_dump($res);
+    }
+
+----------------------
+
+查询构造器
+
+  public function build()
+    {   
+        // 使用构造器实现增删改查
+        // 插入数据 插入多条数据，要使用二维数组形式
+        // $res = DB::table('goods')->insert(['goods_name'=>'OPPO r11','shop_price'=>'1998']);
+
+        // 插入数据，并返回最后的主键id
+        // $id = DB::table('goods')->insertGetId(['goods_name' => 'vivo x9', 'shop_price' => '2998']);
+
+        // 更新数据
+        // $res = DB::table('goods')->where('id',1)->update(['goods_name'=>'小米6']);
+
+/*         // 让某个字段自增、自减多少
+        $res = DB::table('goods')->where('id',2)->decrement('shop_price');
+
+        DB::table('goods')->where('id',4)->increment('shop_price',10); */
+        
+        // $res = DB::table('goods')->where('id',5)->delete();
+
+        // 查询出所有
+        // $res = DB::table('goods')->get();
+
+        // 
+        // $res = DB::table('goods')->where('id',7)->get();
+        
+        // $res = DB::table('goods')->first();
+
+        // 返回的是结果集中的字段
+        // $res = DB::table('goods')->where('id',6)->pluck('goods_name');
+
+
+        // $res = DB::table('goods')->where('id',6)->select('goods_name')->get();
+
+        // 可以用select()指定字段，再get
+        // $res = DB::table('goods')->select(['goods_name','shop_price'])->get();
+        
+
+        // 分段获取数据
+       /*  DB::table('goods')->chunk(40,function($res){
+            echo "<pre>";
+            var_dump($res);
+        }); */
+
+
+     /*    echo "<pre>";
+        var_dump($res); */
+
+        // 聚合函数
+        $res1 = DB::table('goods')->count();
+        $res2 = DB::table('goods')->max('shop_price');
+        $res3 = DB::table('goods')->min('id');
+        $res4 = DB::table('goods')->avg('shop_price');
+        $res5 = DB::table('goods')->sum('id');
+
+        echo $res1."<br/>".$res2."<br/>".$res3."<br/>".$res4."<br/>".$res5;
+    }
+
+-------------------
+
+ORM模式操作数据库
+对象关系映射
+
+一张表对应一个对象
+一条记录对应对象的属性
+
+创建模型，并生成数据库迁移；
+php artisan make:model User -m
+
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Goods extends Model
+{
+    //默认模型名的复数对应数据表，也可以通过tablename自定义该模型指向的表
+    protected $table = 'goods';
+    //默认主键是id字段，指定主键是哪个字段
+    protected $primaryKey = 'id';
+    
+    //禁止自动维护时间戳，默认是true，会自动创建at_creattiem at_updatetime两个列。
+    public $timestamps = false;    
+    
+    //指定批量添加的字段列表
+    protected $fillable = ['goods_name','shop_price'];
+}
+
+控制器中：
+    public function orm()
+    {
+        # code...
+        $model = new Goods();
+
+        $model->goods_name ='金立';
+        $model->shop_price = 999;
+
+        $res = $model->save();
+        
+
+         Goods::create(['goods_name'=>'vivo手机','shop_price'=>5000])->save();//创建数据
+
+        $model = Goods::find(6);
+        $model -> update(['goods_name'=>'三星手机']);
+       
+        Goods::find(6)->delete();
+
+        // 说明对象可以调用类的静态方法,以下两种写法都可以
+      $model::find(163)->delete();
+      $model->find(163)->delete();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,3570 @@
+MK rhel6.2系列
+
+环境centos6
+
+----------------------------------------------
+
+计划任务和日志管理：
+  一、一次性任务，必须开启atd.service 
+  
+	[root@centos620 lv1_back]# service atd status
+		atd (pid  2886) 正在运行...
+	
+	创建的计划任务会在这里：
+		 ll /var/spool/at/*
+
+	
+  二、周期计划任务：必须开启crond服务，这个服务的配置文件 /etc/crontab
+	[root@centos620 lv1_back]# service crond status
+		crond (pid  2871) 正在运行...
+	
+	给其他用户指定任务：
+		crontab -u user -e 
+		crontab -u user -r #清空用户计划任务
+ 		
+	anacron的作用，计划任务因特殊情况没有执行成功，他会检测，然后执行计划任务。
+	
+	计划任务的相关日志：
+		vim /var/log/cron
+	
+日志部分：
+	日志目录：/var/log 
+	
+	常用的系统日志：
+		核心启动日志：/var/log/dmesg
+		系统报错或重启服务等日志：/var/log/messages
+		邮件系统日志：/var/log/maillog
+		计划任务:/var/log/cron
+		安全认证,登录相关：/var/log/secure
+		
+		#做黑客一定要清空以下日志 echo > xxx
+		所有的登入登出记录：/var/log/wtmp #last命令读取
+		每位用户最后的登入信息：/var/log/lastlog #lastlog
+		记录错误的登入尝试：/var/log/btmp # lastb
+
+	日志分类：FACILITY
+		authpriv 安全认证相关
+		cron     at和cron定时相关
+		daemon   后台进程
+		kern 	 内核产生
+		mail 	 邮件系统相关
+		syslog 	 日志服务本身
+
+	每个分类都有8个级别：由低到高
+	级别：PRIOROTY
+		debug 	排错信息
+		info 	正常信息
+		notice  注意信息
+		warn    警告
+		err     错误 
+		crit    关键的错误
+		alert   警报
+		emerg   紧急突发事件
+	
+	local0到local7为系统保留的，给用户使用。
+	
+	日志服务：
+		RHEL6:rsylog服务
+		配置文件：/etc/rsyslog.conf 
+			kern.* 表示内核类型的所有级别
+				
+			*.info;mail.none
+			*.info 表示所有类型的info级别，后面带 mail.none 表示除了mail类型的。
+			
+			/var/log/boot.log #开机引导页面显示的信息
+			
+	关于日志书写的格式：
+		.none 表示这个类型的都不记录
+		. 表示这个级别以上的都记录
+		.= 表示只记录这个级别
+		.! 表示除了这个，其他的都记录
+		
+		举例：
+			cron.none
+			cron.err
+			corn.=err
+			corn.!err
+			
+		 -/var/log/maillog	 #-表示将日志暂存到buffer中，到一定数量在保存到日志文件中。
+		 
+		 重启日志服务：
+			 service rsyslog restart
+			 
+		查看开机是否启动：
+			chkconfig --list rsyslog
+
+	实战：自定义日志文件，记录sshd的日志
+		vim /etc/rsyslog.conf
+			local0.*     /var/log/sshd.log
+
+		 vim /etc/ssh/sshd_config 
+			SyslogFacility local0
+		
+		service rsyslog restart
+		
+		service sshd restart
+		
+		重启服务即可看到日志。
+		
+		为防止日志被删除：chattr +a /var/log/sshd.log
+		
+	日志的回滚：就是砍断日志，重新建一个日志文件，重新写。
+	
+		回滚的过程：
+			创建新文件，改名旧文件，重启服务
+		配置文件：vim /etc/logrotate.conf 
+		
+		全局配置：
+			# 每周备份日志文件
+				weekly
+
+			# 保存4周的日志备份文件
+				rotate 4
+
+			# 备份旧的日志文件后，创建新的空的日志文件
+				create
+
+			# 使用日期后缀
+				dateext
+			
+		针对某个日志文件的配置：
+		/var/log/wtmp { #日志文件
+			monthly 	#每月备份
+			create 0664 root utmp #设置权限
+				minsize 1M #最小1M才备份
+			rotate 1 	#只保留一个备份
+		}
+		
+	实战：配置日志服务器，实现日志的集中管理。
+
+		配置：20服务器 21客户端
+		
+		服务器的配置：
+		  vim /etc/rsyslog.conf
+			# Provides TCP syslog reception 
+			$ModLoad imtcp
+			$InputTCPServerRun 514 #开启514端口监听
+
+		  service rsyslog restart
+		
+		  查看服务是否开启：514端口
+			netstat -antup |grep 514
+		
+		客户端的配置：
+		  vim /etc/rsyslog.conf
+			最后添加：*.* @@192.168.31.20:514 #@@表示tcp
+			*.* 表示所有日志类别的所有级别
+
+		服务器监听日志文件：
+			tailf /var/log/messages
+			
+		客户端：随便起个服务即可在服务器看到日志
+			service network restart 
+			
+------------------------------------------
+			
+linux内核编译：
+	内核包：https://cdn.kernel.org/pub/linux/kernel/v3.x/linux-3.16.56.tar.xz
+	
+	准备工作：
+		0.安装相应的库，nucurse-devel gcc gcc-c++
+		
+		1.新增一块20G磁盘，只分1个主分区，格式化，挂载到 /sdb1
+
+		2.将内核包解压到 /sdb1 
+			xz -d /sdb1/linux-3.16.56.tar.xz /sdb1/ 
+			得到 tar文件
+			再次解压：tar xf xxx.tar
+			
+		3.reboot 清理下解压的缓存
+		
+		4.进入解压目录：
+			make menuconfig #进入配置的图形界面
+			
+			vim .config 可以看到
+			CONFIG_NTFS_FS=m
+			# CONFIG_NTFS_DEBUG is not set
+			CONFIG_NTFS_RW=y
+		
+		5.内核的参数太多，不知道如何配置，投机的方法是：
+			cp /boot/config-2.6.32-696.el6.x86_64 .config
+			然后，make menuconfig,添加我们想要的功能即可。
+			
+		6.make bzImage #此内核是经过压缩的
+			Kernel: arch/x86/boot/bzImage is ready  (#1)
+		
+		7. make modules #生成新内核的驱动模块
+		
+		8.安装编译好的内核和驱动
+			8.1. make modules_install #安装模块
+			8.2  make install  #安装内核
+
+		9.查看或修改GRUB菜单
+			vim /boot/grub/grub.conf
+			
+		
+模块的位置：cd /lib/modules/2.6.32-696.el6.x86_64/		
+
+linux可以直接支持FAT32
+
+模块的基本操作：
+	插入模块：insmod
+		insmod fat/fat.ko 
+	
+	lsmod 查看系统加载的模块
+		lsmod | grep 
+	
+	删除模块：
+		rmmode fat 
+
+	depmod #会处理模块之间的依赖关系，让操作系统直到
+		操作的就是这个文件；
+		vim /lib/modules/2.6.32-696.el6.x86_64/modules.dep
+	
+	查看模块信息：
+		modinfo fat 
+		  filename:       /lib/modules/2.6.32-696.el6.x86_64/kernel/fs/fat/fat.ko
+	
+	[root@centos620 fs]# rmmod vfat #先卸载vfat模块
+	[root@centos620 fs]# rmmod fat #才能卸载fat模块
+	[root@centos620 fs]# lsmod |grep fat
+	[root@centos620 fs]# lsmod |grep vfat #没有了
+	[root@centos620 fs]# insmod fat/vfat.ko  
+	insmod: error inserting 'fat/vfat.ko': -1 Unknown symbol in module #要先安装fat模块才能安装vfat
+		
+	更为简单的方法是：modprobe vsfat
+	他会自动处理模块之间的依赖关系：
+	[root@centos620 fs]# modprobe vfat
+	[root@centos620 fs]# !ls
+	lsmod |grep vfat
+	vfat                   10584  0 
+	fat                    54992  1 vfat
+
+	设置开机自动挂载模块：
+		vim /etc/rc.local #这是开机后自动执行的脚本
+			modeprobe fat #表示开机自动加载fat模块
+		
+	实战：让linux支持ntfs文件	
+	centos安装完之后，默认是不支持NTFS磁盘格式的，解决的方法之一就是安装NTFS-3G模块，但是默认的软件源是没有这个依赖库的，我们需要额外的阿里云软件源来获取，首先终端切换到root用户，然后添加软件源
+
+	wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-6.repo
+
+	针对centos5.X/7.X版本将上面对应的数字改成5/7即可
+
+	运行命令 yum update; yum install ntfs-3g
+
+	命令运行结束后即可以支持NTFS
+		
+	手动挂载：
+		mount -t ntfs-3g /dev/sdb1 /mnt
+	
+	也可以设置开机自动挂载：vim /etc/fstab
+	
+----------------------------------------------	
+	
+GRUB:多操作系统启动程序
+
+	init3切换到init5是需要重启所有服务的，如果在init 3 下，运行startx，表示开启图形界面这个服务。
+	
+	系统启动的相关配置文件：
+	  1./boot/grub/grub.conf 
+	  2./etc/inittab #设置开机默认的运行级别 
+		id:5:initdefault:
+	  3./etc/rc.d/rc.sysinit #系统初始化
+	  4./etc/rc.d/rc5.d 
+		s开头表示开机启动的，K表示不启动，数字表示优先级别
+		 K92iptables S55sshd
+	  5./etc/rc.local 
+	  6.mingetty #登录验证界面
+	  
+	GRUB 加密：
+		1.grub-md5-crypt 
+			$1$DItZr/$4A8O7vO8BO0c9PChUDcHq1
+
+		2.将生成的密码添加到 grub.conf文件 
+			hiddenmenu
+			password --md5 $1$DItZr/$4A8O7vO8BO0c9PChUDcHq1
+		
+		3.重启机器，这时，需要密码才能进入编辑模式，从而进入当用户模式。
+
+	实战：系统坏了，无法进入，可以进入救援模式拷贝数据。
+	  救援模式相当于，windows的PE系统，他就是一个在内存中的系统。
+		1.利用光盘，进入救援模式
+		2.开机，快速按住F2，选择救援模式，进入
+		3.一路continue
+		4.chroot /mnt/sysimage  #切换到我们原系统的根
+		在救援模式下，可以修改root密码，也可以cp文件到U盘
+	
+	磁盘耗尽故障：
+		1.空间被耗尽
+		2.虽然有空间，但文件数i节点耗尽
+		
+	解决方法：1.清理磁盘空间
+			  2.转移或删除占用大量i节点的琐碎文件
+			  3.进入救援模式修复
+			  
+	安装linux和windows双系统时，一定要先安装windows在安装linux，因为windows如果后安装，会覆盖linux的引导。
+		
+		
+理解服务的脚本：
+	 chkconfig: 2345 10 90 #2345表示运行级别 10表示第十个启动的服务 90表示关机第90个关
+	 		
+------------------------------------------
+
+用户管理：
+	超级用户 UID 0
+	普通用户 UID
+		系统用户 1-499
+		本地用户 500+
+
+用户组：		
+	超级用户组 UID 0
+	普通用户组 UID
+		系统用户组 1-499
+		本地用户组 500+	
+		
+组信息：
+	组账号信息：/etc/group
+	组密码信息：/etc/gshadow
+
+passwd文件详解：
+	zmh:      x 	   :501:  501:: /home/zmh:  /bin/bash
+	用户名 密码占位符   UID   GID    家目录     用户的shell
+	
+	伪用户：
+		nobody 	NFS使用，例如nginx
+		
+	[root@centos620 ~]# cat /etc/shells
+		/bin/sh
+		/bin/bash
+		/sbin/nologin
+		/bin/dash
+		/bin/tcsh
+		/bin/csh
+		/bin/zsh	
+	
+shadow文件：
+	zmh:$6$e:17657:0:99999:7: : :
+	 1    2     3  4   5   6 7 8  9
+	都有具体的解释：
+	
+group文件：
+	root:  x:    0:   	zyx
+	组名 组密码 组id  组中的用户
+
+用户操作：useradd 和 adduser 都可以
+	useradd -u UID username  -d 主目录（可以改变的） 
+	
+	[root@centos620 ~]# id zmh
+	uid=501(zmh) gid=501(zmh) 组=501(zmh)
+		
+	useradd -G root zyx
+	
+	grep root /etc/group #直接在后面的文件中查找root
+	root:x:0:zyx
+	
+	uid=503(zyx) gid=504(zyx) 组=504(zyx),0(root)
+	id zyx #可以看出，通过-G来指定组，会在自身组（zyx）的基础上附加指定的组（root）
+	
+密码操作：
+	passwd 直接回车，修改当前用户密码
+	passwd zmh 修改指定用户密码
+	
+	非交互添加密码：
+		echo 123456 | passwd --stdin zmh 
+		#这样就给用户zmh创建了密码 
+		
+	[root@centos620 zxz]# echo 123456 | passwd --stdin zyx
+		更改用户 zyx 的密码 。
+		passwd： 所有的身份验证令牌已经成功更新	
+	
+	[root@centos620 zxz]# grep zxz /etc/shadow            
+		zxz:!!:17658:0:99999:7::: # ！！表示没有密码
+	
+	注意：就算密码设置相同，经过加密之后显示是不一样的！！！
+	
+修改用户信息：
+	usermod 参数和useradd是一样的！
+	
+	usermod zxz -u 5004 -g home -d /tmp/zxz 
+	-u 自定义用户id，注意，不能是已经存在的用户的id
+		但是，linux是很灵活的，可以通过自己修改配置文件达到命令不能完成的任务！比如，直接修改passwd文件，改变uid，gid都是可以的！！！
+		
+	-g 指定组
+
+删除用户：userdel zmh 
+	-r 连同用户的家目录一起删除
+	
+	
+	使用技巧：
+		可以将root的shell设置成 /sbin/nologin,防止暴力破解
+		将普通用户zmh，修改 UID=0，gid=0，将变成超级用户。
+			修改：zmh:x:0:0::/home/zmh:/bin/bash
+			
+			查看：id zmh
+				uid=0(root) gid=0(root) 组=0(root)
+		
+添加组：
+	groupadd gname #添加组
+	
+	groupmod -g 500 home #修改组
+
+	groupdel home #删除组
+	
+	
+添加用户时，用户家目录下的隐藏文件是如何生成的呢？
+	vim /etc/default/useradd #修改用户的默认配置
+		# useradd defaults file
+		GROUP=100
+		HOME=/home
+		INACTIVE=-1
+		EXPIRE=
+		SHELL=/bin/bash
+		SKEL=/etc/skel #这是一个模板文件
+		CREATE_MAIL_SPOOL=yes
+	
+			[root@centos620 zxz]# ls -a /etc/skel/
+				.bash_logout  .bash_profile  .bashrc  .gnome2  .mozilla  .zshrc
+	
+查看用户的相关命令：
+	1.id user #显示user的详细信息
+	2.whoami
+	3.w #显示当前系统有哪些用户登录
+	4.who #同3
+	
+	w #结果如下：
+		tty1 图形界面
+		pts/0    :0.0 #本机终端
+		pts/1    192.168.31.239 #远程终端 
+	切换：tty1-tty6 
+		ctrl+alt+F1...
+
+切换用户：建议加上 - 
+	su - zmh #加 - 的作用是，连同环境一起切换过去，比如	PATH .bashrc .bash_profile
+
+如果不小心把用户家目录的隐藏文件删了，怎么办？
+	[zxz@centos620 ~]$ rm -rf .bash* #删
+	
+	[root@centos620 ~]# su - zxz #重新登录
+	-bash-4.1$  #显示异常
+	
+	-bash-4.1$ cp /etc/skel/.bash* /home/zxz/  #复制被删文件回来，如果不是用当前用户复制，还要修改文件的所有者 ； chown zxz:zxz /home/zxz -R #递归更改目录及目录下文件的所有者，所属组
+		
+	[root@centos620 ~]# su - zxz #重新登录
+	[zxz@centos620 ~]$           #显示正常
+
+进入单用户模式，找回root密码：
+	1.重启，倒计时输入e->kernel处输入e->输入 1->b(重启)进入single模式
+	
+	2.passwd root #即可修改，重启即生效
+	
+	另一种方法：直接修改 /etc/passwd ,将root的 x 删掉，重启，直接输入root，不用密码即可登录
+	
+	登陆后，记得改回来！！！
+
+--------------------------------------------------------	
+	
+文件的权限控制：
+	chmod u +r 
+		  g -w
+		  o =x
+
+	root创建文件的默认权限：644 -rw-r--r--
+	root创建目录的默认权限：755 drwxr-xr-x
+
+		chmod u+x a.txt #给文件所有者添加x权限，变绿色
+		chmod u-x a.txt
+		chmod g+w a.txt
+		chmod g-w a.txt
+		+ - 是在原有权限的基础上进行修改
+		= 直接赋予新的权限，会把原来的覆盖
+
+	查看目录的权限：ll -d testdir/
+	chmod o+w testdir/ #如果目录给o其他用户添加些的权限，将会加重颜色显示
+
+	给文件所有者，所属组，其他人都加权限：
+		chmod a+x a.txt
+		chmod +x a.txt   #同上
+	
+	修改文件的所有者和所属组
+		chown user:group 
+		chown user
+		chown :group 
+		
+		chown -R user dir/ #递归修改所有者
+
+	文件的所有者一定是可以写入数据到文件的，即使这个文件权限是444，可以强制覆盖 :wq!
+	
+	[root@zmh tmp]# umask
+		0022 #root用户
+	
+	[zmh@zmh ~]$ umask
+		0002 #普通用户
+
+	目录的默认权限：777
+	文件的默认权限：666
+	由于有umask的存在，权限经过了过滤
+	
+	普通用户创建的文件：666-002=664 #表示文件所有者和所属组具有读写权限
+		[zmh@zmh ~]$ touch a.txt
+		-rw-rw-r--  1 zmh zmh  0 5月   8 10:51 a.txt
+
+	root用户创建的文件：666-022=644 #表示只有root可读写，其他任何人都是只能读
+	
+	科学的算法是：666 和 umask 先用二进制表示，然后，umask取反，取返后 &666，得出最后的结果！！！
+	
+	这个掩码是在 /etc/bashrc这个文件中控制的
+			 umask 002
+		else
+		   umask 022
+		fi
+		
+	特殊的权限：
+		s 4 SUID
+		s 2 SGID
+		t 1 stick
+	
+	SUID：用于给二进制文件 passwd less 等文件，临时提升权限
+	[root@zmh ~]# ll /bin/passwd 
+	-rwsr-xr-x. 1 root root 27832 6月  10 2014 /bin/passwd
+	[root@zmh ~]# ll /etc/shadow
+	----------. 1 root root 1351 4月  29 08:31 /etc/shadow
+	可以看出：任何人对于 shadown文件都没有权限，但是却都可以通过 passwd命令来设置密码，往shadow文件写入，说明 s 的作用就是，临时提升权限为root。
+	
+	#普通用户不能访问shadow文件
+	[zmh@zmh ~]$ less /etc/shadow
+	/etc/shadow: 权限不够
+	
+	通过root用户给less加上s权限，普通用户即可访问shadow文件
+		chmod u+s /bin/less #或者 chmod 4755 /bin/less
+		[zmh@zmh ~]$ less /etc/shadow #成功输出
+	
+	SGID：
+	chmod g+s temp/	#给文件夹的组添加s权限
+		drwxr-sr-x  2 root root  6 5月   8 12:17 temp
+		
+	chown :bin temp/ #设置文件夹的所属组
+	
+	[root@zmh opt]#touch temp/a.txt
+	
+	ll temp/a.txt #发现：即使用root用户创建文件，组依然是bin
+		-rw-r--r-- 1 root bin 0 5月   8 12:21 temp/a.txt
+	也就是：在设置了sgid权限的目录下创建文件，新创建文件的所属组会继承上级目录所属的组。
+
+	Stickybit粘滞位：只作用于目录
+	功能：目录下所创建的文件，只用root，文件所有者，目录所有者才能删，其他人不能删。比如/tmp/目录
+	
+	[zxz@zmh ~]$ ll /tmp/zmh.txt #这个文件的所有者是zmh
+	-rw-rw-r-- 1 zmh zmh 0 5月   8 12:35 /tmp/zmh.txt	
+	
+	[root@zmh ~]# su - zxz
+	[zxz@zmh ~]$ rm -rf /tmp/zmh.txt #尝试用zxz用户来删，被拒绝
+	rm: 无法删除"/tmp/zmh.txt": 不允许的操作
+	
+	[root@zmh ~]# ll -d /tmp #以上操作都是因为 /tmp这个文件夹的权限有 t 
+	drwxrwxrwt. 44 root root 4096 5月   8 12:39 /tmp
+	
+	chmod o+t /tmp 
+	
+	ll -d /home/zmh/ #可以看出用户的家目录，除了自己和root，其他普通用户是没有权限的
+		drwx------. 18 zmh zmh 4096 5月   8 12:42 /home/zmh/
+	
+	扩展ACL：
+	[root@zmh zmh]# getfacl a.txt #查看acl权限
+		# file: a.txt
+		# owner: zmh
+		# group: zmh
+		user::rw-
+		group::rw-
+		other::r--
+	
+	设置acl权限：
+		[root@zmh zmh]# setfacl -m u:zxz:rwx a.txt 
+		-m 修改 
+		-R 递归设置目录ACL权限
+		u:用户名:权限 
+		g：组名:权限
+		
+	设置了ACL权限的文件，多了个 + ：-rw-rwxr--+ 1 zmh  zmh  a.txt
+	普通文件：           -rw-r--r--  1 root root b.txt
+	
+	取消acl权限：
+		setfacl -x u:zxz a.txt 
+	
+	清除所有ACL权限：
+		setfacl -b  a.txt 
+	
+	chattr +a a.txt  #只能打开，不能修改，只能通过 >> 的方式追加
+	chattr +i a.txt #不允许任何操作，追加也不行！！！
+	
+	查看特殊属性：
+	[root@centos620 tmp]# lsattr a.txt 
+	----ia-------e- a.txt
+	
+	去除 i a 属性：
+	[root@centos620 tmp]# chattr -i a.txt 
+	[root@centos620 tmp]# lsattr a.txt     
+	-----a-------e- a.txt
+	[root@centos620 tmp]# chattr -a a.txt  
+	[root@centos620 tmp]# lsattr a.txt    
+	-------------e- a.txt
+	
+	通过ll查看文件权限时， . + 分别表示什么？
+	（.）点是ACL_T_SELINUX_ONLY， （+）加是ACL_T_YES，空白是没有ACL。
+	ACL 是访问控制列表Access Control List
+	
+-------------------------------------------------------	
+	
+文件系统ext3和ext4
+
+	磁盘基本知识：
+		传统磁盘（CHS架构）：就像由许多个半径不同的圆组成同心的圆环，每个圆环就是磁道，每个磁道的扇区个数相同，内外磁道的读取速度是相同的。
+		
+		缺点：外磁道空间大大浪费。
+		
+		现代的磁盘：每个磁道的扇区个数是不一样的，外磁道有更多的扇区，所以，读取外磁道的数据时，速度会比较快，因为同一时间读取到更多的扇区！！！
+		
+	
+	硬盘的最小存储单位：扇区Sector，512字节
+	
+	查看文件的节点：
+		[root@centos621 ~]# ls -i a.txt 
+			666409 a.txt
+
+	查看文件的inode的详细信息：	stat a.txt
+	
+		[root@centos621 ~]# stat a.txt 
+			File: "a.txt"
+			Size: 0               Blocks: 0          IO Block: 4096   普通空文件
+			Device: 802h/2050d      Inode: 666409      Links: 1
+			Access: (0644/-rw-r--r--)  Uid: (0/ oot)   Gid: (0/root)
+			Access: 2018-05-08 17:21:25.426009473 +0800
+			Modify: 2018-05-08 17:21:25.426009473 +0800
+			Change: 2018-05-08 17:21:25.426009473 +0800
+		由此可以看出inode是用来保存文件的权限、所有者、各种时间、硬连接等信息。
+	
+	为什么要使用inode呢？
+		因为磁盘的一个扇区为512字节（0.5K），直接读取扇区效率太低，于是就用一个inode来指向多个连续的扇区，也就是block，这个block就相当于Windows的簇。
+	
+	注意：inode的数量是有限的！！！
+		[root@centos621 ~]# df -li /dev/sda2
+		Filesystem     Inodes IUsed  IFree IUse% Mounted on
+		/dev/sda2      960992 98565  862427 11%   /
+	所以说，如果服务器有很多的小文件，把inode用完了，即使磁盘还有空间，也是无法写入数据的！！！
+	
+	不同分区的block值可以设置不同的大小，/boot分区默认为1024，因为主要用来存放比较小的文件，而根分区 Block为4096，允许存较大的文件。
+	
+	inode和block之间的关系：
+		block值越小，效率越低，需要的inode越多
+		
+	查看目录inode节点数：ll -id dir
+		[root@centos621 ~]# mkdir test
+		[root@centos621 ~]# ll -di test/ #新建目录的inode值为2
+		651524 drwxr-xr-x 2 root root 4.0K 5月   8 17:15 test/
+		[root@centos621 ~]# mkdir test/dir1 #每增加一个子目录，inode值+1
+		[root@centos621 ~]# ll -di test/   
+		651524 drwxr-xr-x 3 root root 4.0K 5月   8 17:15 test/
+
+	验证 test   test/.   test/dir/.. 指向同一个inode号码
+		
+		[root@centos621 ~]# ls -id test/
+			651524 test/
+		[root@centos621 ~]# ls -id test/.
+			651524 test/.
+		[root@centos621 ~]# ls -id test/dir1/..
+			651524 test/dir1/..
+		
+	访问文件的过程：文件名->inode->block	
+	
+	硬链接和软连接
+		硬链接：硬链接就是给文件增加一个inode节点，通过访问这个inode节点对应的文件就可以访问这个文件
+		
+		ln 源文件 目标文件
+		
+		ln a.txt a1.txt #此时a.txt的inode值+1
+		
+		#读取结果一样
+		[root@centos621 ~]# cat a1.txt 
+		hello workd
+		[root@centos621 ~]# cat a.txt 
+		hello workd
+		
+		#删除1个硬链接文件，inode值-1
+		[root@centos621 ~]# rm -rf a1.txt 
+		[root@centos621 ~]# ll
+		-rw-r--r--  1 root root   12 5月   8 17:46 a.txt
+		
+	注意：硬链接不能跨分区，不能作用域目录
+	
+	软连接：可以跨分区，文件、目录都支持软连接
+	[root@centos621 ~]# ll /etc/grub.conf 
+		/etc/grub.conf -> ../boot/grub/grub.conf #跨分区
+	
+	[root@centos621 ~]# ll /boot/grub/menu.lst 
+		/boot/grub/menu.lst -> ./grub.conf	#同分区，文件
+	
+	软连接的创建：ln -s 源文件 目标文件
+	ln -s a.txt a
+		a -> a.txt
+
+---------------------------------------------------		
+
+Raid 
+
+速度更快
+
+raid0 2块 利用率为100%
+
+raid1 2块 镜像，有备份，利用率为50%（两块100G的硬盘，实际可以利用的只有100G），速度并没有提升，数据有冗余
+
+raid5 3块以上 可以提供热备盘，故障修复，主要是利用简单的异或运算实现
+
+也就是每次写数据时，数据写到不同的两块硬盘中，第三块用于存放检验值（也就是异或运算的结果），当有其中的一块硬盘数据丢失，就可以通过这个校验值和另一块磁盘的值恢复损坏磁盘的数据。
+
+raid5 的磁盘利用率为：n-1/n
+
+异或运算：相同为0，不同为1
+
+	1 	1 	0
+	0 	0 	0
+	1 	0 	1
+	0 	1 	1
+
+RAID卡：硬件
+
+管理软raid工具mdadm
+	
+	-C 创建一个新的阵列
+	-S 停止阵列
+	-A 激活阵列
+	-s 扫描
+	-f 状态定位故障
+	-a 添加设备到阵列
+	-V 显示 
+	-r 移除阵列
+	-l 设定阵列的级别
+	-n 指定阵列成员的数量
+	-x 指定备用盘的数量
+	-c 指定阵列的chunk大小
+	-G 改变阵列大小或形态
+	
+热备份盘：加强容错，使系统在出现故障时，迅速重建数据	
+
+chunk：raid存储数据时每个数据段的大小
+可以设置：4K或者64K
+
+chunk的设置好合理，跟block的原理一样，如果chunk过大，数据就局限于一个磁盘，效率低，如果存放小文件，同样会有空间的浪费。
+系统的默认值就好。
+
+	实战：raid0
+	分区：fdisk /dev/sdb 分两个区，不用格式化
+	
+	[root@centos620 ~]# ll /dev/sd*
+	brw-rw---- 1 root disk 8,  0 5月  10 19:48 /dev/sda
+	详解：b表示块设备 8表示磁盘 0表示分区
+
+	[root@centos620 ~]# mdadm -C -v /dev/md0 -l 0 -n 2 /dev/sdb1 /dev/sdb2
+	mdadm: chunk size defaults to 512K
+	mdadm: Defaulting to version 1.2 metadata
+	mdadm: array /dev/md0 started.
+	
+	[root@centos620 ~]# mdadm -Ds
+	ARRAY /dev/md0 metadata=1.2 name=centos620.cn:0 UUID=f2741372:6911e53e:34744a2d:d553c5d4
+	
+	#查看raid的详细信息：
+	[root@centos620 ~]# mdadm -D /dev/md0
+	
+		Failed Devices : 0 #表示没坏  Failed Devices : 1 #坏了
+		Spare Devices : 0  
+
+		Raid Level : raid0
+		Chunk Size : 512K
+		Array Size : 2117632 (2.02 GiB 2.17 GB)
+		Number Major Minor RaidDevice State
+          0     8     17      0      active sync   /dev/sdb1
+          1     8     18      1      active sync   /dev/sdb2
+
+		active sync表示同步了
+	
+	#指定配置文件，默认是没有的
+	[root@centos620 ~]# mdadm -Ds > /etc/mdadm.conf
+	
+	将配置好的raid0进行分区，使用fdisk命令
+		 
+	[root@centos620 ~]# ls /dev/md0*
+		/dev/md0  /dev/md0p1
+	
+	格式化：
+		mkfs.ext4 /dev/md0p1
+
+	挂载：
+		 mount /dev/md0p1 /guazai
+		 同样是可以设置开机自动挂载的
+	
+	raid1
+		分区：
+		[root@centos620 guazai]# ls /dev/sdc*
+		/dev/sdc  /dev/sdc1  /dev/sdc2  /dev/sdc3
+
+		创建raid1 
+			mdadm -C -v /dev/md1 -l 1 -n 2 -x 1 /dev/sdc{1,2,3}
+			-x表示热备盘
+			
+		#查看raid1的信息
+			[root@centos620 guazai]# mdadm -Ds /dev/md1
+				ARRAY /dev/md1 metadata=1.2 spares=1 name=centos620.cn:1 UUID=ac30beed:8f071aab:1a22c699:a34ea849
+
+		#查看详细的信息mdadm -D /dev/md1
+			Raid Level : raid1
+			Raid Devices : 2 #
+			Total Devices : 3
+			Active Devices : 2
+			Working Devices : 3
+			Spare Devices : 1 #热备
+			
+			Number Major Minor RaidDevice State
+			   0    8    33     0       active sync   /dev/sdc1
+			   1    8    34     1       active sync   /dev/sdc2
+
+			   2    8    35     -           spare   /dev/sdc3
+		
+		cat /proc/mdstat
+
+		创建配置文件：mdadm -Ds > /etc/mdadm.conf 
+
+		分区：fdisk /dev/md1
+		
+		格式化：
+			mkfs.ext4 /dev/md1
+			
+			结果：ls /dev/md1*
+				/dev/md1  /dev/md1p1
+		
+		挂载：mount /dev/md1p1 /md1
+
+	模拟故障：
+		mdadm -f /dev/md1 /dev/sdc1 #制造一个故障
+		
+		watch -n 1 cat /proc/mdstat #监控，1s执行一次后面的命令
+
+			 1059200 blocks super 1.2 [2/1]不正常 [_U]
+			 [==================>..]  recovery = 94.3% (1000064/1059200) finish=0.0min speed=200012K/sec
+
+			可以看到重建的过程
+			
+			重建后：
+			md1 : active raid1 sdc3[2] sdc2[1] sdc1[0](F)表示坏了
+			1059200 blocks super 1.2 [2/2]表示正常 [UU]
+
+		移除坏的磁盘：mdadm -r /dev/md1 /dev/sdc1
+			mdadm: hot removed /dev/sdc1 from /dev/md1
+		
+		移除后，重新生成以下配置文件：
+			mdadm -Ds > /etc/mdadm.conf
+			
+	实战：raid5
+		1.创建raid5
+		2.添加新的 1G热备盘
+		3.移除故障盘
+		4.停止阵列，重新激活
+		5.再重新添加新的1G热备盘，扩展阵列容量，从3个磁盘扩展到4个
+		
+		注意：在使用fdisk进行扩展分区时，扩展分区时要使用剩余的所有空间，之后的分区是在扩展分区的基础上进行的，也就是3个主分区，一个扩展分区，这个扩展分区下面有多个分区；如果没有扩展分区，主分区最多只能有4个。
+		
+		
+	创建raid5：
+		[root@centos620 ~]# mdadm -C -v /dev/md5 -l 5 -n 3 -c 32 -x 1 /dev/sdd{1,2,3,5}
+		#-c 表示chunk大小为32 ，注意不能使用逻辑分区
+		
+		
+	查看状态：cat /proc/mdstat
+	  md5 : active raid5 sdd3[4] sdd5[3](S) sdd2[1] sdd1[0]
+      204608 blocks super 1.2 level 5, 32k chunk, algorithm 2 [3/3] [UUU]
+		#sdd5[3](S)表示热备盘
+		#[3/3]表示3块都正常
+			
+		mdadm -D /dev/md5
+			Raid Devices : 3
+			Total Devices : 4
+			Chunk Size : 32K
+			
+		Number   Major   Minor   RaidDevice State
+		   0       8       49        0      active sync   /dev/sdd1
+		   1       8       50        1      active sync   /dev/sdd2
+		   4       8       51        2      active sync   /dev/sdd3
+
+		   3       8       53        -      spare   /dev/sdd5
+
+	写入配置文件：
+		mdadm -Ds > /etc/mdadm.conf 
+
+	停止磁盘阵列：#必须先生成配置文件再停
+		[root@centos620 ~]# mdadm -S /dev/md5
+	
+	重新激活：启动时，需要读取配置文件
+		[root@centos620 ~]# mdadm -As 
+
+	将raid5用fdisk分区：
+		
+	格式化分区：
+		mkfs.ext4 /dev/md5p1
+	
+	挂载分区：
+		 mount /dev/md5p1 /md5
+	
+	再添加一块热备盘：
+		1.卸载磁盘 umount /md5 
+		
+		2.添加；
+			[root@centos620 ~]# mdadm -a -v /dev/md5 /dev/sdd6
+				mdadm: added /dev/sdd6
+		
+		查看信息：
+			cat /proc/mdstat 
+			md5 : active raid5 sdd6[5](S) sdd1[0] sdd5[3](S) sdd3[4] sdd2[1]
+
+	raid扩容：
+		mdadm -G /dev/md5 -n 4 #扩展到4块磁盘，会将原来的一块热备盘加入阵列
+		
+		查看状态：
+			md5 : active raid5 sdd6[5] sdd1[0] sdd5[3](S) sdd3[4] sdd2[1]
+			306912 blocks super 1.2 level 5, 32k chunk, algorithm 2 [4/4] [UUUU] #4块可用，只剩一块热备
+
+	生成配置文件：
+		mdadm -Ds > /etc/mdadm.conf 
+		
+	扩容后要不要分区呢？
+		磁盘虽然扩容了，但没有格式化，也没有分区？？？
+	
+	raid10，其实就是raid1+raid0，先创建raid1设备，然后在raid1设备基础上创建raid0
+		ls /dev/sde*
+			/dev/sde  /dev/sde1  /dev/sde2  /dev/sde3  /dev/sde4
+			
+		mdadm -C /dev/md11 -l 1 -n 2 /dev/sde{1,2}
+		
+		mdadm -C -v /dev/md12 -l 1 -n 2 /dev/sde{3,4}
+		
+		mdadm -C /dev/md10 -l 0 -n 2 /dev/md{12,11}
+		
+		生成配置：mdadm -Ds> /etc/mdadm.conf
+	
+	
+	删除raid设备：
+		1.卸载 umount 
+		2.停止所有运行的raid设备：mdadm -Ss 
+		3.删除raid配置文件：rm -rf /etc/mdstat.conf
+		4.删除物理raid标识：mdadm --misc--zero-superblock /dev/sda5
+
+通过下面，可以看出不同raid级别对磁盘的利用率：	
+/dev/md0p1     ext4     2.0G  3.1M  1.9G   1% /guazai
+/dev/md1p1     ext4     987M  1.3M  934M   1% /md1
+/dev/md5p1     ext4     190M  1.6M  178M   1% /md5
+
+
+-------------------------------------------------
+
+LVM:logical volumn manage
+  位置：介于磁盘和文件系统中间，和 raid的位置一样。
+  
+	PV 物理卷
+	VG 卷组
+	LV 逻辑卷
+	最小存储单元：PE 可以自定义 16M
+
+名称	最小存储单元 
+硬盘	扇区Sector，512字节
+文件系统 1K或4K
+raid     chunk 512K （mdadm -c 指定chunk大小）
+
+	开始：
+		1.先将一块硬盘分区，分3个区
+		[root@centos620 ~]# ls /dev/sdf* 大小为1G
+			/dev/sdf  /dev/sdf1  /dev/sdf2  /dev/sdf3
+
+		2.创建物理卷PV
+			[root@centos620 ~]# pvcreate /dev/sdf{1,2}
+			Physical volume "/dev/sdf1" successfully created
+			Physical volume "/dev/sdf2" successfully created
+
+		3.创建卷组 VG ，大小为2G
+			vgcreate vg1 /dev/sdf{1,2}
+		
+		4.制作LV
+			lvcreate -n LV1 -L 1.5G vg1
+			-n:表示名字 
+			-L指定大小
+		
+		5.各种查看：
+			pvs 	pvscan 	pvdisplay
+			vgs 	vgscan  vgdisplay
+			lvs 	lvscan  lvdisplay
+			
+		pvdisplay
+			PE Size   4.00 MiB #默认的PE大小为4M
+			可以通过 vgcreate -s 16M vg1 /dev/sdf{1,2}
+			指定PE的大小
+			
+		使用：
+			直接格式化即可使用：lv是通过vg来管理的
+				mkfs.ext4 /dev/vg1/LV1
+
+			挂载：mount /dev/vg1/LV1  /lv1
+		
+		查看磁盘：df -Th /dev/vg1/LV1 或者：df -Th /dev/mapper/vg1-LV1 或者 df -Th /dev/dm-0
+
+			/dev/mapper/vg1-LV1 ext4     1.5G  2.3M  1.4G   1% /lv1
+	
+	#查看所有PV物理卷的信息，属于哪个卷组，大小。。。
+	[root@centos620 ~]# pvs
+	PV         VG   Fmt  Attr PSize PFree  
+	/dev/sdf1  vg1  lvm2 a--u 1.01g      0 
+	/dev/sdf2  vg1  lvm2 a--u 1.01g 528.00m
+
+	[root@centos620 ~]# vgs #显示卷组的信息，有几个卷组，每个卷组有几个pv，几个lv，大小，空余多少
+		VG   #PV #LV #SN Attr   VSize VFree  
+		vg1    2   1   0 wz--n- 2.02g 528.00m
+	
+	[root@centos620 ~]# lvs #显示所有的逻辑卷信息
+	LV   VG   Attr       LSize 
+	LV1  vg1  -wi-ao---- 1.50g 
+	
+	LVM支持动态扩容：
+		1.lvextend -L +300M /dev/vg1/LV1 
+		#此时在文件系统中还没变
+		2.resize2fs /dev/vg1/LV1 #生成扩容后的文件系统
+		
+	VG的扩展；
+		vgextend vg1 /dev/sdf3
+
+	缩减：跟扩容是相反的过程。
+	  文件系统的缩减：
+		1.先卸载 umount /lv1
+
+		2.检查文件系统：e2fsck -f /dev/vg1/LV1
+
+		3.resize2fs /dev/vg1/LV1 1000M
+
+			挂载，查看 mount   df -Th 
+				/dev/mapper/vg1-LV1 ext4     952M  1.9M  901M   1% /lv1
+		4.lvreduce -L 1000M /dev/vg1/LV1 
+			查看：lvs
+				LV1  vg1  -wi-a----- 1000.00m  
+
+
+	LVM删除：
+		1.卸载 
+		2.先删lv，再删vg，最后删pv ,直接删 vg也是可以的，他会提示删lv
+			lvremove /dev/vg1/LV1
+			vgremove vg1
+			pvremove /dev/sdf3
+			
+	LVM快照：
+		原理：瞬间冻结一个状态，然后挂载，复制到备份目录！！！
+	#对正在运行的lv创建快照，-s 表示快照，创建一个名为lv_snap的300M的快照	
+		lvcreate -s -n lv1_snap -L 300M /dev/vg1/lv1 
+	查看：
+		lv1_snap vg1  swi-a-s--- 300.00m      lv1    0.00 
+	
+	挂载快照，复制
+		[root@centos620 lv1]# mount /dev/vg1/lv1_snap /lv_snap
+		
+		#可以看出，快照和原本是一样的。
+		[root@centos620 lv1]# ls /lv_snap
+		grub  lost+found
+		[root@centos620 lv1]# ls /lv1/
+		grub  lost+found
+		
+		复制：cp /lv1_snap -r /tmp/lv1_back
+
+---------------------------------------------------
+		
+NTP服务：网络时间协议 
+
+	端口：123
+	
+	可用的时间同步服务器：
+		ntpdate server 202.112.10.36
+		ntpdate ntp.api.bz
+		ntpdate cn.pool.ntp.org
+
+	
+	配置文件： vim /etc/ntp.conf
+	
+	安装NTP服务器：yum install -y ntp
+	
+	安装NTP客户端： yum install -y ntpdate
+
+	当然也可以使用rpm包进行安装。
+	
+	启动服务器：service ntpd start 
+	
+	服务器同步网络时间：
+		ntpdate ip或ntp服务器域名
+
+	[root@centos620 ~]# ntpdate 0.centos.pool.ntp.org
+	8 May 18:22:22 ntpdate[3837]: the NTP socket is in use, exiting
+	#报错，退出ntpd即可
+	
+	[root@centos620 ~]# ntpdate 0.centos.pool.ntp.org
+		8 May 18:24:25 ntpdate[3858]: step time server 5.103.139.163 offset 0.864481 sec
+	offset是指偏移量，就是与本地时间差多少
+	
+	ntpd服务器配置文件：
+		restrict 192.168.31.0 mask 255.255.255.0 #只允许内网使用
+	
+	ntp服务器的层级关系设置：
+		server 0.centos.pool.ntp.org iburst
+		server 1.centos.pool.ntp.org iburst
+		server 2.centos.pool.ntp.org iburst
+		server 3.centos.pool.ntp.org iburst
+
+	[root@centos620 ~]# ntpstat 
+		unsynchronised
+			polling server every 64 s #需要等待5分钟
+	
+	#客户端同步时间出错，等几分钟就好，如果不好，可能是时间服务器连接超时！！！
+	[root@centos621 ~]# ntpdate 192.168.31.20
+		8 May 18:46:50 ntpdate[3748]: no server suitable for synchronization found
+	
+	[root@centos621 ~]# ntpdate 192.168.31.20
+		8 May 20:27:23 ntpdate[3840]: step time server 192.168.31.20 offset 37.345012 sec
+	
+	[root@centos620 ~]# ntpstat
+	synchronised to local net at stratum 11  #同步到11等级
+		time correct to within 7948 ms
+		polling server every 64 s
+	
+	相关的配置文件：vim /etc/sysconfig/clock 
+		ZONE="Asia/Shanghai"
+
+	hwclock -r #bios时间
+	hwclock -w #同步时间到bios时间
+	
+	配置定时同步时间：
+	crontab -e 
+		0 12 * * *  /usr/sbin/ntpdate 0.centos.pool.ntp.org
+
+-----------------------------------------------------
+		
+NFS 网络文件系统
+
+	linux之间的文件共享：	
+	
+	在win10中也可以共享，只要在 关闭或开启Windows功能里勾选 nfs即可在计算机查看到linux挂载的目录，而不用手动挂载。
+	
+	安装服务器：yum install -y rpcbind nfs-utils
+	
+	yum  install  nfs-utils 
+	chkconfig rpcbind on #开机自启 #chkconfig：更新和查询各运行级别的系统服务
+	chkconfig nfs on  #设置卡机自启
+	service rpcbind start
+	service nfs start
+
+	客户端同样要安装 yum install -y nfs-utils
+	
+	showmount -e NFSIP #查看共享的文件夹
+	mount NFSIP:/dir /data #挂载到 /data
+	
+	卸载：umount /data
+	
+	设置开机自动挂载：vim /etc/fstab
+		192.168.31.20:/media  /opt  nfs  defaults  0 0 
+		
+		mount -a 马上生效
+		mount #查看所有挂载
+		
+	配置文件：/etc/exports
+		/var/nfs 192.168.31.21(rw,async,root_squash,insecure)
+		
+		/var/nfs *(rw) # * 表示所有主机都可以访问
+
+	端口：2049
+
+	启动服务器：service nfs start 
+	
+	如果windows客户端还不能创建文件，可以修改挂载文件夹的权限和在配置文件中添加 writable = yes ,然后重启服务。
+	
+	[root@centos621 data]# showmount -e 192.168.31.20
+		Export list for 192.168.31.20:
+			/var/nfs 192.168.31.21
+	
+	[root@centos621 data]# mount 192.168.31.20:/var/nfs /data   
+	
+	此时，进入/data文件夹，创建文件，提示权限不够，所以要回到服务器端，修改挂载目录的权限 chmod 777 /var/nfs
+	
+	#文件所有者居然是nfsnobody
+	[root@centos621 opt]# ll 
+	-rw-r--r-- 1 nfsnobody nfsnobody 1.7K 5月   8 22:06 passwd
+	
+	错误处理：
+	[root@centos621 data]# mount  192.168.31.20:/media/ /opt
+	mount.nfs: rpc.statd is not running but is required for remote locking.
+	mount.nfs: Either use '-o nolock' to keep locks local, or start statd.
+	mount.nfs: an incorrect mount option was specified
+	
+	#客户端必须安装rpcbind，并启动才能挂载！！！
+	[root@centos621 data]# service rpcbind start
+	
+	配置文件详解：
+	
+		sync：立即同步
+		
+		no_root_squash #文件所有者不压制
+		
+		root_squash #默认 
+		表示压制root，创建文件的所有者是nfsnobody
+		
+		192.168.31.0/24(rw,sync) #允许这个网段
+		
+		192.168.31.21(ro) #只允许这个ip，ro表示只读权限
+		
+		*.baidu.com() #baidu.com这个域可以访问
+		
+		*(async) #异步
+
+		all_squash:用户登录nfs时，指定身份为UID、GID的用户
+		
+	使用 autofs 自动挂载
+		/etc/auto.master #文件定义本地挂载点
+		/etc/auto.misc   #设置需要挂载的文件系统类型和选项
+
+------------------------------------------------------------
+		
+Samba服务器：
+	作用，实现windows和linux之间的文件共享
+	
+	应用场景：文件的共享和打印
+	
+	支持身份验证，通过加密的方式可以保护共享的文件和打印机
+	
+	端口：139和445
+	
+	NETBIOS协议：network basic input/output protocal
+	
+		作用：将局域网的计算机名解释成ip地址。
+	
+	运行模式：C/S 模式
+	
+	安装Samba服务器：
+		yum install samba
+		
+	安装客户端：yum install Samba-client
+	
+	查看一个服务的相关文件：
+		1.whereis samba
+			[root@centos620 samba]# whereis samba
+				samba: /etc/samba /usr/lib64/samba /usr/share/man/man7/samba.7.gz
+		2.rpm -ql samba 
+	
+	samba的配置文件：/etc/samba/smb.conf
+		
+	启动服务：service smb start 
+		/etc/init.d/smb start 
+	
+	netstat -antup |grep smb
+		
+	用法：Usage: /etc/init.d/smb {start|stop|restart|reload|configtest|status|condrestart}
+	
+	reload的作用是：可以在不关闭服务的情况下，重新加载配置文件。
+	
+	设置开机自启：chconfig --level 3 sbm on #设置开机在3级别启动。
+	
+	客户端连接：
+		smbclient -L 192.168.31.20
+		
+	配置文件详解：
+		workgroup = MYGROUP #工作组
+        server string = Samba Server Version %v #描述
+	
+	
+	; netbios name = MYSERVER #Samba中分号表示注释
+	
+		log file = /var/log/samba/log.%m #存放日志的目录
+		# max 50KB per log file, then rotate
+        max log size = 50 #日志文件的大小
+		
+		security = user #安全模式
+		#其中可以设置的安全模式有：share，user，server，domain，AD.五种
+		share表示匿名可以访问，user表示通过用户名密码访问，AD表示活动目录
+		
+        passdb backend = tdbsam
+		
+		
+	[homes]
+        comment = Home Directories
+        browseable = no
+        writable = yes
+;       valid users = %S
+;       valid users = MYDOMAIN\%S
+
+	[printers]
+        comment = All Printers
+        path = /var/spool/samba
+        browseable = no
+        guest ok = no
+        writable = no
+        printable = yes
+	
+	#配置共享目录
+	[share] #设置共享名
+;       comment = Public Stuff #描述
+;       path = /home/samba #共享的绝对路径
+;       public = yes #允许匿名查看
+;       writable = yes #读写
+		writeable = no #只读
+;       printable = no #是否可以打印
+;       write list = +staff #用户名
+;       write list = @组名 
+		browseable = no #是否允许查看此共享。如果否，可以通过绝对路径查看
+		
+		valid users = %S #设置有效的用户
+;       valid users = @组名 #设置允许的组
+		
+		readonly = yes #只读
+		readonly = no #读写
+		
+	实战：
+	
+		[global] 
+		workgroup = xuegod.cn #工作组
+        server string = xuegod.cn samba server
+			
+		 security = share #允许匿名访问
+		
+		[share] #共享名
+		comment = xuego.cn #描述
+		path = /share #共享目录的绝对路径
+		public = yes #公开的
+		
+		重启samba服务器：service smb restart	
+	
+	客户端测试：
+		win10不支持匿名访问，而我配置的samba正好是免登陆访问也就是匿名访问，因此访问不了。
+		gpedit.msc->管理模板->网络->lanman工作站->启用不安全的来宾登录。
+		
+		解决方法：http://www.pc0359.cn/article/jiaocheng/78489.html
+
+		在”启用或关闭Windows功能“将"SMB1.0/CIFS文件共享支持"勾选上即可，完成之后点击确定按钮进行保存！这个方法使用之后需要将电脑重新启动才能生效
+
+	配置用户组，并添加用户到组，把组员添加到smb成员
+		security = user #密码登录
+        passdb backend = smbpasswd
+        smb passwd file=/etc/samba/smbpasswd #密码存放文件
+	
+		[sales]
+		comment = sales
+		path = /sales
+		valid users = @sales #有效的用户组
+
+		[root@centos620 ~]# groupadd sales
+		[root@centos620 ~]# useradd -g sales sale1
+		[root@centos620 ~]# useradd -g sales sale2
+	
+		smbpasswd  -a sale1
+		smbpasswd  -a sale2
+	
+		重启服务：service smb restart
+	
+		[homes]
+			comment = Home Directories
+			browseable = no
+			writable = yes #家目录默认是可写的
+
+	win10删除网络凭据：net use * /del
+	
+	扩展配置：
+		interfaces = lo eth0 192.168.12.2/24 192.168.13.2/24 
+		hosts allow = 127. 192.168.12. 192.168.13.
+		hosts deny 字段定义禁止访问的ip客户端
+		
+		如果hosts allow 和 hosts deny 同时有，allow的优先级更高。
+		
+		write list = boss,@sales #表示boss和sales组都可以读写
+		writable = yes 
+	
+	samba 的隐藏共享：
+		全局配置：
+			config file = /etc/samba/smb.conf.%U
+			在共享文件夹中添加：browsable = no 
+		cp /etc/samb/smb.conf /etc/samb/smb.conf.sale1
+			vim /etc/samb/smb.conf.sale1
+				在共享文件夹中添加：browsable = yes #表示这个目录对当前用户sale1可见
+	
+	添加root用户为samba用户：smbpasswd -a root 
+	
+	使用linux客户端连接：
+		查看共享的文件夹
+		smbclient -L 192.168.31.20 -U sale1
+		Sharename       Type      Comment
+        ---------       ----      -------
+        IPC$            IPC       IPC Service (xuegod.cn samba server.4294967295)
+        sales           Disk      xuego.cn
+        share           Disk      xuego.cn
+        sale1           Disk      Home Directories
+	
+	进入共享文件夹
+		 smbclient //192.168.31.20/sales -U sale1%123456
+		!ls 显示本地当前目录文件
+		ls 
+		pwd 
+		get  下载
+		put 上传
+		
+	同样也是可以挂载和添加到/etc/fstab实现开机自动挂载的！！！
+		mount -t cifs //192.168.31.20/sales /data -o username=sale1%123456
+		
+		提示错误：mount: cannot mount block device //192.168.31.20/sales read-only
+		解决：
+		[root@centos5 ~]# yum -y install cifs*
+
+------------------------------------------------------		
+		
+VSFTP服务：文件传输协议
+  very secure FTP
+	特点：安全，高速，稳定，并发好。
+	
+	模式：C/S 
+	
+	端口：20 、21两个端口
+		21传指令，20传输数据
+		netstat -antup |grep vsftpd
+	
+	安装ftp服务器：
+		 rpm -ivh /mnt/Packages/vsftpd-2.2.2-24.el6.x86_64.rpm 
+		 
+	配置文件：
+		/etc/vsftpd/vsftpd.conf
+				
+	启动服务： 
+		service vsftpd start
+	
+	设置服务开机启动：chkconfig vsftpd on 
+	
+	默认的共享目录：
+		/var/ftp/
+		
+	客户端打开：
+	  Windows：
+		浏览器或者我的电脑窗口：ftp://192.168.31.20/
+	  
+	  linux客户端：
+		需要安装客户端：rpm -ivh /mnt/Packages/lftp-4.0.9-14.el6.x86_64.rpm 
+				
+		lftp 192.168.31.20	#进入命令提示符界面，help查看帮助
+
+			具体操作和samba客户端基本一致，有get，put等命令。
+	
+	注意：chmod 755 /var/ftp/ 如果这个目录的权限改为777匿名用户是不能登录的。
+	
+	实战：匿名用户可以上传下载文件：
+		anon_mkdir_write_enable=YES
+				
+		anon_upload_enable=YES	
+		
+		ftp:x:14:50:FTP User:/var/ftp:/sbin/nologin
+		#默认匿名用户的家目录是 /var/ftp 权限是755，这个权限是不能改的！！！
+		#ftp是一个内置的用户，必须把文件夹的所有者设为ftp才能上传文件，此时还不能直接修改文件名或者删除文件。
+		chown ftp /var/ftp/companydata/ 
+	
+	实战2：
+		只允许用户在自己的家目录下活动。
+		    useradd -s /sbin/nologin  team1
+			useradd -s /sbin/nologin  team2
+				
+			echo "12345" | passwd --stdin team1	
+			echo "12345" | passwd --stdin team2	
+				
+			修改配置文件：
+				anonymous_enable=NO #禁止匿名用户登录
+				
+				#chroot_local_user=YES #默认就是yes
+				local_root=/var/www/html #设置活动目录
+				chroot_list_enable=YES #开启用户列表
+				chroot_list_file=/etc/vsftpd/chroot_list #用户列表的文件
+				
+			[root@centos620 ~]# vim /etc/vsftpd/chroot_list
+				team1
+				team2	
+			
+			修改权限：chmod -R o+w /var/www/html/
+				
+			报错：vsftpd 启动 vsftpd：500 OOPS: unrecognised variable in config file: local_root 
+			原因居然是=两边不能有空格！！！
+				
+	实战3：ftp虚拟账号
+		客户可以通过ftp客户端下载文件，但不能上传和删除，合作单位有权上传文件到共享目录，但不能删除，限速
+		
+		#配置虚拟账号密码文件
+		[root@centos620 ~]# vim /etc/vsftpd/vsftpd_virtualuser.txt
+			ftp
+			123456
+			vip
+			123456
+			
+		加密密码文件：
+			[root@centos620 ~]# db_load -T -t hash -f /etc/vsftpd/vsftpd_virtualuser.txt /etc/vsftpd/vsftpd.db
+			
+			参数说明：-T允许将文本转译载入数据库
+					  -t hash 使用hash加密
+					  -f 指定输入文件
+					  
+		查看生成文件的类型
+			[root@centos620 ~]# file /etc/vsftpd/vsftpd.db
+				/etc/vsftpd/vsftpd.db: Berkeley DB (Hash, version 9, native byte-order)
+		
+		删除密码源文件：rm -rf 	/etc/vsftpd/vsftpd_virtualuser.txt 
+		
+		修改密码数据库文件的权限：
+			chmod 600 /etc/vsftpd/vsftpd.db
+			
+		配置PAM文件：可插拔认证模块，不必重新安装应用，通过修改指定的配置文件，调整对程序的认证方式。
+			pam配置文件路径：/etc/pam.d/
+		
+		修改：/etc/pam.d/vsftpd
+			[root@centos620 ~]# vim /etc/pam.d/vsftpd 
+				auth required /lib64/security/pam_userdb.so db=/etc/vsftpd/vsftpd_virtualuser
+				account required /lib64/security/pam_userdb.so db=/etc/vsftpd/vsftpd_virtualuser
+		
+		创建用户和修改用户家目录权限：
+			[root@centos620 ~]# useradd -d /var/ftp/share ftpuser
+			[root@centos620 ~]# useradd -d /var/ftp/vip ftpvip 
+			[root@centos620 ~]# chmod -R 500 /var/ftp/share/
+			[root@centos620 ~]# chmod -R 700 /var/ftp/vip/ 
+
+
+
+
+
+
+
+
+---------------------------------------------------
+
+Apache服务器：
+	安装客户端：elinks
+		rpm -ivh /mnt/Packages/nss_compat_ossl-0.9.6-2.el6_7.x86_64.rpm
+		
+		rpm -ivh /mnt/Packages/elinks-0.12-0.21.pre5.el6_3.x86_64.rpm
+
+	配置文件：vim  /etc/httpd/conf/httpd.conf 
+
+		ServerRoot "/etc/httpd" #配置文件的主目录
+
+		Timeout 60 #超时时间
+
+		ServerAdmin root@localhost #管理员邮箱
+
+		Listen 80 #监听端口
+		
+		#ServerName www.example.com:80 #服务器主机名
+
+		DocumentRoot "/var/www/html" #网站根目录
+		
+		AddDefaultCharset UTF-8 #默认字符集
+
+		Options Indexes FollowSymLinks #允许显示网站的目录结构
+
+		DirectoryIndex index.php index.html index.html.var
+		目录的入口文件
+
+	使用yum搭建lamp环境：
+		yum install httpd mysql-server php php-mysql -y 
+		
+		安装完后，
+		[root@centos620 html]# ls /etc/httpd/conf.d/
+		mod_dnssd.conf  php.conf  README  welcome.conf
+		
+		启动mysqld服务：service mysqld start 
+		
+	[root@centos620 httpd]# ll /etc/httpd/
+		conf
+		conf.d
+		logs -> ../../var/log/httpd
+		modules -> ../../usr/lib64/httpd/modules #模块位置
+		run -> ../../var/run/httpd #httpd的进程号
+	
+	[root@centos620 httpd]# ll /etc/httpd/conf/ #Apache的配置文件目录
+		httpd.conf
+		magic
+	
+	[root@centos620 httpd]# ll /etc/httpd/conf.d/ #第三方配置文件目录
+		mod_dnssd.conf
+		php.conf
+		README
+		welcome.conf
+	
+	别名 也就是虚拟目录，就是把不在网站根目录的目录，虚拟成在网站根目录，如果有 / 访问时要加 / 才能正常访问
+		Alias /icons/ "/var/www/icons/"
+
+		<Directory "/var/www/icons">
+			Options Indexes MultiViews FollowSymLinks
+			AllowOverride None
+			DirectoryIndex index.php index.html
+			Order allow,deny
+			Allow from all
+		</Directory>
+		
+		配置PHPmyadmin的虚拟目录，
+	
+	#注意这个虚拟目录有 / 和没 / 的区别：
+	Alias /phpmyadmin "/usr/local/phpmyadmin/"
+	<Directory "/usr/local/phpmyadmin/">
+		Options -Indexes -FollowSymLinks # - 表示关闭显示目录
+		AllowOverride None
+		Order deny,allow
+		Allow from 192.168.31.0/24
+		Deny from all
+	</Directory>
+
+	关于权限的控制：
+	注意“Deny,Allow”中间只有一个逗号，也只能有一个逗号，有空格都会出错；单词的大小写不限
+	
+		Order deny,allow #决定执行权限的优先级，allow优先于deny
+		Order allow,deny #deny优先于allow
+		
+		Allow from all #允许所有ip访问
+		Deny from all #禁止多有ip访问 
+		
+		Allow from 192.168.31.0/24 #允许这个网段访问
+		Allow from 192.168.31.20 192.168.31.21 #允许这两个ip访问
+		
+		Deny from 192.168.31.20 192.168.31.21 #禁止这个ip
+		
+	除了使用别名的方式来设置虚拟目录，Apache也是支持linux的软连接的。可以直接把一个目录通过软连接的方式连到网站根目录即可。
+	
+		直接在软连接到的目录中设置 FollowSymLinks 即可。
+		<Directory "/var/www/html">
+			Options Indexes FollowSymLinks
+			Order allow,deny
+			Allow from all
+		</Directory>
+
+		注意：如果软连接失败，出现红色闪烁，请用绝对路径
+	
+	实战1：给网站的某个目录添加用户名、密码认证：
+	  方法1：	
+		<Directory "/usr/local/phpmyadmin/">
+			Options -Indexes -FollowSymLinks 
+			AllowOverride None
+			Order deny,allow
+			Allow from all
+			
+			authtype basic
+			authname "MySQL admin sofeware..."
+			authuserfile /etc/httpd/conf/passwd.secret
+			require valid-user 
+		</Directory>
+
+		生成密码文件：htpasswd -cm #-c表示创建 -m表示md5加密
+		[root@centos620 html]# htpasswd -cm /etc/httpd/conf/passwd.secret tom
+			
+			密码内容：tom:$apr1$QWp07KG8$5BowPvhWcjlSKpFP4G7BP/
+			
+			如果是追加用户，不用c参数，还可以指定其他的加密算法，可以通过 htpasswd -h 来查看帮助
+			
+		方法2：
+		配置文件中指定目录下添加：AllowOverride AuthConfig
+		然后到相应的目录下创建 .htaccess
+		
+		<Directory "/usr/local/phpmyadmin/">
+
+			DirectoryIndex index.php index.html
+			Options -Indexes FollowSymLinks
+			AllowOverride None
+			AllowOverride AuthConfig
+			
+		</Directory>
+
+		
+		vim .htaccess
+			#同样是这些内容
+			authtype basic
+			authname "MySQL admin sofeware..."
+			authuserfile /etc/httpd/conf/passwd.secret
+			require valid-user 
+		
+	实战2：配置虚拟主机，实现不同域名访问不同的网站
+	  实现方法：
+		1.通过不同的ip
+		2.通过不同的域名
+		3.通过不同的端口号
+		
+	MaxClients         300	 #最大客户端连接数
+	
+	首先，开启虚拟主机功能：
+		NameVirtualHost *:80
+
+	1.通过不同的ip，这个ip可以绑定下同一块网卡，也可以在不同的网卡。
+	<VirtualHost 192.168.31.26:80>
+		DocumentRoot /var/www/web
+	</VirtualHost>
+	#注意：一个网卡虽然可以配多个ip，但各个ip要在同一个网段才能通信！！！
+	<VirtualHost 192.168.31.31:80>
+		DocumentRoot /var/www/web2
+	</VirtualHost>
+
+	2.通过不同的域名，这个需要修改DNS
+	#httpd.conf文件
+	<VirtualHost *:80>
+		DocumentRoot /var/www/web2
+		ServerName bbs.com
+	</VirtualHost>
+	
+	#/etc/hosts文件
+	192.168.31.20   bbs.com
+		
+	重启httpd
+	注意：这种通过域名访问，会先从本机的hosts文件查找对应的ip，如果找到就直接访问，所以只能在本机测试！！！如果在其他机器，这个域名解释的结果就不一样了。
+	
+	3.基于端口配置虚拟主机
+		添加多个端口
+			Listen 80
+			Listen 81
+		<VirtualHost *:80> # *表示本机网卡上所有的ip地址
+			DocumentRoot /var/www/web
+		</VirtualHost>		
+		
+		<VirtualHost *:81>
+			DocumentRoot /var/www/web2
+		</VirtualHost>
+	
+---------------------------------------------------
+	
+解决centos7无法上网的问题：
+	问题描述：刚装好的虚拟机无法上网：
+		systemctl stop NetworkManager
+		systemctl disable NetworkManager
+		systemctl start network.service
+	停掉NetworkManager这个管理套件即可。
+	
+	问题：配置静态ip地址：
+	TYPE=Ethernet
+	BOOTPROTO=none
+	NAME=ens33
+	IPADDR=192.168.31.23 #注意这个ip必须是局域网内唯一，否则会报错
+	
+	NM_CONTROLLED=no #不受NetworkManager的控制
+	#此时，networkmanager是开的，只是这个配置文件不受它的控制
+	
+	NETMASK=255.255.255.0 #这里必须设置正确才能上网，四个255是非法的！！！
+	GATEWAY=192.168.31.1
+	DEVICE=ens33
+	ONBOOT=yes
+	PREFIX=24
+	DNS1=114.114.114.114
+	
+	ip设置不唯一时报错：
+		See "systemctl status network.service" and "journalctl -xe" for details.
+
+	临时修改ip，不需要重启网络，当重启网络服务时，临时设置的会改变。
+
+---------------------------------------------------------
+	
+网络基础篇：
+	
+	192.168.31.20/24 后面/24的话 指示子网掩码是255.255.255.0，
+	也就是表示这个网段。
+	&1 是本身不变，&0 全部变为0，
+	所以192.168.31.0表示这个网络本身；
+	掩码为0的部分全部取反，算出的十进制数就是广播地址，192.168.31.255，
+	而192.168.31.1表示网关，所以可用的ip为192.168.31.2-192.168.31.254，共有253个ip可用。
+	
+	注意：网关是指网络之间的连接桥梁，pc本身不具备寻址功能，而路由器具备网络寻址功能，所以网关往往设置成路由器的ip地址，往往是这个网段的192.168.xx.1。
+	
+	0.0.0.0 表示匹配所有	
+	hosts的优先级高于DNS的优先级
+
+网络接口的类型：
+	ethN：以太网
+	lo：回环口
+	fddin：光纤
+	br0：桥设备
+	ppp：ADSL宽带接口
+	
+修改hostname：
+	1.修改 /etc/sysconfig/network ,设置 HOSTNAME=centos6
+	2.修改 /etc/hosts ,设置 127.0.0.1 centos6
+	3.重启
+
+查看网络物理连接是否正常：
+	输入mii-tool可以查看网线是否连接到网卡
+	mii-tool eth0
+		eth0: negotiated 100baseTx-FD, link ok
+	
+	ethtool eth0
+		Link detected: yes为正常no为失败
+
+防火墙相关配置：centos6
+	1.执行下述命令查看防火墙状态：
+	service iptables status
+
+	2.执行下述命令关闭防火墙：
+	service iptables stop
+	
+	3.service iptables status
+	iptables：未运行防火墙。
+
+	最后关闭防火墙开启自启：
+	chkconfig iptables off
+	
+	检查是否关闭成功：
+	chkconfig --list iptables
+		iptables 0:关闭	1:关闭	2:关闭	3:关闭	4:关闭	5:关闭	6:关闭
+
+配置静态ip：
+	1、setup中编辑eth0网卡
+		原来是这个 NetworkManager 在搞鬼！！！
+	2、service NetworkManager stop
+	3、设置开机禁止自启：chkconfig NetworkManager off
+		chkconfig --list NetworkManager
+	4、重启网络：service network restart	
+
+	编辑网卡配置文件；注意：必须配置网关才能ping通外网，而且网关必须是这个网段的第一个主机，也就是最后一位为 1 。
+	DNS、掩码都是可选的！！！
+		DEVICE=eth0
+		TYPE=Ethernet
+		ONBOOT=yes
+		NM_CONTROLLED=yes
+		BOOTPROTO=none
+		IPADDR=192.168.31.21
+		NETMASK=255.255.255.0
+		DNS2=8.8.8.8
+		GATEWAY=192.168.31.1
+		DNS1=114.114.114
+	查看网关：route -n
+		这个就是默认网关：0.0.0.0    192.168.31.1  0.0.0.0  
+
+网卡操作：
+	ifconfig -a #查看所有网卡，包括未启动的
+	ifup eth0
+	ifdown eth0
+
+
+网卡MAC的前三段表示 厂商 后三段表示 地址 
+
+添加新网卡：
+	1.关闭虚拟机，添加一块网卡
+	2.进入系统，setup快速添加网卡，保存，即可生成配置文件
+	3.修改 onboot=yes,不用设置网关，使用默认的
+	4.重启网络：service network restart
+	
+	删除新添加的网卡，也会进入setup进行删除。
+
+/etc/sysconfig/network文件	
+	NETWORKING=yes #必须是yes，表示开机时激活网络，否则，即使network开启，网络也是起不来的。
+
+DNS的配置：centos6同样是在ifcfg-eth0中通过DNS1、DNS2进行配置，重启网络后，会在/etc/resolve.conf文件生成相应DNS！
+	nameserver 114.114.114
+	nameserver 8.8.8.8
+
+查看日志：vim /var/log/messages
+
+决定域名解释顺序的文件：/etc/hss
+	hosts:      files dns #可以改变顺序
+
+端口和服务的对应文件：/etc/services	
+
+查看流量：安装iptraf：
+	 rpm -ivh /mnt/Packages/iptraf-3.0.1-14.el6.x86_64.rpm 	
+	输入 iptraf ->Detail ,主要查看出去的流量。
+
+查看ip地址是否冲突：arping 192.168.31.22	
+
+tcpdump -i eth0 抓包这块网卡
+
+抓包：服务器：tcpdump port 22 -c 3 -n -S 
+	表示抓22端口，抓3次，-n不解释端口，-S 序列号
+	
+	客户端：telnet 192.168.31.20 22
+	
+	抓包信息：
+	12:34:08.649429 IP 192.168.31.21.52580 > 192.168.31.20.ssh: Flags [S], seq 3834231549, win 14600, options [mss 1460,sackOK,TS val 5925680 ecr 0,nop,wscale 6], length 0
+	
+	12:34:08.649480 IP 192.168.31.20.ssh > 192.168.31.21.52580: Flags [S.], seq 607853682, ack 3834231550, win 14480, options [mss 1460,sackOK,TS val 5859018 ecr 5925680,nop,wscale 6], length 0
+	
+	12:34:08.649727 IP 192.168.31.21.52580 > 192.168.31.20.ssh: Flags [.], ack 607853683, win 229, options [nop,nop,TS val 5925680 ecr 5859018], length 0
+
+服务篇：
+
+关闭防火墙
+	iptables -F
+
+将配置写入文件：
+	/etc/init.d/iptables save
+
+关闭SELinux
+	vim /etc/Selinux/
+	重启
+	实际工作中，开启SELinux的很少!!!
+
+配置好本地yum源：
+	添加文件/etc/yum.repo.d/centos6ios.repo
+		[centos6iso]
+		name=centos6ios
+		baseurl=file:///mnt/
+		enabled=1
+		gpgcheck=0
+
+	修改/etc/fstab
+		/dev/cdrom    /mnt     iso9660    defaults        0 0
+
+	mount -a
+
+	yum clean all
+
+	yum list
+
+将虚拟机的网络连接改为桥接，也就是相当于真正的网卡，与局域网的所有设备在同一个网段，可以相互通信。
+缺点就是占用了局域网的ip，数量有限。
+
+将虚拟机的网络改为桥接的步骤：
+	1.编辑虚拟网络编辑器->选好桥接网卡
+	2.选择虚拟机的网络连接类型为 桥接 （不勾选复制物理机。。。）
+	3.进入虚拟机系统，重启网络服务，service network restart
+	如果是Ubuntu：sudo service networking restart
+
+克隆后修改eth1为eth0 的方法：
+
+把他删了即可：
+	# PCI device 0x1022:0x2000 (pcnet32)
+	SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="00:0c:29:a7:c8:d1", ATTR{type}=="1", KERNEL=="eth*", NAME="eth0"
+
+	# PCI device 0x1022:0x2000 (vmxnet)
+	SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="00:0c:29:97:08:2c", ATTR{type}=="1", KERNEL=="eth*", NAME="eth1"
+
+	# PCI device 0x1022:0x2000 (vmxnet)
+	SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="00:50:56:3b:04:e0", ATTR{type}=="1", KERNEL=="eth*", NAME="eth2"
+
+最后重启！！！
+
+SSH服务：
+
+	查看软件包的详细信息：rpm info pname
+	查看系统是否安装某个包：rpm -qa |grep openssh
+	查看包生成的配置文件的目录： rpm -qpl /mnt/Packges/openssh-server-5.3p1-122.el6.x86_64.rpm 
+	
+	权限问题：
+	[root@centos620 Packages]# which ssh
+	/usr/bin/ssh #客户端所有用户都可以使用
+	[root@centos620 Packages]# which sshd
+	/usr/sbin/sshd #服务器端，只有管理员才能开启
+	
+	[root@centos620 Packages]# rpm -qf `which sshd`
+		openssh-server-5.3p1-122.el6.x86_64
+	
+	ls /etc/init.d/ #这个目录下的文件都可以用service xxx start 来操作
+	 
+	[root@centos621 ~]# /etc/init.d/sshd restart
+	等价于： service sshd restart
+	
+	查看命令或者服务由哪个包生成的！！！
+	[root@centos621 ~]# rpm -qf `which chkconfig`
+		chkconfig-1.3.49.5-1.el6.x86_64
+		
+	[root@centos621 ~]# rpm -qf `which NetworkManager`
+		NetworkManager-0.8.1-113.el6.x86_64
+	
+	设置服务开机启动：chkconfig sshd on 
+	设置服务开机禁止启动：chkconfig sshd off 
+	
+	[root@centos621 ~]# chkconfig sshd --list
+		0:关闭  1:关闭  2:启用  3:启用  4:启用  5:启用  6:关闭
+	表示这个服务在哪些级别是开机启动的。
+	
+	所谓的服务，本身就是一个脚本：
+		 vim /etc/init.d/sshd
+
+	连接：ssh root@192.168.31.21
+	Warning: Permanently added '192.168.31.21' (RSA) to the list of known hosts.	
+	RSA就是一种非对称加密技术
+	
+	vim /root/.ssh/known_hosts 这个文件保存了本机所有通过ssh连接的远程主机和秘钥
+	
+	sshd日志存放的目录：/var/log/secure
+	
+	sshd_conf中SyslogFacility AUTHPRIV #定义了日志的类型
+	
+	vim /etc/rsyslog.conf 这个文件定义了日志文件的存放路径
+		可以看到：authpriv.*    /var/log/secure
+	所以sshd的日志会保存到 /var/log/secure 这个文件
+	
+	为了安全起见，可以把 passwd文件中root用户的sh设置为 /sbin/nologin
+	
+	
+	LoginGraceTime 10 #10s内不输入密码自动断开
+	[root@centos620 ~]# ssh root@192.168.31.20
+	root@192.168.31.20's password: 
+	Connection closed by 192.168.31.20
+
+	设置用户登录时，显示信息：
+		1.PrintMotd yes
+		2.echo "从现在开始你所有的操作开始被记录！！！">>/etc/motd #这个文件本身是存在的
+	结果：[root@centos620 ~]# ssh root@192.168.31.20
+		  root@192.168.31.20's password: 
+		  Last login: Mon May  7 16:42:11 2018 from  192.168.31.239
+		  从现在开始你所有的操作开始被记录！！！
+	
+	显示上次登录的信息：#PrintLastLog yes
+	默认是开启的。
+	
+	是否允许权限较低的用户登录，意思是，普通用户登录就会新开一个普通用户的进程sshd
+	#UsePrivilegeSeparation yes
+	假如用zmh用户登录：
+		zmh   4884  0.0  0.1 102564  1920 ?  S    17:03   0:00 sshd: zmh@pts/4
+
+	
+	配置文件有个规律就是，注释的配置项的值，就是配置的默认值。
+	
+	
+	#UseDNS yes #内网使用时，设置为no，会大大提高连接速度。	作用是：使用DNS反查客户机的主机名，从而判断客户机来源是否可靠。
+	GSSAPIAuthentication no #内网中，这里改为no，也会大大提高连接速度。
+	#GSSAPIAuthentication yes
+	
+	#PidFile /var/run/sshd.pid #进程的pid文件
+		cat /var/run/sshd.pid 
+			5016
+		ps -aux |grep sshd
+			root      5016   /usr/sbin/sshd
+		结果一致！！！
+	
+	配置密钥对登录：
+		1.生成，秘钥对：ssh-keygen
+		2.发布公钥： ssh-copy-id -i /root/.ssh/id_rsa.pub root@192.168.31.21
+		执行命令后，会在用户的家目录生成公钥文件.ssh/authorized_keys	
+		并且已经改好相关的权限，.ssh/ 700 authorized_keys 600
+
+	配置普通用户的私钥登录：
+		直接ssh-copy-id由root生成的公钥到服务器的zmh普通用户家目录即可
+		 ssh-copy-id -i /root/.ssh/id_rsa.pub zmh@192.168.31.21
+		
+		普通用户登录：ssh zmh@192.168.31.21
+
+	两台linux服务器之间的复制：scp 基于ssh，很安全，使用方法和cp相似，拷贝目录 -r 
+		 scp /etc/passwd 192.168.31.21:/root
+		 输入密码后，即可复制
+		对调位置即可将远程的下载到本地 . 表示当前目录
+		scp 192.168.31.21:/root/install.log .
+
+------------------------------------------------------		
+DHCP服务：
+
+	C/S架构
+	
+	端口号：端口号：udp67 dup68 
+	
+	查看 /etc/services文件
+		bootps          67/tcp  
+		bootpc          68/tcp 
+
+	dhcp其实是基于bootps和bootpc发展而来的，bootps的缺点是，静态ip和mac地址一一绑定的，不会自动分配。
+	
+	dhcp就是动态ip分配，也就是这个ip不一定每次都属于某台设备，它有个租约的概念，在这个期限内都属于这台设备，超过这个租约期限，如果设备离线，这个ip就会被回收。
+	
+	原理：四次握手
+	
+		客户端->discover 包 ->服务器 dhcp offer ->客户端dhcp request ->服务器 dhcp ACK ->客户端
+		
+	理解DHCP的工作原理：
+		客户端67广播消息说，我要找对象->所有的dhcp服务器都能收到该广播消息，于是回个 offer 给67客户端 -> 67客户端只能接收第一个offer ->发广播包，说我已经找到68服务器对象了->68服务器发广播包召告天下说，确定关系。
+		
+	除了ACK阶段的源IP是dhcp服务器的IP，其他都是广播地址：255.255.255.255
+	
+	168.254.0.0/16 这个网段是windows买断的，作用是，当客户端没有获取到dhcp的ip时，就会采用这个ip
+	
+	安装：yum -y install dhcp 
+	  会安装以下三个包
+		客户端：dhclient-4.1.1-53.P1.el6.centos.3.x86_64.rpm             
+		服务器：dhcp-4.1.1-53.P1.el6.centos.3.x86_64.rpm 
+		客户端和服务器共同需要的包：dhcp-common-4.1.1-53.P1.el6.centos.3.x86_64.rpm      
+	
+	查看某个包安装出来的文件在哪？
+		rpm -pql /mnt/Packages/elinks-0
+		
+	配置文件路径
+		/etc/dhcp/dhcpd.conf 
+		
+	复制配置文件：
+		cp /usr/share/doc/dhcp-4.1.1/dhcpd.conf.sample  /etc/dhcp/dhcpd.conf 
+		
+	设置开机启动：对于所有服务，都希望是开机启动的。
+		 chkconfig  dhcpd on 
+		
+	针对某一级别单独设置：
+		chkconfig --level 34  dhcpd off
+		
+		  chkconfig --list dhcpd        
+		    dhcpd  0:关闭  1:关闭  2:启用  3:关闭  4:关闭   5:启用  6:关闭
+
+	详解配置文件：
+		分号结尾，分全局和局部两部分
+	
+	基本概念：
+		作用域：可以分配ip的范围 subnet
+		地址池：可以分配给客户端的IP，range包括的IP
+		租约：客户端可以使用这个IP的时间
+	
+	全局和局部都可以设置租约时间：
+	default-lease-time 600; 默认租约时间：10分钟
+	max-lease-time 7200; #最大租约时间 2H
+	  和租房的原理是一样的，到50%时，续约，续不上，继续住，87.5%时继续 续约，续不上，再找其他，续上了就继续使用。
+	  
+	  最大租约时间指：当租约过期后，没有其他的机器接入，dhcp服务器会给这台机器保留IP的时间，超过这个时间就真的不属于你的了 ！！！
+	  
+	subnet 网络号 netmask  子网掩码  #注意，这个网络号必须和服务器ip在同一个网段  
+	subnet 10.5.5.0 netmask 255.255.255.224 {
+	
+		range 10.5.5.26 10.5.5.30; #地址池
+		option domain-name-servers  ns1.internal.example.org; #DNS 
+		
+		option domain-name "internal.example.org";#域名
+		
+		option routers 10.5.5.1; #默认网关
+		
+		option broadcast-address 10.5.5.31; #广播地址
+		
+		default-lease-time 600; #默认租约 
+		
+		max-lease-time 7200; #最大租约 
+		
+		}  
+	
+	全局和局部都有的配置，以局部为准。
+	
+	租约的数据库文件：默认是空的，主要记录各个客户端的租约信息
+		/var/lib/dhcpd/dhcpd.leases
+		
+	实战：搭建DHCP服务
+		实验环境：
+		
+		1.将两台虚拟机的网络改为 net4 
+		  
+		2.设置dhcp服务器的ip地址 192.168.0.20 
+		    网关： 192.168.0.1
+		
+        3.修改dhcp配置文件：
+		  subnet 192.168.0.0 netmask 255.255.255.0 {
+			  range 192.168.0.100 192.168.0.200 ;
+			  option domain-name-servers 192.168.0.1;
+			  option domain-name "internal.example.org";
+			  option routers 192.168.0.1;
+			  option broadcast-address 192.168.0.255;
+			  default-lease-time 600;
+			  max-lease-time 7200;
+		  }
+
+		4.重启网络、重启dhcp服务
+		
+		5.在另一台机器测试：
+			BOOTPROTO=dhcp
+			重启网络就会自动获取dhcp服务器上地址池的ip
+
+	注意：搭建dhcp服务器，不要用桥接模式，因为桥接相当于直接连接物理网络，从而导致这个局域网的设备如果连接了我们搭建的dhcp服务器，将会不能上网。
+	
+	查看租约文件；
+		lease 192.168.0.100 {
+		  starts 0 2018/05/13 11:48:25;
+		  ends 0 2018/05/13 11:58:25;
+		  cltt 0 2018/05/13 11:48:25;
+		  binding state active;
+		  next binding state free;
+		  hardware ethernet 00:50:56:27:4d:63;
+		  client-hostname "centos621";
+		}
+		lease 192.168.0.100 {
+		  starts 0 2018/05/13 11:52:15; #可以看到50%租约时间就续租
+		  ends 0 2018/05/13 12:02:15;
+		  client-hostname "centos621";
+		}
+
+	分配固定IP：
+	  原理：就是将IP和指定MAC地址的设备进行绑定。
+		增加：
+			host centos21{
+				hardware ethernet 00:50:56:27:4D:63;
+				fixed-address 192.168.0.150;
+			}
+		重启dhcpd
+		
+------------------------------------------------
+
+DNS服务：Domain Name System 域名系统
+	提供域名和IP地址的解释服务
+	
+	域的最大深度不能超过127层，每层不能超过63字符
+	
+	DNS 是一个分布式的数据库，类似一棵倒置的树
+		根. -> 顶级域(.com|.cn|.edu) -> baidu.com
+									 -> sina.cn
+	
+	域和域名：
+		DNS 树的每一个节点代表一个域，通过节点对域名空间进行划分，域名空间的每个子域通过域名进行表示。
+	
+	域名是不区分大小写的。
+	
+	端口：53  #客户端解释
+	      953 #DNS主从同步
+		  
+	安装：
+		1.主程序rpm -ivh /mnt/Packages/bind-9.8.2-0.62.rc1.el6.x86_64.rpm
+		
+		2.安全：rpm -ivh /mnt/Packages/bind-chroot-9.8.2-0.62.rc1.el6.x86_64.rpm
+		
+		3.客户端：rpm -ivh /mnt/Packages/bind-utils-9.8.2-0.62.rc1.el6.x86_64.rpm
+		
+		bing-chroot ：使bind可以改变运行时的根目录，而不是系统的根，bind的访问权限局限于这个目录，而不是系统真正的根目录，大大提高安全性。
+		
+		[root@centos6-20 ~]# ls /var/named/chroot/
+			dev  etc  lib64  usr  var
+		
+		启动服务：
+			service named start 
+
+		配置文件：
+			vim /etc/named.conf 和 /var/named/chroot/etc/named.conf 
+			这两个文件都是一样的，只是挂载到这里。
+			
+		配置文件详解：
+			options ：对全局有效
+			zone ：   针对某个区域生效
+			
+		配置正向解释：
+			1.options 中修改：
+				listen-on port 53 {any; };
+				listen-on-v6 port 53 {any; };
+				allow-query     { any; };
+			2.添加区域控制文件：
+				zone "centos6.cn" IN {
+					type master;
+					file "centos6.cn.zone";
+				};
+
+			3.复制 /var/named/named.localhost文件
+			  权限很重要，这里的组权限必须是named
+				-rw-r----- 1 root  named  152 6月  21 2007 named.localhost
+				
+				cp -p named.localhost centos6.cn.zone
+
+
+			4.
+				$TTL 1D #设置有效地址解释记录的缓存时间，默认1天
+				
+				@表示当前的域 centos.cn.
+			
+				SOA #起始授权记录 dns.centos6.cn.
+
+		0   ; 更新序列号，用来标示数据库的变换，配置主从服务器时用，
+		
+		1D   #表示刷新时间为1天
+		
+		1H   #重试时间，主从服务器连不上时，等待多长时间
+		
+		1W   #到期，失效时间，默认1周，超过这个时间还无法更新地址数据库则不在尝试
+		
+		3H    #设置缓存中无效地址解释记录，最少缓存的时间，默认3小时
+		
+		SOA : 区域授权起始记录，区域文件第一条记录，只能有一条
+		
+		NS  : 域的授权名称服务器
+		
+		A   ：IPV4主机地址
+		
+		AAAA：IPV6主机地址
+		
+		PTR ：解释ip的指针
+		
+		CNAME:定义别名记录
+		
+		/var/named/
+		  $TTL 1D
+			centos6.cn.  IN SOA  dns.centos6.cn. root.centos6.cn. (0;1D;1H;1W;3H)
+
+			centos6.cn.     NS  dns.centos6.cn.
+			dns.centos6.cn. A       192.168.246.20
+			www.centos6.cn.  A      192.168.246.20
+			www1.centos6.cn. CNAME  www.centos6.cn.
+	
+	设置别名的作用：可以隐藏真正的主机，而对外只显示别名，百度就是这么干的。
+	  ping www1.centos6.cn
+		PING www.centos6.cn (192.168.246.20) 56(84) bytes of data.
+
+
+	DNS服务器递归查询：
+		服务器20：recursion yes;
+	
+	在客户机21设置dns为：192.168.246.20
+	ping www.baidu.com 时，可以递归ping通！！！
+			
+	DNS转发服务器，只负责转发，不解析
+	  在options中添加
+		forward  only;
+			forwarders  {8.8.8.8;};
+
+	  删掉，zone
+	  
+	注意：一般的路由器都有转发功能，当我们不知道如何设置dns时，可以设置成网关地址或者路由器的ip地址。  
+
+    搭建DNS主从服务器:
+      主服务器配置：	
+		zone "centos6.cn" IN {
+			type master;
+			file "centos6.cn.zone";
+			allow-transfer {192.168.246.0/24;};
+			#允许这个网段的从DNS服务器可以同步主dns的数据
+		};
+		
+	  从DNS服务器：
+		同样也要安装：
+		1.主程序rpm -ivh /mnt/Packages/bind-9.8.2-0.62.rc1.el6.x86_64.rpm
+		
+		2.安全：rpm -ivh /mnt/Packages/bind-chroot-9.8.2-0.62.rc1.el6.x86_64.rpm
+		
+		3.客户端：rpm -ivh /mnt/Packages/bind-utils-9.8.2-0.62.rc1.el6.x86_64.rpm
+		
+		复制主DNS服务器的配置文件过来：
+			scp /etc/named.conf root@192.168.246.21:/etc/named.conf
+		
+		修改从DNS服务器配置文件：
+		  zone "centos6.cn" IN {
+			type slave;
+			file "slaves/cenos6.cn.zone";
+			allow-transfer {192.168.246.0/24;};
+			masters { 192.168.246.20;};
+		  };
+		
+		测试：service named restart
+			如果查看：ls /var/named/slaves 
+			目录生成 cenos6.cn.zone
+			说明设置成功。
+			
+		如果修改主DNS服务器，增加记录，需要手动给序列号 +1 这样，从DNS服务器才会同步更新。
+
+		利用主从DNS做负载均衡：# 1 表示这条记录1s内有效，也就是说下次1s后的请求，将走其他的DNS服务器！！！
+			www.centos6.cn. 1  A      192.168.246.21
+			www.centos6.cn. 1  A      192.168.246.20
+			www.centos6.cn. 1  A      192.168.246.22
+		  改完后，重启主DNS服务器
+		  
+		  由于从DNS服务器也是一天更新一次，所以也需要重启。
+		  
+		  测试：在我们ping的时候，每次都是不同的dns服务器给我们提供服务。
+		  
+		  ping www.centos6.cn
+			PING www.centos6.cn (192.168.246.20) 56(84) bytes of data.
+
+		  
+		  ping www.centos6.cn
+			PING www.centos6.cn (192.168.246.21) 56(84) bytes of data.
+		  
+		通过ping百度，发现，每次的ip都不一样，所以说，百度也是做了DNS的负载均衡，而且采用了别名。
+		  ping www.baidu.com
+			PING www.a.shifen.com (119.75.213.61) 56(84) bytes of data.
+		  
+		   ping www.baidu.com
+			 PING www.a.shifen.com (119.75.216.20) 56(84) bytes of data.
+
+			
+	通过密钥认证主从DNS：
+	
+		dnssec-keygen
+		
+		[root@centos6-20 named]# rpm -qf `which dnssec-keygen`
+			bind-9.8.2-0.62.rc1.el6.x86_64
+
+		生成密钥对：
+			 dnssec-keygen -a hmac-md5 -b 128 -n HOST abc
+			-a 加密算法
+			-b 密钥长度
+			-n 密钥类型
+			abc为生成密钥的名字
+		如果生成的速度很慢，可以，find / 产生随机事件。
+	
+	会在当前文件夹下生成相应的公钥和私钥。
+	
+		-n <nametype>: ZONE | HOST | ENTITY | USER | OTHER
+        (DNSKEY generation defaults to ZONE)
+			
+		记不住时，记得查看帮助。
+
+	[root@centos6-20 ~]# cat Kabc.+157+27477.key 
+		abc. IN KEY 512 3 157 2JLFCWZyo1QGqNu4OHmjeg==		
+			
+	[root@centos6-20 ~]# cat Kabc.+157+27477.private 
+		Private-key-format: v1.3
+		Algorithm: 157 (HMAC_MD5)
+		Key: 2JLFCWZyo1QGqNu4OHmjeg==		
+
+	在主DNS服务器中设置：
+	  添加：
+		key abckey {
+			algorithm hmac-md5;
+			secret "2JLFCWZyo1QGqNu4OHmjeg==";
+		};
+		
+		zone "centos6.cn" IN {
+			type master;
+			file "centos6.cn.zone";
+			allow-transfer {key abckey;}; #这里
+		};	
+			
+	从DNS服务器的配置：
+	
+		key abckey {
+			algorithm hmac-md5;
+			secret "2JLFCWZyo1QGqNu4OHmjeg==";
+		};
+
+		zone "centos6.cn" IN {
+			type slave;
+			file "slaves/cenos6.cn.zone";
+			masters{192.168.246.20 key abckey;};
+		};
+		
+	重启 主 从 服务器
+
+	测试：先删除文件，重启服务，查看是否生成文件。	
+		
+	DNS客户端工具：
+		1.非交互模式：
+			nslookup www.centos6.cn
+			
+			Server:         192.168.246.20
+			Address:        192.168.246.20#53
+
+			Name:   www.centos6.cn
+			Address: 192.168.246.22
+			Name:   www.centos6.cn
+			Address: 192.168.246.21
+			Name:   www.centos6.cn
+			Address: 192.168.246.20
+					
+		2.交互模式
+		
+			** server can't find : NXDOMAIN
+			> g.cn
+			Server:         192.168.246.20
+			Address:        192.168.246.20#53
+
+			Non-authoritative answer:
+			Name:   g.cn
+			Address: 203.208.40.47
+			Name:   g.cn
+			Address: 203.208.40.63
+			Name:   g.cn
+			Address: 203.208.40.56
+			Name:   g.cn
+			Address: 203.208.40.55
+	
+	dig工具：功能强大，可以使用指定的DNS服务器解释
+	
+		[root@centos6-20 ~]# rpm -qf `which dig`
+			bind-utils-9.8.2-0.62.rc1.el6.x86_64
+		
+		dig @114.114.114.114 www.baidu.com
+		  
+			;; ANSWER SECTION:
+			www.baidu.com.          300     IN      A       111.13.100.91
+			www.baidu.com.          300     IN      A       111.13.100.92
+
+			;; Query time: 18 msec
+					
+		
+------------------------------------------------------
+		
+服务器集群：
+	LVS：linux 虚拟 服务器 
+	LB：负载均衡
+	HA：高可用
+	Hxxx：高性能
+	
+LB分为3中实现方式：
+	1.NAT模式
+	2.ip隧道模式
+	3.DR直接路由模式
+	
+NAT模式详解：
+	原理：分三层：1.分发器->2.realserver->共享存储
+	NAT：网络地址转换。
+	NAT在分发器上，作用是将客户端的请求转发给realserver，分发过程中需要对源IP和目标IP进行转换，并携带本身客户端的IP到真实的服务器，真实服务器处理完，返回给分发器，此时，源IP为RIP，目标IP为DIP，然后在分发器经过NAT进行地址转换源IP为SIP，目标IP为CIP，只有这样客户端才能正常接收返回的数据包。
+
+	这样一来一回，效率是极低的，所以就有了ip隧道模式和DR模式。
+	
+	实战：搭建LB负载
+	  实验准备：3台机器 关闭所有机器的防火墙
+	  
+	  0.20机器充当分发器，开启路由转发：
+	  vim /etc/sysctl.conf 
+		net.ipv4.ip_forward = 1
+
+	  1.添加一块新的网卡，充当内网的网卡vmnet4
+	  
+	  2.配置分发器
+	  
+		1.yum install ipvsadm
+		 
+		2.添加集群，指定调度算法
+		  
+	  	   ipvsadm -A -t 192.168.31.20:80 -s rr
+			
+			-A 表示添加集群
+			-t 表示TCP协议的集群 -u表示udp协议的集群 
+			-s 指定调度算法 rr表示 round-robin 轮循
+		
+			查看添加的规则：
+				ipvsadm -L -n
+		
+			修改集群： 
+				ipvsadm -E -t 172.16.1.253:80 -s wrr
+		
+			删除集群：
+				 ipvsadm -D -t 172.16.1.253:80
+		
+		3.添加realserver IP 
+			ipvsadm -a -t 192.168.31.20:80 -r 192.168.32.2 -m 
+	
+			-a 表示添加realserver地址
+			-r 表示real server的地址
+			-m 表示masquerade ，也就是NAT方式的LVS
+			
+			删除一条rs规则：
+				ipvsadm -d -t 192.168.31.20:80 -r 192.168.32.1
+	
+		4.保存规则：
+			service ipvsadm save
+			  ipvsadm: Saving IPVS table to /etc/sysconfig/ipvsadm
+	
+			很多命令都是仿照iptables的！！！
+			
+		5.real server的设置：
+		
+			1.添加两台机器：vmnet4
+			
+			2.ip地址分别为：192.168.32.2  192.168.32.3
+
+			3.注意要将网关设置成 192.168.32.1，也就是分发器上另一块网卡的ip
+			
+		6.在每个rs中安装并启动httpd，提供web服务
+			注意：要把 Server name 设置成对应的ip地址:80
+			
+			这样在vmnet4这个内网都可以相互访问！！！
+			
+		问题：配好之后的首次测试没有成功，很诡异，因为在内网vmnet4中的机器都可以ping通，然而通过浏览器访问 192.168.31.20 却不能实现端口转发功能。
+		
+		怀疑的原因：
+		  1.路由转发功能没有生效
+			解决：sysctl -p 
+			修改sysctl.conf必须执行sysctl -p 立即生效
+
+		  2.realserver 的网关没有配置成分发器的vmnet4地址
+		  
+		注意：这里通过ipvsadm设置的集群规则在重启后消失！！！
+		
+		问题：可以访问转发到192.168.32.3却不能转发到192.168.32.2
+			原因：多了一块网卡在作祟，导致默认网关出问题。
+			解决：删了多余的网卡，重启网络。
+		
+		分发器是不需要监听80端口的！！！
+		
+		问题：物理机可以ping通分发器主机，物理机的浏览器不能访问 192.168.31.20，但是通过 ipvsadm -L -c 却可以看到数据。
+		
+			原因是：没有开启路由分发功能，修改 /etc/sysctl.conf 即可
+			
+			在分发器所在的机器是可以无障碍访问vmnet4子网的主机，所以在分发器主机的浏览器在关了路由转发的情况下还是可以根据ipvsadm定义的规则访问到所设置的real server ！！！
+		
+		查看分发状态：
+		  ipvsadm -L -n --stats
+			可以看出，是均等分配到各个real server 的！！！
+			
+		ipvsadm -Z #清零记录的数据，比如 ipvsadm -L  -n --stats ，ipvsadm -L  -n --rate的记录
+
+		ipvsadm -C #清空所有集群的规则
+		
+	-----------------
+
+	DR模式（直接路由） 的工作原理：MAC地址转换
+	
+	每经过一个路由，mac地址都发生转换，不变的是源IP和目标IP，当realserver收到报文拆包发现目标IP是本地的，再将源IP和目标IP对换，这样就把数据发回给了客户端。
+	
+	首先清除以上实验的集群规则：
+		ipvsadm -C 
+		service ipvsadm save 
+		此时:vim /etc/sysconfig/ipvsadm 这个文件是空的。
+		
+	实战：
+	  1.添加ip地址到eth0网卡
+		cp /etc/sysconfig/network-scripts/ifcfg-eth0 /etc/sysconfig/network-scripts/ifcfg-eth0:1
+		
+		修改eth0:1
+		  IPADDR=192.168.31.20
+		  DEVICE=eth0:1
+		  NAME="eth0:1"
+		  HWADDR=00:0C:29:A7:C8:D1 #注意这个Mac地址保持和eth0相同，eth0:1不需要设置网关和DNS,网关由eth0控制。
+		  
+		  奇怪的现象：重启网络，居然不显示eth0:1，反而显示删除了的eth1，而且只能通过setup启动eth0:1
+
+		  eth0的ip为192.168.31.30，都是可以上网的！！！
+		  
+		  对于为什么要把VIP配置在eth0:1上？
+		  
+	  2.配置集群规则：
+	   添加集群：
+		ipvsadm -A -t 192.168.31.20:80 -s rr
+		
+		添加realserver
+		ipvsadm -a -t 192.168.31.20:80 -r 192.168.31.21 -g
+		
+		ipvsadm -a -t 192.168.31.20:80 -r 192.168.31.28 -g
+		
+		设置好各个realserver为桥接，ip地址如上。
+
+		-g 表示 DR模式 无需开启路由转发功能。
+	
+	回环口的整个网段都是可以ping通的！！！
+	
+		ping 127.11.12.15
+		
+	3.配置realserver的回环口,所有的realserver都要这样配
+		DEVICE=lo:1
+		IPADDR=192.168.31.30
+		NETMASK=255.255.255.255
+		ONBOOT=yes
+		NAME=loopback
+	
+	4.realserver上关闭ARP转发：
+	
+		echo 1 > /proc/sys/net/ipv4/conf/eth0/arp_ignore 
+		#表示只接收目标IP是访问本网络接口的ARP请求。
+		
+		默认值是0，表示，只要这台机器的任何网卡设备上有这个ip地址，就响应arp请求，并发送mac地址。
+		
+		访问回环口是要先经过eth0网卡才行的！！！
+		
+		ARP就是IP到MAC地址的解析协议。
+		
+		ARP是由交换机广播的，看哪台机器上的ip与之对应，对的上则返回mac地址给交换机。
+		
+		
+		network-scripts]# echo 2 > /proc/sys/net/ipv4/conf/eth0/arp_announce 
+		
+		#设置永久生效：
+		/etc/sysctl.conf 最后添加：
+			net.ipv4.conf.eth0.arp_ignore=1
+			net.ipv4.conf.eth0.arp_announce=2
+			
+			sysctl -p 
+			
+		物理机 ping 桥接的虚拟机，为什么ping不通，提示：无法访问目标主机。
+
+		可能是克隆的虚拟机，Mac地址重复，所以需要删除，重新生成，重启系统。
+
+		注意：测试时，不要在分发器上的机器上测试。
+		
+	常用的调度算法：
+		rr 		轮循
+		wrr 	带权重的轮循
+		lc  	最少连接数法  哪个服务器开销少就把请求给谁
+		wlc 	带权重的最少连接发
+		sh 		源散列发
+		
+		权重的意思是：权重值越大，接收的连接数越大，权重值为0，表示不接收连接，但原有的连接不会丢失。
+		
+		调度算法配置后立即生效
+		
+	测试其他的调度模式：
+		先清空：ipvsadm -C
+	
+	ipvsadm -A -t 192.168.31.20:80 -s wrr
+	
+	ipvsadm -a -t 192.168.31.20:80 -r 192.168.31.21 -g -w 10
+	
+	 ipvsadm -a -t 192.168.31.20:80 -r 192.168.31.28 -g -w 20
+
+
+	压力测试：
+		ab -c 1000 -n 1000 http://192.168.31.20/index.html
+		
+------------------		
+	
+  IP 隧道模式，分发器的配置大体与DR模式相同，只是多了开启路由转发 
+	
+	特点：容灾，可以把realserver放在不同的地方
+	缺点：不能智能DNS到最近的realserver 
+	
+	准备：所有的机器都可以上网。
+	
+	1.  ipvsadm -C
+		ipvsadm -A -t 192.168.31.20:80 -s rr
+		ipvsadm -a -t 192.168.31.20:80 -r 192.168.31.21 -i
+		ipvsadm -a -t 192.168.31.20:80 -r 192.168.31.28 -i
+		
+		保存到配置文件：service ipvsadm save
+	
+	  查看： 
+		ipvsadm -Ln
+		  TCP  192.168.31.20:80 rr
+		   -> 192.168.31.21:80             Tunnel  1      0          0         
+		   -> 192.168.31.28:80             Tunnel  1      0          0  
+
+	2.开启分发器的路由转发功能。
+		echo 1 > /proc/sys/net/ipv4/ip_forward
+		或者写到配置文件
+	
+	3.配置realserver的隧道 tunl0
+		临时配置：
+			ifconfig tunl0 192.168.31.20 netmask 255.255.255.255
+			
+			这条命令会自动加载 ipip这个模块 
+			也就是 modprobe ipip 
+			
+			lsmod |grep ipip 
+				ipip         8371  0 
+				tunnel4      2943  1 ipip
+
+			
+			临时清除ip：不会删配置文件
+				ip addr flush dev lo:1
+		
+		永久配置：
+			cp ifcfg-lo ifcfg-tunl0
+			  配置如下：
+				DEVICE=tunl0
+				IPADDR=192.168.31.20
+				NETMASK=255.255.255.255
+				ONBOOT=yes
+				NAME=tunl0
+
+	4.关闭 realserver 的arp转发
+		
+		echo 1 > /proc/sys/net/ipv4/conf/tunl0/arp_ignore
+	
+		echo 2 > /proc/sys/net/ipv4/conf/tunl0/arp_announceecho 1 > /proc/sys/net/ipv4/conf/tunl0/arp_ignore
+		
+		echo 0 > /proc/sys/net/ipv4/conf/tunl0/rp_filter
+		
+		echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
+			默认是1
+		
+		双重保险：
+		echo 1 > /proc/sys/net/ipv4/conf/all/arp_ignore
+		echo 2 > /proc/sys/net/ipv4/conf/all/arp_announce
+		
+		也可以写到配置文件：/etc/sysctl.conf 
+			net.ipv4.conf.tunl0.arp_ignore = 1
+			net.ipv4.conf.tunl0.arp_announce = 2
+			net.ipv4.conf.all.arp_ignore = 1
+			net.ipv4.conf.all.arp_announce = 2
+			net.ipv4.conf.tunl0.rp_filter = 0
+					
+	5配置httpd服务器：
+	
+	
+	6.客户端浏览器测试：直接输入192.168.31.20
+	
+	7.分发器查看结果：
+	
+-----------------------
+
+	测试工具：webbench
+	直接make install ，提示错误，先创建相应目录
+	
+	下面表示：用1000个客户端同时并发，竭尽全力跑10秒钟。
+	webbench -t 10 -c 1000 http://192.168.31.20/index.html
+	当访问量足够大时，会出现failed的！！！
+	
+	Benchmarking: GET http://192.168.31.20/index.html
+	1000 clients, running 10 sec.
+
+	Speed=335676 pages/min, 1561336 bytes/sec.
+	Requests: 55761 susceed, 185 failed.
+
+--------------------------------------
+
+实战：无人职守安装服务器 原理：网卡内置了tftp的客户端，可以用来下载服务器上的文件。
+	
+	1.配置本地yum源，方便本地安装软件。
+	
+	2.安装vsftp服务器，作用：为了后期通过ftp给客户端提供提供光盘挂载点
+		yum install vsftpd -y
+		service vsftpd start
+		chkconfig  vsftpd on 
+	
+	3.安装xinetd，tftp，tftp-server
+		yum install tftp-server -y
+		yum install xinetd -y
+		yum install tftp -y
+		
+		修改配置文件：/etc/xinetd/tftp
+		server_args  = -s /tftpboot #tftp服务器的根目录
+        disable      = no #允许开机启动
+		
+		开启服务：
+			service xinetd start #端口为69
+			 netstat -antup |grep 69
+			 udp   0 0.0.0.0:69    0.0.0.0:*  11646/xinetd
+	
+	4.安装dhcp服务器，服务器采用的是vmnet4网卡，
+	  作用：当客户机开启，自动分配ip给客户机
+		cp /usr/share/doc/dhcp-4.1.1/dhcpd.conf.sample /etc/dhcp/dhcpd.conf
+		
+		配置dhcp 端口67
+		
+		subnet 192.168.1.0 netmask 255.255.255.0 {
+			 range 192.168.1.100 192.168.1.200;
+			 option domain-name-servers 192.168.1.1;
+			 option domain-name "myDNS";
+			 option routers 192.168.1.1; 
+			 option broadcast-address 192.168.1.255; 
+			 default-lease-time 600; 
+			 max-lease-time 7200; 
+			 next-server 192.168.1.20 #让客户端通过tftp连接到这台服务器
+			 filename "pxelinux.0" #下载 /tftpboot/目录下的文件
+
+		}
+		
+		开启dhcp服务器，并设置开机启动：
+			service dhcpd restart
+			chkconfig dhcpd on
+		注意，如果配置好了dhcp却不能启动，则需要修改本地的ip，subnet 192.168.1.0必须和本地的ip在同个网段！！！
+		
+	5.安装 kickstart 
+		yum install system-config-kickstart
+
+	6.创建目录放置配置文件
+		mkdir /tftpboot
+		mkdir /tftpboot/pxelinux.cfg
+
+	7.拷贝5中生成的配置文件到/tftpboot/pxelinux.cfg
+		cp /usr/share/syslinux/pxelinux.0 /tftpboot/
+		
+		这个文件的作用是；加载tftpboot/pxelinux.cfg/default，而default这个文件定义了安装linux的各种步骤，引导模式（安装，救援），加载内核，安装过程的配置，这个配置是通过tftp读取ks.cfg文件来获取。ks.cfg又是有system-config-kickstart生成的。
+	
+	8.拷贝光盘的系统启动文件
+		cp /mnt/isolinux/isolinux.cfg /tftpboot/pxelinux.cfg/default
+		
+	9.拷贝光盘的网络启动镜像文件，相当于PE系统，是可以直接虚拟一个系统到内存中的。
+		 cp /mnt/images/pxeboot/initrd.img /tftpboot/
+
+	10.拷贝内核
+		cp /mnt/images/pxeboot/vmlinuz /tftpboot/
+
+		chmod 644 /tftpboot/pxelinux.cfg/default
+
+	11.修改default文件
+		vim /tftpboot/pxelinux.cfg/default 
+			default linux
+			 append initrd=initrd.img ks=ftp://192.168.1.20/ks.cfg #关于配置的参数
+
+	12.生成 ks.cfg 文件
+		在图形化界面进行设置：
+			system-config-kickstart
+			
+		安装后执行的脚本：
+			rm -rf /etc/yum.repos.d/*
+			echo '
+			[local]
+			name=local centos6
+			baseurl=file:///mnt/
+			enabled=1
+			gpgcheck=0'>/etc/yum.repos.d/centos6.repo
+	
+	13.
+		cp /ks.cfg /var/ftp/ #因为default文件中做了规定
+		mount /dev/cdrom /var/ftp/pub/ #挂载光盘到pub目录作为安装源，这是在ks.cfg中规定的。
+		
+	14.清空防火墙和SELinux
+	
+	15.开启vsftpd
+	
+	16.修改服务器和客户端为 vmnet4
+	
+	17.设置客户端的启动顺序，硬盘->网络
+		此时，通电，开启机器就自动安装了！！！
+	
+	目录结构：
+	/tftpboot/
+	├── initrd.img #PE
+	├── pxelinux.0
+	├── pxelinux.cfg
+	│   ├── default
+	│   └── isolinux.cfg#default 就是这个文件
+	└── vmlinuz #内核 
+
+
+	对于克隆的虚拟机，删除70文件，重启后还是无法ping通时，一定要添加 HWADDR 到网卡配置文件。
+
+
+	浏览器访问页面，出错：
+	1.网络不通
+	2.设置了防火墙
+	3.相关的服务没有开启，比如httpd
+
+	回环口的设置：不能设置多其他项
+		DEVICE=lo:1
+		IPADDR=192.168.31.20
+		NETMASK=255.255.255.255
+		NAME=loopback1
+		ONBOOT=yes
+
+----------------------------------------------------
+
+Nginx实战：
+	
+LB：负载均衡分两类->1.LVS (四层)    基于IP的
+				  ->2.nginx 和 haproxy (七层)   
+				  
+使用nginx可以单独设置服务器处理静态的请求，比如图片，静态页面
+
+访问特点：原路返回
+
+分发器是直接转发请求的，没有NAT那样尽行了包的封装。
+
+实战：使用nginx搭建动静分离的网站
+
+使用源码编译安装nginx
+
+添加用户：
+	userad -u 500 -s /sbin/nologin nginx
+
+	把nginx可执行文件复制到 bin或者sbin目录，可以实现任意目录启动。
+	
+	直接软连接到bin目录可以吗？
+		
+	
+	或者 把nginx设置到环境变量中 .bash_profile .bashrc /etc/bashrc /etc/profile
+	
+启动：直接输入nginx即可启动
+
+停止：有多种停止发放 
+	nginx -s reload  修改配置文件后，重启nginx进程，服务不中断
+	nginx -s stop 强制关闭
+	nginx -s quit 安全关闭
+	nginx -s reopen 打开日志文件
+
+查看版本：	
+[root@centos621 nginx]# nginx -v
+nginx version: nginx/1.12.2	
+
+设置开机启动：
+	在 /etc/rc.local 文件添加 nignx 路径
+	
+技巧：%可以实现大括号之间跳动。
+末尾一定要有分号
+
+实现准备：需要三台机器，一台充当分发器，两台后端服务器
+	这三台机器都需要安装nginx 
+
+
+
+分发器的配置：
+定义分发规则：实现用不同的服务器处理不同类型的文件
+	location /{
+		
+		root html ;
+		index index.html index.htm; 
+		
+		if ($request_uri ~* \.html$){
+		
+			proxy_pass http://htmlservers;
+		
+		}		
+		
+		if ($request_uri ~* \.php$){
+		
+			proxy_pass http://phpservers;
+		
+		}
+		
+			proxy_pass http://picservers;
+		
+		
+	}
+
+配置服务器组：在最后一个大括号，上一行添加
+	
+	upstream htmlservers{
+		server 192.168.123.21:80
+		server 192.168.123.28:80
+	}	
+	
+	upstream phpservers{
+		server 192.168.123.21:80
+		server 192.168.123.28:80
+	}
+	
+	upstream picservers{
+		server 192.168.123.21:80
+		server 192.168.123.28:80
+	}
+	
+在分发器上要把对PHP的解释注释掉！！！
+	
+---------------
+后端服务器端配置：
+	
+	后端服务器使用Apache 
+
+	安装lamp环境：yum install -y php mysql php-mysql httpd 
+
+	在/var/www/html目录下放置 图片 .html  .php 三种类型的文件
+
+	测试：浏览器访问http://192.168.123.20/即可看到不同的后端服务器在响应。
+
+	注意：每台后端服务器的文件必须是一致的。
+
+	测试自动剔除坏的节点机器:
+		关闭一台服务器，然后测试 
+
+lvs有没有自动剔除坏节点功能呢？
+
+测试网站的性能：
+	ab -c 100 -n 100 http://192.168.123.20/index.html
+
+	
+[root@centos621 html]# ulimit -n
+1024 #一个进程可以打开的文件数
+设置：ulimit 10200
+
+--------------
+
+nginx的配置文件：/usr/local/nginx/conf/nginx.conf
+
+	#运行nginx的所属组和所有者
+	#user  nobody;
+
+	#表示工作进程的数量，一般设置为cpu的核数
+	worker_processes  1; 
+	
+	#错误日志路径
+	#error_log  logs/error.log;
+	
+	#表示每个工作进程的最大连接数
+    worker_connections  1024;
+	
+	#文件MIME(Content-Type) 映射表
+	include       mime.types;
+	
+	#默认访问日志路径
+    #access_log  logs/access.log  main;
+	
+	#超时时间
+    keepalive_timeout  65;
+	
+	#设置负载均衡的服务器列表
+    upstream my_stream {
+        #weigth参数表示权值，权值越高被分配到的几率越大
+        server 127.0.0.1:80 weight=5;
+        server 127.0.0.1:90 weight=1;
+    }
+	
+	#server{}块定义了虚拟主机，一个server段一般对应一个域名
+	
+	server{
+		
+		listen 80
+	
+		 location / {
+            #root指定对应uri的资源查找路径，这里html为相对路径
+            root   html;
+            #指定首页index文件的名称，可以配置多个，以空格分开。如有多个，按配置顺序查找
+            index  index.html index.htm;
+        }	
+			
+	}
+	
+	#第二个server
+    server {
+        listen       90;
+        server_name  localhost; 
+        location / {
+            
+            root   html;
+
+            index  index_.html index_.htm;
+        }
+        
+
+        #对php后缀的请求进行负载均衡
+        location ~ .*\.php$ {
+            ...
+            #请求转向my_stream中的服务器列表,进行负载均衡
+            proxy_pass  http://my_stream ;
+
+            ...
+        }
+	}
+	
+location是nginx的精华，nginx就是通过拦截到的请求去对配置好的location块（location block）进行请求代理的。	
+	
+proxy_pass是用来对请求进行转发的，这个一般用来代理后台服务，就是把请求进行重定向	
+	
+mime.type中的部分分，就是格式与类型的映射表
+types {
+    text/html                             html htm shtml
+    text/css                              css;
+    text/xml                              xml;
+    image/gif                             gif;
+    image/jpeg                            jpeg jpg;
+    application/javascript                js;	
+}	
+
+
+以下可以看出：一个主进程master，一个工作进程，就是在配置文件中设置的。Ss表示进程下还有子进程。
+注意：子进程，杀死后，马上又会产生一个。
+如果杀了父进程，整个程序就结束了。
+	[root@centos621 logs]# ps -aux |grep nginx
+	root    Ss   12:19   0:00 nginx: master process nginx
+	nginx   S    12:19   0:00 nginx: worker process
+
+
+检测nginx配置文件是否有错：
+	[root@centos621 nginx]# nginx -t 
+		nginx: the configuration file /usr/local/nginx/conf/nginx.conf syntax is ok
+		nginx: configuration file /usr/local/nginx/conf/nginx.conf test is successful
+
+查看已安装软件的版本：
+	 yum list installed | grep php
+
+错误：Error: xz compression not available 
+	yum remove epel-release
+	rm -rf /var/cache/yum/x86_64/6/epel/*
+	yum clean all 
+	yum list 
+	
+升级PHP5.3到5.6
+参考网址：http://www.blogjava.net/nkjava/archive/2015/01/20/422289.html
+	1.卸载一下旧版本
+		yum remove php php-common
+
+	2.然后更新一下yum源
+	
+		rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+		
+		rpm -Uvh https://mirror.webtatic.com/yum/el6/latest.rpm
+
+	3.安装
+		yum install php56w php56w-fpm php56w-mysql php56w-mbstring php56w-gd php56w-dom
+
+	注：如果要升级php7，把上面命令中的 php56w 改为 php70w 即可
+
+安装mysql服务器
+	安装：yum install mysql-server
+	启动服务：service mysqld start
+	修改密码：mysqladmin -u root password root
+
+HAProxy
+	
+	安装：直接 yum install -y haproxy
+	
+	配置文件： vim /etc/haproxy/haproxy.cfg 
+	
+	启动：service haproxy start
+	
+	重启：service haproxy restart
+	
+配置文件详解：
+
+	 全局配置
+	
+	log         127.0.0.1 local2
+
+    chroot      /var/lib/haproxy #修改haproxy的工作目录至指定的目录
+	
+    pidfile     /var/run/haproxy.pid #进程ID文件
+	
+    maxconn     4000 #最大连接数
+	
+    user        haproxy #指定用户
+	
+    group       haproxy #指定组
+	
+    daemon      #让haproxy以守护进程的方式工作于后台
+
+	
+	默认配置：
+	defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+	stats uri    /haproxy-stats
+
+	前端设置：代理分发服务器配置
+	frontend  main *:80 
+	相当于 frontent main 
+		   bind *：80
+		   
+    acl url_static       path_beg       -i /static /images /javascript /stylesheets
+    acl url_static       path_end       -i .jpg .gif .png .css .js
+
+    use_backend static          if url_static
+    default_backend             app
+	
+	后端静态配置
+	
+	backend static
+    balance     roundrobin
+    server      static 192.168.123:21 check
+	
+	后端动态设置
+	backend app
+    balance     roundrobin
+    server  app1 192.168.123.21:80 check
+    server  app2 192.168.123.28:80 check
+		为后端声明一个server
+	
+	“frontend”段用于定义一系列监听的套接字，这些套接字可接受客户端请求并与之建立连接。
+	“backend”段用于定义一系列“后端”服务器，代理将会将对应客户端的请求转发至这些服务器
+	
+
+拓展：脚本中 set -e 的作用：
+	告诉bash，只要任何一条命令执行错了，脚本退出，可以防止错误越滚越大。
+	
+------------------------------------------
+	
+高可用集群：keepalived 
+	
+	之所以ping不同外网，很可能是有多个网卡配置文件在干扰，导致生成的dns地址有误，所以备份网卡配置文件不要以 ifcfg开头！！！
+	如果发现linux中ping不同物理主机，可以把物理主机的专用网络防火墙关了。
+	概述：检测web服务器运行状态，如果出现故障，会自动剔除，当修复故障后会自动纳入服务。
+	
+	运行原理：
+		工作在3,4,7层，网络层，传输层，应用层
+	
+	实战：配置高可用服务器集群
+	
+	实验准备：
+		4台机器，2台分发器（一备一用），2台realserver 
+		采用DR模式的集群。
+		
+		分发器1：192.168.123.20
+		分发器2：192.168.123.21
+
+		realserver1 192.168.123.23
+		realserver2 192.168.123.28
+
+	安装keepalived 
+	
+		下载：http://www.keepalived.org/download.html
+		
+		解压，安装：
+		  1.安装依赖：yum -y install openssl-devel
+		  2./configure --prefix=/usr/local/keepalived
+		  3.
+	安装ipvsadm 
+		yum install -y ipvsadm 
+		
+	配置：
+		1.cp  /usr/local/keepalived/etc/rc.d/init.d/keepalived /etc/rc.d/init.d/
+		
+		2.cp /usr/local/keepalived/etc/sysconfig/keepalived  /etc/sysconfig/
+		
+			. /etc/rc.d/init.d/functions #这个文件包含了/etc/init.d/目录下大多数脚本所需要的函数，所以一般在 init.d/这个目录下的脚本，都会加载这个函数库文件
+
+			# 配置keepalived 的选项文件 
+				. /usr/local/keepalived/etc/sysconfig/keepalived
+
+		3.export PATH="$PATH:/usr/local/keepalived/sbin"
+			
+		4.修改 /etc/sysconfig/keepalived文件 
+			KEEPALIVED_OPTIONS="-D -f /usr/local/keepalived/etc/keepalived/keepalived.conf"
+			
+		理清关系：init.d中的keepalived是脚本，sysconfig中的keepalived是执行脚本的参数选项，、usr/local/keepalived/etc/keepalived/keepalived.conf是主配置文件。
+		
+		5.启动 
+			service keepalived start 
+		  
+		  设置开机启动：
+			chkconfig keepalived on 
+			
+		  查看是否启动：
+			ip addr 
+				inet 192.168.200.16/32 scope global eth0
+				inet 192.168.200.17/32 scope global eth0
+				inet 192.168.200.18/32 scope global eth0
+
+	实战：使用keepalived配置LVS-DR 主-备高可用集群 
+	
+	  描述：虚拟ip在某个时刻只能属于一个节点，另一个节点作为备用节点，当主节点不可用，备用节点接管虚拟ip，提供正常服务。
+
+	  注意：在配置LVS-DR模式时
+		如果虚拟主机中的 /etc/sysctl.conf 
+		没有设置arp忽略，分发器的vip是起不来的！！！
+		
+	修改配置文件： 
+	
+	#全局配置
+	global_defs {
+	
+		#配置邮件服务
+		notification_email {
+			root@localhost
+		}
+		notification_email_from root@localhost
+		smtp_server localhost
+		smtp_connect_timeout 30
+		router_id centos6-20
+	}
+
+	#配置vrrp，虚拟路由冗余，也就是虚拟网关
+	vrrp_instance apache {
+		state MASTER
+		interface eth0
+		virtual_router_id 51 #主备都必须保持一致
+		priority 100
+		advert_int 1
+		authentication {
+			auth_type PASS
+			auth_pass 1111
+		}
+		
+		#定义虚拟主机ip VIP，不用手动去添加ip地址到eth0
+		virtual_ipaddress {
+			192.168.123.70
+		}
+	}
+
+	#配置DR集群
+	virtual_server 192.168.123.70 80 {
+		delay_loop 6
+		lb_algo rr #调度算法
+		lb_kind DR
+		nat_mask 255.255.255.0
+		persistence_timeout 50 #50s内使用同一个realserver响应
+		protocol TCP #TCP服务类型
+	
+		#配置realserver 
+		real_server 192.168.123.21 80 {
+			weight 1
+			TCP_CHECK { #作用：健康检查，自动剔除
+				connect_timeout 3
+				nb_get_retry 3
+				delay_before_retry 3
+				connect_port 80
+			}
+		}
+		real_server 192.168.123.23 80 {
+			weight 1
+			TCP_CHECK {
+				connect_timeout 3
+				nb_get_retry 3
+				delay_before_retry 3
+				connect_port 80
+			}
+		}
+	}
+		
+	测试： 
+	  ipvsadm -Ln
+	    TCP  192.168.123.70:80 rr persistent 50
+		-> 192.168.123.21:80            Route   1      0          0 
+	
+	在 192.168.123.28机器上同样进行192.168.123.20上的配置。
+	
+	需要修改的部分：
+		state BACKUP #不在是MASTER
+		priority 90  #将优先级相应降低
+
+	测试：两台机器同时开启 keepalived 服务，当其中一台宕机，会自动切换，这就是高可用。
+	
+	当master坏了，备用机会自动切换，当master重新开启后，备用机再次进入备用状态。
+	
+	日志监测：tailf /var/log/messages
+	
+	
+	realserver的配置，通 LVS DR 模式的配置 
+	
+	浏览器直接访问vip即可：192.168.123.70
+	
+	问题：为什么其中的一台realserver可以使用？
+		妈的，原来又是配置文件写错了，少了一个空格
+		TCP_CHECK { #这里有空格
+			
+		}
+		
+	问题：每次只能访问一台realserver？只有其中的一台服务器坏了，才能访问另一台？
+		等待一段时间即可。
+	
+	
+	注意：在使用scp时一定要使用绝对路径！！！
+	
+		scp i /etc/sysconfig/network-scripts/ifcfg-lo:1  192.168.123.22:/etc/sysconfig/network-scripts/
+
+-----------------------------
+
+容器docker
+	实验环境：centos7
+	
+	开启路由转发，否则docker中的实例无法上网。
+		vim /etc/sysctl.conf 
+		net.ipv4.ip_forward=1
+		sysctl -p
+
+由于系统yum源中的docker版本过旧，现在升级docker版本：
+	参考网址：https://blog.csdn.net/kongxx/article/details/78361048
+
+	卸载旧版本的 Docker
+		sudo yum erase docker docker-common docker-client docker-compose
+	
+	添加 Docker 的 yum 源
+		vim  /etc/yum.repos.d/docker.repo
+			[dockerrepo]
+			name=Docker Repository
+			baseurl=https://yum.dockerproject.org/repo/main/centos/7/
+			enabled=1
+			gpgcheck=1
+			gpgkey=https://yum.dockerproject.org/gpg
+
+	安装：yum install -y docker-engine
+
+	设置开机自动启动
+		systemctl enable docker.service
+		
+	启动服务
+		systemctl start docker
+
+开可以直接下载最新的rpm包进行安装：
+	下载地址：https://download.docker.com/linux/centos/7/x86_64/stable/Packages/
+
+Docker中使用CentOS7镜像
+	docker pull centos:7.2.1511
+	docker pull centos #直接下载最新版
+	
+	登录docker中的CentOS7
+		docker run -ti 6866 /bin/bash
+	
+		docker run -it --name centos7 centos  /bin/bash
+
+	--name 指定容器名
+	-it 交互模式打开
+	-t:在新容器内指定一个伪终端或终端
+	-d  表示后台模式启动
+	
+	后面写上镜像名字或者镜像ID
+	最后写启动时执行的程序。
+	
+不下载直接运行镜像：
+	docker run ubuntu:15.10 /bin/echo "Hello world"
+	Docker首先从本地主机上查找镜像是否存在，如果不存在，Docker 就会从镜像仓库 Docker Hub 下载公共镜像。
+	
+docker run 的作用是根据镜像创建并且运行一个容器。
+经过 docker run 系统中已经有了容器container，以后只需要运行容器即可！！！
+	docker start centos7 #可以是容器ID和名字
+	
+---------------------------------
+
+MK课程：
+	小技巧：保存通过yum下载的软件包
+	
+	查看 /etc/yum.conf 
+		cachedir=/var/cache/yum/$basearch/$releasever
+
+		keepcache=1
+
+查看docker的客户端和服务器信息：
+	docker version
+
+docker info #查看docker的状态，包括镜像、容器、容器的运行状态、平台相关信息	
+	[root@zmh 7]# docker info
+	 Containers: 1
+	 Running: 1
+	 Paused: 0
+	 Stopped: 0
+	 Images: 3
+	 Server Version: 18.03.1-ce
+	 Kernel Version: 3.10.0-693.el7.x86_64
+	 Operating System: CentOS Linux 7 (Core)
+	 OSType: linux
+	 Architecture: x86_64
+	 CPUs: 1
+	 Total Memory: 1.098GiB
+	 Name: zmh.com
+	 Docker Root Dir: /var/lib/docker
+	 Debug Mode (client): false
+	 Debug Mode (server): false	 
+			
+查看网络上的镜像：
+	docker search centos
+	
+导入下载的docker镜像配置文件，进行镜像的构建
+	docker load -i /root/centos-latest-image.tar 
+	他会自动下载。
+
+docker镜像的制作方法：
+	1.docker commit #保存容器当前状态到镜像
+		docker commit c55 mycentos7
+		
+	2.docker build -t imagename 
+	
+实战：构建自己的镜像 包含Apache服务器
+
+	1.mkdir docker-build #创建工作目录
+	
+	2.创建Dockerfile文件：
+	  FROM centos:6
+	  MAINTAINER zmh <zmh#gmail.com>
+	  RUN yum install -y httpd
+	  ADD start.sh /usr/local/bin/start.sh
+	  ADD index.html /var/www/html/index.html
+				
+	3.创建相应的文件：
+		echo "systemctl start httpd" > start.sh 
+		echo "build from docker" > index.html 
+		
+	4开始构建：
+		docker build  -t centos6-apache:0.0.1 . 
+	
+	5.详细观看整个build过程
+	
+	6.run镜像 -> 容器 
+		docker run -it --name apache centos6-apache:0.0.1 /bin/bash 
+	
+	7.打包镜像到 .gz 文件 
+		docker -o 目录名字
+		docker save -o /root/apache-docker.tar centos6-apache
+		
+	8.先删除自己构建的镜像 	 centos6-apache:0.0.1 然后导入 apache-docker.tar
+	
+		docker rm -f 7ad #删除运行中的容器
+		docker rmi centos6-apache #删除镜像文件
+		docker load -i /root/apache-docker.tar 
+
+将镜像发布到 Docker Hub 上 
+	1.注册账号 
+	2.docker login -u user -p passwd -e email
+	3.docker push centos6-apache 
+	4拉取：docker pull username/imagename
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+		
+
+学习进度:26

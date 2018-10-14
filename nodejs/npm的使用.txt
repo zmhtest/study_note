@@ -1,0 +1,93 @@
+npm入门笔记
+
+npm全称Node Package Manager，是node.js的模块依赖管理工具
+
+如果使用nvm安装后无法切换npm版本，很可能是安装路径中的SYS_LINKS的目录存在空格，比如：program files ！！！
+
+淘宝npm镜像
+搜索地址：http://npm.taobao.org/
+registry地址：http://registry.npm.taobao.org/
+
+cnpmjs镜像
+搜索地址：http://cnpmjs.org/
+registry地址：http://r.cnpmjs.org/
+
+1.临时使用
+npm --registry https://registry.npm.taobao.org install express
+2.持久使用
+npm config set registry https://registry.npm.taobao.org
+
+升级
+npm install npm -g
+
+使用npm 命令安装模块
+npm install <Module Name>
+npm install express
+
+1 本地安装
+将安装包放在 ./node_modules 下（运行npm 命令时所在的目录），如果没有 node_modules 目录，会在当前执行npm 命令的目录下生成 node_modules 目录。
+可以通过 require() 来引入本地安装的包。
+
+2 全局安装
+
+将安装包放在 /usr/local 下或者你 node 的安装目录。
+可以直接在命令行里使用。
+
+3 安装指定版本
+默认安装的是最新版本，如果要安装指定版本则需在包名后面加@指定版本号，如下：
+npm install gulp@3.9.1
+
+查看安装的模块
+npm ls
+
+我们可以使用以下命令来卸载 Node.js 模块。
+npm uninstall express
+
+将安装包写入开发环境的依赖
+npm install vue --save-dev
+package.json中：
+"devDependencies": {
+    "vue": "^2.0.1"
+  }
+
+我们可以使用以下命令更新模块：
+npm update express
+
+我们可以使用npm 生成 package.json 文件，生成的文件包含了基本的结果。
+npm init
+
+使用淘宝npm 镜像
+npm install -g cnpm --registry=https://registry.npm.taobao.org
+安装好后会在相应的的版本文件夹下面生成cnpm命令，然后就可以在命令行直接调用了！！
+
+
+这样就可以使用 cnpm 命令来安装模块了：
+
+cnpm install [name]
+
+注意：如果删除一个版本的nodejs导致其他版本不可用，可以删掉快捷方式那个文件夹nodejssymlink 因为他里面还存放着之前版本的路径信息，然而并不找得到！！！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

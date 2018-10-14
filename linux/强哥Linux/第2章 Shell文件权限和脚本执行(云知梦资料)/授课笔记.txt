@@ -1,0 +1,137 @@
+第2章 Shell文件权限和脚本执行
+
+linux权限:
+1.r 读
+2.w 写
+3.x 执行
+
+linux用户:
+1.所有者(u)
+2.所属组(g)
+3.其他用户(o)
+4.所有用户(a)
+
+文件权限:
+-rw-r--r-- 1 root root    0 Oct 19 12:21 shell.txt
+1.所有者(root用户)对shell.txt具有rw(读写)的权限
+2.所属组(root组内用户)对shell.txt具有r(只读)的权限
+3.其他用户(root以外用户)对shell.txt具有r(只读)的权限
+
+用户管理:
+1.查看用户
+id user1
+2.用户添加
+useradd user1
+3.用户删除
+userdel -r user1
+
+用户与组:
+1.把用户加入组
+gpasswd -a user1 root
+
+2.把组中用户删除
+gpasswd -d user1 root
+
+chmod字母权限分配:
+chmod u+x file
+#对用户单独设置权限
+
+chmod数字权限:
+chmod 755 file
+
+r 4
+w 2
+x 1
+
+754 rwxr-xr--
+#对所有用户设置权限
+
+权限细化需求:
+1.root file rw-
+2.root file r--
+3.other file r--
+4.user1 file rw
+5.user2 file rx
+6.user3 file wx
+7.user4 file rwx
+
+acl权限分配:
+1.setfacl设置文件权限
+setfacl -m u:user1:rw root.txt
+setfacl -m u:user2:rwx root.txt
+
+2.getfacl查看文件权限
+getfacl root.txt
+
+3.删除文件权限
+setfacl -x user:user3 root.txt
+
+4.清空文件权限
+setfacl -b root.txt
+
+5.创建和删除文件权限:
+#需要对目录设置acl权限即可
+setfacl -m u:user4:rwx /mnt
+
+6.如何对目录以及子目录和文件设置acl权限
+setfacl -m u:user4:rwx -R /mnt/
+
+7.目录中后期添加的子目录和文件如何继承父目录的权限
+setfacl -m d:u:user4:rwx -R /mnt/
+
+设置用户对命令的执行权限-visudo:
+1.设置
+visudo
+user4 localhost=/usr/sbin/useradd,/usr/sbin/userdel
+
+2.使用有密码sudo授权命令
+sudo localhost=/usr/sbin/useradd user4
+sudo localhost=/usr/sbin/userdel -r user4
+
+3.使用无密码的sudo授权命令 
+sudo localhost=NOPASSWD: /usr/sbin/userdel -r user4
+sudo ALL=NOPASSWD: /usr/sbin/userdel -r user4
+
+
+执行shell脚本的方式:
+1.bash test.sh
+#不需要写解析器
+#不需要给脚本设置执行权限
+
+2../test.sh
+#需要写解析器
+#需要给脚本设置执行权限
+
+
+shell脚本小例子:
+-----------------------------------
+#!/bin/bash
+echo 'disk space:'
+echo 
+df -Th
+echo 
+echo 'free space:'
+free -m
+echo 
+echo 'users:'
+
+for i in `ls /home`
+do
+	id -u $i
+done
+
+
+ftp目录统计脚本:
+-----------------------------------
+#!/bin/bash
+date >> /var/log/pubdir.log
+
+ls -lhR /var/ftp/pub >> /var/log/pubdir.log
+
+rm -rf /var/ftp/pub/*
+
+
+
+
+
+

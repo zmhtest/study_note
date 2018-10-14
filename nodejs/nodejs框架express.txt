@@ -1,0 +1,61 @@
+安装：npm install -g express //这里是安装express
+
+添加到环境变量：npm install -g express-generator
+
+运行 express --help 查看是否安装成功
+
+使用express创建一个项目：express msg -v ejs -c sass  进入到那个目录运行就是在那个目录创建项目
+
+经过上面安装会缺少很多依赖包，需要进入项目根目录，运行 cnpm install 
+
+一般来说都是使用npm来安装的，但是因为访问国外网站，速度会很慢，所以一般都是使用淘宝镜像进行安装，即cnpm,注意，安装好npm后，需进行以下操作：
+在命令行输入：
+npm install -g cnpm --registry=https://registry.npm.taobao.org
+
+安装好第三方包之后：在项目的根目录运行npm start (注意：在其他目录是不能成功启动的）即可启动项目，浏览器输入localhost:3000可以访问
+
+ install dependencies:
+   > cd myblog && npm install
+
+ run the app:
+   > SET DEBUG=myblog:* & npm start
+
+
+ 他与php框架差不多：都是通过路由可以调到一个指定视图模板，把信息带过去<%=tittle%>
+
+ 每次改动源代码都要重新启动npm start
+
+他是以json形式传递数据的，（属性是不用引号的）
+
+如果传递过去的是一个json对象data,只需要通过它的属性来取出里面的数据：
+
+路由中：
+router.get('/', function(req, res, next) {
+  var data={
+	title:'express',
+	content:'hello world',
+	stus:['张三','李四','王五']
+};
+  res.render('index', data);
+});
+
+模板中：
+
+ <h1><%=title %></h1>
+    <p>欢迎来到布尔教育</p>
+    <p><%=content%></p>
+	<ul>
+	<% for(var i=0;i<stus.length;i++){ %>
+		<li><%=stus[i]%></li>
+	<%}%>
+
+路由的作用就是：将地址栏指向不同的页面
+
+自己写一个新的路由器goods
+
+1.创建goods.js,
+
+2.在app.js中引入goods.js,然后use()
+
+
+

@@ -1,0 +1,1390 @@
+nodejs教程笔记
+
+异步的特点:
+ 比如 for循环内部有setTimeout(function(){},100)函数,
+
+ for循环的执行速度很快,setTimeout是一个异步操作,所以当for循环中的条件不符合,执行完後再执行,所以往往会打印undefined
+
+js之所以能够在浏览器执行，是因为浏览器内置了js解释器，比如chrome的v8引擎，引擎放在哪里，js就可以在哪里运行，mongoldb也用到了js引擎，所以也可以用js来操作数据库
+
+任何一门语言的能力不是取决于语言本身，更多是取决于他所运行的平台，看这个平台开放了什么接口。
+
+BOM和DOM可以说是浏览器开放出来的接口，我们的js代码只是调用这样的接口
+
+PHP和java既是语言又是执行环境
+
+node.js不是语言，只是运行在v8引擎上的一个平台，它的语言是JavaScript，这一点与其他的java、c++不同，那些既是语言，又是平台
+
+node.js 特点：使用事件驱动，非阻塞I/O，专为解决高并发而生的，轻量，高效率
+
+单线程，非阻塞i/o,事件机制、事件环
+
+由于Apache是多线程的，所以php就相当于多线程，有一个线程池，一个线程结束，这个线程的空间就会放回线程池
+
+node.js相当于护士安排病人到不同的病房，医治不同的病，这样执行起来就会很快
+
+node的执行过程：大概就是当用户触发一个请求或者事件，会有相应的回调函数进行处理，然而，他并不会等该函数执行完毕，在函数执行过程中，node继续往下走，这样就防止了i/o阻塞
+
+适合开发什么：善于i/o,不善于计算，
+
+node.js 只是运行js的一个环境，安装好node后，可以在任何目录下通过node xxx.js 来运行js文件，但是不能进入node解释界面运行外面编好的js代码
+
+js代码必须先要在node中运行，才能在浏览器中被访问
+
+创建一个服务器的方法：
+var Http=require('http');//引入node的一个内置对象
+var server =Http.createServer(function(req,res){
+	//利用http对象创建一个服务器，
+	console.log('成功接收请求。');
+	res.writeHead(200,{"Content-Type":"text/html;charset='utf-8'"});
+	res.write('hello,world!');
+	res.end('123');
+});
+
+server.listen(8080,'127.0.0.1');
+也可以直接在server.listen(8080);
+每次改变js代码，都要用node来重新运行一次才能在浏览器中访问，从而得到想要的结果
+
+
+安装nvm，nodejs的版本控制工具，注意：安装这个软件会将系统原来的nodejs转移到这个安装目录，所以需要重新配置环境变量！！！
+
+配置node的下载路径
+
+nvm默认的下载地址是http://nodejs.org/dist/，这是国外的服务器，在国内下载速度很慢。
+
+解决办法： 
+在你nvm的安装路径下，找到settings.txt打开，在后面加加上
+
+node_mirror: https://npm.taobao.org/mirrors/node/
+npm_mirror: https://npm.taobao.org/mirrors/npm/
+
+使用nvm ls available看一下node有哪些版本可以安装
+
+查看当前 node 版本
+nvm 
+
+出现此错误：
+C:\Users\Administrator>nvm use 7.7.2
+exit status 1: 'D:\Program' 
+解决：路径含有空格，无法识别，重新安装到别不含空格或中文的目录即可
+
+当 nvm use 版本 
+会自动切换node和npm，无需手动设置环境变量！！！
+
+命令行的使用：
+echo "hello">>1.txt 将hello写入这个文件
+
+powershell越来越接近Linux的命令行了！！！支持很多Linux命令
+
+注意：所有的控制台输出都可以用 >> 输出到文件！！！
+技巧：当命令行输出错误较多的时候，可以输出到一个文件，方便查错。
+
+repl命令行的使用：
+开启严格模式：node --use_strict
+这时，定义变量必须要用var
+
+_ 可以直接拿到上一次的结果
+
+.exit 退出控制台 
+
+直接打印错误信息
+console.error(new Error('Error'));
+
+用node来执行js文件：node a.js 
+
+可以在地址栏输入 powershell来直接打开powershell并且进入到本目录
+
+全局对象：global
+ 可以直接在node 命令行输入 global查看这个对象的所有信息
+
+__dirname:当前脚本所在目录名
+
+__filename:完整的文件名（文件的绝对路径）
+process.argv属性，是返回一个参数数组
+打印结果：
+
+D:\nodetest>node test 1 2 3 4
+[ 'D:\\Program\\nodejssymlink\\node.exe',
+  'D:\\nodetest\\test',
+  '1',
+  '2',
+  '3',
+  '4' ]
+[ '1', '2', '3', '4' ]
+
+可以看出，前两个结果不是我们想要的，可以通过.sllice(2);取出数组角标为2后面的所有
+
+案例：可以使用process.argv属性返回传入参数的特点，仿写一个类似npm的命令，比如 npm install/uninstall/init
+
+代码如下：
+var argv = process.argv.slice(2);
+
+switch(argv[0]){
+	case 'init':
+	break;
+	case 'install':
+	var installPackageName = argv[1];//接受要安装的包名
+	break;
+	case 'uninstall':
+	break;
+	case 'update':
+	break;
+
+}
+
+process.env 获取我们当前系统的环境变量
+
+ec6新特性，新的匿名函数和模板字符串
+
+var foo = function(mes){
+
+}
+
+可以写成 var foo=(mes)=>{}
+
+模板字符串就像PHP中用双引号括起来的字符串，可以解释变量
+
+var str = '我是朱明浩';
+console.log(`${str}`);
+就是用反引号将字符串变量包起来
+${} 就像smarty模板一样
+在反引号内直接写字符即可，不用拼接！！！
+
+标准输入输出
+process.stdout.write();
+process.stdin
+
+不断往js数组添加元素的方法：
+
+var arr = [];//想定义一个空数组
+arr[arr.length]='1';就相当于arr[0]='1';
+arr[arr.length]='2';就相当于arr[1]='1';
+
+
+
+
+test 测试结果
+
+---
+
+IT营 node js视频教程
+
+
+
+
+
+URL模块
+
+url.parse('url')可以解释出URL的协议、域名、参数等信息
+> url.parse('http://www.baidu.com?name=zmh&age=23')
+Url {
+  protocol: 'http:',
+  slashes: true,
+  auth: null,
+  host: 'www.baidu.com',
+  port: null,
+  hostname: 'www.baidu.com',
+  hash: null,
+  search: '?name=zmh&age=23',
+  query: 'name=zmh&age=23',
+  pathname: '/',
+  path: '/?name=zmh&age=23',
+  href: 'http://www.baidu.com/?name=zmh&age=23' }
+
+ true：表示把参数放到一个数组里。 
+> url.parse('http://www.baidu.com?name=zmh&age=23',true)
+Url {
+  protocol: 'http:',
+  slashes: true,
+  auth: null,
+  host: 'www.baidu.com',
+  port: null,
+  hostname: 'www.baidu.com',
+  hash: null,
+  search: '?name=zmh&age=23',
+  query: { name: 'zmh', age: '23' },
+  pathname: '/',
+  path: '/?name=zmh&age=23',
+  href: 'http://www.baidu.com/?name=zmh&age=23' }
+
+url.format()将一个url对象格式化成url地址
+
+地址后面追加：
+> url.resolve('http://www.baidu.com','news')
+'http://www.baidu.com/news'
+
+替换url地址的最后部分
+
+> path = url.resolve('http://www.baidu.com','news')
+'http://www.baidu.com/news'
+> url.resolve(path,'one')
+'http://www.baidu.com/one'
+> path
+'http://www.baidu.com/news'
+
+
+/favicon.ico 表示浏览器的小图标
+所以要过滤掉/favicon.ico
+if(req.url!='/favicon.ico')
+{
+	console.log(req.url);
+	var res = url.parse(req.url,true);
+	console.log(res.query);
+}
+
+
+req.url:获取请求页面的url信息，然后利用url模块来解释
+
+surpevisor:监听代码改动，只要代码改动就会重启服务器。
+supervisro http.js
+
+模块：
+node中的模块就是：在js中引入外部的js文件，使用其中的功能
+
+有两种实现方法：
+方法一：
+common.js
+var str = 'hello china';
+exports.aaa = str;//把str导出，并且对外显示为aaa
+
+引入：var bbb = require('./common');
+bbb表示引入的整个模块，通过这个模块的aaa即可访问common.js中的str的值
+
+访问：str.aaa
+理解：
+
+
+方法二：
+modules.exports = {
+	func1:function(){
+
+	},
+	func2:function(){
+
+	}
+}
+引入：var fun = require('xxx')
+调用：fun.fun1()
+
+注意：
+1.引入的时候不需要 .js 后缀也可以
+2.同级目录中的node_modules文件夹中的模块可以无需写完整的路径，直接写文件名即可！！！
+3.node_modules下如果有其他文件夹，可以 bar/bar引入
+
+
+模拟npm引入模块
+1.在node_modules目录下新建nav文件夹->nav.js文件
+2.在nav文件夹下通过 npm init --yes 生成package.json文件
+3.在主文件中直接 require('nav')即可找到 /node_modules/nav/nav.js文件
+
+导出模块的三种方法：
+
+/*var str = 'hello china';
+exports.a=str;*/
+
+/*var tool = {
+
+    'say':function () {
+        console.log('say hello');
+        return 'aaa';
+    },
+    'cry':function () {
+        console.log('wuwuwu!');
+    },
+}
+module.exports = tool;*/
+
+/*module.exports = function(){
+    return 'hello 你好';
+}*/
+
+建议：统一使用 module.exports = xxx;的方式导出，语意清晰！！！
+
+commonjs规范
+
+------------------------
+
+增强版web服务器
+读取 Content-type 部分
+/*module.exports = function (em,fs,extname) {
+
+    console.log('1');
+
+// fs.readFile()这是一个异步操作 1 3 undefined ，最后回来执行这个异步函数 2
+    fs.readFile('./mime.json',(err,data)=>{
+
+        var json = data.toString();
+        // console.log(typeof json);//返回字符串
+        //  console.log(JSON.parse(json)[extname]);
+
+        console.log('2');
+        
+        return JSON.parse(json)[extname];
+    });
+
+    console.log('3');
+
+}*/
+
+// 改成同步读取文件：
+/*module.exports = function (fs,extname) {
+
+    var data  = fs.readFileSync('./mime.json');
+
+    return JSON.parse(data.toString())[extname] || 'text/html';
+
+}*/
+
+// 通过事件广播的方法实现
+/*module.exports = function (fs,extname) {
+
+fs.readFile('./mime.json',(err,data)=>{
+    if(err){
+        console.log('打开mime.json失败');
+    }
+
+    // return JSON.parse(data.toString())[extname];
+    var data = JSON.parse(data.toString())[extname];
+
+    em.emit('data',data);
+
+})
+}*/
+
+
+// 通过回调函数实现
+/*module.exports = function (fs, extname,callback) {
+
+    fs.readFile('./mime.json', (err, data) => {
+        if(err){
+            console.log('读取文件失败');
+        }
+
+        var json = data.toString();
+
+        callback(JSON.parse(json)[extname]);
+    });
+
+}*/
+
+service.js
+// 模拟路由
+
+var http = require('http');
+var fs = require('fs');
+var path = require('path');
+var url = require('url');
+
+var ev = require('events');
+var em = new ev.EventEmitter();
+
+// 引入自定义模块
+var getMime = require('./modules/getmimefromfile');
+
+http.createServer(function(req,res){
+
+  // 如果路径后面带参数，浏览器是不认的！！！
+  var pn = url.parse(req.url).pathname;
+
+  if(req.url=='/' || req.url==''){
+    pn = '/index.html';
+
+  }
+
+  // 获取文件后缀名  .html .css
+  var extname = path.extname(pn);
+
+// 把fs模块传过去,还有一种方法，在res.end(data);
+/*  getMime(em, fs, extname);
+  var type = '';
+  em.on('data', (data) => {
+    type = data;
+    console.log(type);
+  });*/
+
+  if(req.url!='/favicon.ico'){
+
+    fs.readFile('static/'+pn,(err,content)=>{
+
+      if(err){
+        fs.readFile('static/404.html',(err,data404)=>{
+          if(err){
+            console.log('请求失败');
+          }
+
+          res.write(data404);
+          res.end();
+        })
+      }else{
+
+        // 事件驱动法实现 em是一个事件对象 events.EventEmitter()
+/*        getMime(em, fs, extname);//直接调用函数，不用接受返回值
+        em.on('data', (data) => {
+          res.writeHeader(200,{"Content-type":data+";charset=utf-8"});
+          res.end(content);
+        });*/
+
+        // 回调函数法实现
+  /*      getMime(fs, extname,function(data){
+
+          res.writeHeader(200, { "Content-type": data + ";charset=utf-8" });
+          res.end(content);
+
+        });*/
+
+        // 同步读取文件的方法实现
+        var data = getMime(fs, extname);
+        res.writeHeader(200, { "Content-type": data + ";charset=utf-8" });
+        res.end(content);
+
+      }
+    })
+
+  }
+  
+}).listen(8000);
+
+-------------
+
+封装一个静态路由
+
+router.js
+
+var path = require('path');
+var url = require('url');
+var fs = require('fs');
+
+// 这是一个私有的方法，因为没有暴露。
+function getMime(extname) {
+
+    var data  = fs.readFileSync('./mime.json');
+
+    return JSON.parse(data.toString())[extname] || 'text/html';
+
+}
+
+module.exports = function(res,req,staticpath){
+
+
+        var pn = url.parse(req.url).pathname;
+
+        if (req.url == '/' || req.url == '') {
+            pn = '/index.html';
+
+        }
+
+        // 获取文件后缀名  .html .css
+        var extname = path.extname(pn);
+
+        if (req.url != '/favicon.ico') {
+
+            fs.readFile(staticpath + pn, (err, content) => {
+
+                if (err) {
+                    fs.readFile(staticpath+'/404.html', (err, data404) => {
+                        if (err) {
+                            console.log('请求失败');
+                        }
+                        res.write(data404);
+                        res.end();
+                    })
+                } else {
+                    // 同步读取文件的方法实现
+                    var data = getMime(extname);
+                    res.writeHeader(200, { "Content-type": data + ";charset=utf-8" });
+                    res.end(content);
+
+                }
+            })
+
+        }
+
+    }
+
+
+service.js
+var http = require('http');
+var router = require('./modules/router');
+
+http.createServer(function(req,res){
+
+  router(res,req,'static');
+  
+}).listen(800);
+
+
+--------------------
+
+模拟路由操作
+
+var http = require('http');
+var url = require('url');
+http.createServer(function(req,res){
+
+  var pathname = url.parse(req.url).pathname;
+  console.log(pathname);
+  // res.writeHead(200,{'content-type':'text/html;charset=utf-8'});
+  if(pathname=='/login'){
+    res.end('login');
+  } else if (pathname == '/register'){
+    res.end('register');
+    
+  }else{
+    res.end('index');
+  }
+  
+}).listen(8000);
+
+--------------------
+    
+ejs模板引擎
+  
+    #使用后台的变量
+    <%=msg%>
+
+    #ejs模板中使用js代码
+    <ul>
+        <% for(x in list){%>
+            <li><%=list[x]%></li>
+        <%}%>
+    </ul>
+解释html代码：<%-html%> 通过 - 实现
+
+var http = require('http');
+var url = require('url');
+var ejs = require('ejs');
+
+http.createServer(function(req,res){
+
+  var pathname = url.parse(req.url).pathname;
+  // console.log(pathname);
+
+  res.writeHead(200, { "Content-Type": "text/html;charset='utf-8'" });
+  if(pathname=='/login'){
+    
+    var msg = '这是来自后台登录页面的数据';
+    var data = [1,2,3,4,5];
+    ejs.renderFile('views/login.ejs', {
+
+      msg:msg,
+      data:data
+
+    }, function (err, data) {
+      // 作用原理：ejs拿到模板进行加工，然后返回到回调函数的 data 中，要在页面输出，一定要res.end(data)
+      res.end(data);
+      // 如果模板中有变量，却没有传递过去，模板将不会执行，也不报错！！！
+
+    })
+
+  } else if (pathname == '/register'){
+    res.end('register');
+    
+  }else{
+
+    ejs.renderFile('views/index.ejs', {}, (err, str) => {
+      res.end(str);
+    });
+  }
+  
+}).listen(8000);
+
+---------------
+
+get、post请求
+
+var http = require('http');
+var url = require('url');
+var ejs = require('ejs');
+var fs = require('fs');
+
+http.createServer(function (req, res) {
+
+    var pathname = url.parse(req.url).pathname;
+
+// 获取请求类型
+    var method = req.method.toLowerCase();
+
+    res.writeHead(200, { "Content-Type": "text/html;charset='utf-8'" });
+    if (pathname == '/login') {
+
+        
+        ejs.renderFile('views/form.ejs', {}, function (err, data) {
+
+            res.end(data);
+
+        });
+
+    } else if (pathname == '/dologin' && method=='get') {
+        res.end('/dologin get');
+
+    } else if (pathname == '/dologin' && method == 'post') {
+        var post = '';
+
+        // data事件，接收post的数据，并返回给回调函数的 chunk,它是分块读取的。
+        req.on('data',(chunk)=>{
+            post+=chunk;
+        });
+
+        // 监听end事件，data事件结束后执行。
+        req.on('end',(err)=>{
+            fs.appendFile('input.txt',post+'\n',(err)=>{
+                if(err){
+                    console.log('写入失败');
+                }
+                console.log('写入成功');
+            });
+        });
+
+        // 往客户端写入js代码
+        res.end('<script>alert("写入成功");history.back();</script>');
+
+    } else {
+
+        ejs.renderFile('views/index.ejs', {}, (err, str) => {
+            res.end(str);
+        });
+    }
+
+}).listen(8000);
+
+  <h2>登录</h2>
+
+    <form action="/dologin" method="post">
+        <input type="text" name="username"/>
+        <br/>
+
+        <input type="password" name="password"/>
+
+        <input type="submit" value="登录"/>
+        
+    </form>
+
+-----------------------------
+
+// 封装一个模块来处理路由
+var http = require('http');
+var url = require('url');
+var router = require('./model/model');
+
+
+http.createServer(function (req, res) {
+
+    res.writeHead(200, { "Content-Type": "text/html;charset='utf-8'" });
+
+    var pathname = url.parse(req.url).pathname.replace('/','');
+    
+    // 异常处理
+    try{
+        router[pathname](req,res);
+
+    }catch(err){
+        router['home'](req, res);
+        
+    }
+
+}).listen(8000);
+
+model.js
+// 处理路由的模块
+var ejs = require('ejs');
+var fs = require('fs');
+
+module.exports = {
+
+    login(req,res){
+        ejs.renderFile('views/form.ejs',{},(err,data)=>{
+            res.end(data);
+        });
+    },
+    register(req, res){
+        ejs.renderFile('views/register.ejs', {}, (err, data) => {
+            res.end(data);
+        });
+        
+    },
+    dologin(req, res){
+        var post = '';
+        req.on('data',(chunk)=>{          
+            post+=chunk;           
+        });
+
+        req.on('end',(chunk)=>{
+            fs.appendFile('input.txt',post+'\n',err=>{
+                console.log('写入成功');
+            })
+        });
+
+        res.end('<script>alert("写入成功");history.back();</script>');
+        
+    },
+    index(req, res){
+        ejs.renderFile('views/index.ejs', {}, (err, data) => {
+            res.end(data);
+        });
+        
+    },
+    home(req,res){
+        ejs.renderFile('views/home.ejs', {}, (err, data) => {
+            res.end(data);
+        });
+    }
+};
+
+--------------------------------------
+
+// 模拟 express路由
+var http = require('http');
+var url = require('url');
+var G = [];
+var app = (req,res)=>{
+
+    var pathname = url.parse(req.url).pathname;
+    if(!pathname.endsWith('/')){
+        pathname+='/';
+    }
+
+    // 回头调用注册的方法
+    if(G[pathname]){
+        G[pathname](req,res);
+    }
+}
+
+// 注册方法
+app.get=(string,callback)=>{
+
+    // 以下两个判断，是为了规范我们的输入的 string
+
+    if(!string.endsWith('/')){
+        string = string+'/';
+    }
+    if(!string.startsWith('/')){
+        string = '/'+string;
+    }
+
+    G[string] = callback;
+}
+
+// 这里的app就是一个回调函数，有请求就会执行app函数，异步，代码继续往下执行，利用app.get()方法注册方法，
+// 如果G中有与请求 url 对应的方法，则会执行注册时传入的回调函数。
+http.createServer(app).listen(8000);
+app.get('login', (req,res) => {
+    console.log('login');
+    res.end('login');
+    
+});
+
+app.get('register', (req,res) => {
+    console.log('register');
+    res.end('register');
+});
+app.get('/', (req,res) => {
+    console.log('index');
+    res.end('index');
+});
+
+----------------------------
+
+在service.js 中解释url，并调用service_model.js中相应的方法
+
+service.js文件
+
+
+var http = require('http');
+var url = require('url');
+var router = require('./model/service1_router');
+
+http.createServer(function (req, res) {
+
+    res.writeHead(200, { "Content-Type": "text/html;charset='utf-8'" });
+
+    var pathname = url.parse(req.url).pathname.replace('/','');//替换 / 为空字符串
+    
+    // 异常处理
+    try{
+        router[pathname](req,res);
+
+    }catch(err){
+    //如果输入有误，统一用 home()方法处理
+        router['home'](req, res);
+        
+    }
+
+}).listen(8000);
+
+service_model.js文件
+
+var ejs = require('ejs');
+var fs = require('fs');
+
+module.exports = {
+  //这是es6的写法
+    login(req,res){
+    //注意：ejs.renderFile()是异步操作，要使用 res.end(data)来往客户端输出处理后的模板！！！
+        ejs.renderFile('views/form.ejs',{},(err,data)=>{
+            res.end(data);
+        });
+    },
+
+    register(req, res){
+        ejs.renderFile('views/register.ejs', {}, (err, data) => {
+            res.end(data);
+        });
+        
+    },
+
+    //处理post请求
+    dologin(req, res){
+
+        var post = '';
+
+        //监听req的data方法，分块读取post过来的数据，并追加到post变量中
+        req.on('data',(chunk)=>{          
+            post+=chunk;           
+        });
+
+        //监听到data事件结束后，执行end方法
+        //将post数据追加写入到文件
+        req.on('end',(chunk)=>{
+            fs.appendFile('input.txt',post+'\n',err=>{
+                console.log('写入成功');
+            })
+        });
+
+        //返回js代码到客户端，是可以在客户端执行的。
+        res.end('<script>alert("写入成功");history.back();</script>');
+        
+    },
+
+    index(req, res){
+        ejs.renderFile('views/index.ejs', {}, (err, data) => {
+            res.end(data);
+        });
+        
+    },
+
+    home(req,res){
+        ejs.renderFile('views/home.ejs', {}, (err, data) => {
+            res.end(data);
+        });
+    }
+};
+
+---------------
+
+模拟express路由
+
+expressservice_model.js文件
+
+var http = require('http');
+var ejs = require('ejs');
+
+var app = require('./model/express_router');
+
+http.createServer(app).listen(3000);
+
+app.get('/login',function (req,res) {
+    
+    ejs.renderFile('./views/form.ejs',{},(err,data)=>{
+        res.send(data);
+    });
+    
+})
+
+app.post('/dologin',function(req,res){
+    console.log(res.body);
+    res.send('<script>alert("写入成功");history.back();</script>');
+
+})
+
+app.get('/register',function (req,res) {
+    
+    ejs.renderFile('./views/register.ejs',{},(err,data)=>{
+        res.send(data);
+    });
+    
+})
+
+app.get('/',function (req,res) {
+    
+    ejs.renderFile('./views/index.ejs',{},(err,data)=>{
+        res.send(data);
+    });
+    
+})
+
+express_router.js文件
+主要实现：将 http.createServer() 中的回调函数封装到app对象（函数）上。
+并且可以同时处理get和post请求。
+
+内部实现原理：解释 url ，根据解释结果调用通过app.get()或者app.post()注册方法，当调用了这个方法，就相当于调用了回调函数，所以就可以在回调函数中获得处理之后的 req和res
+
+// 封装一个类似 express的路由
+var url = require('url');
+
+function changeRes(res) {
+
+    res.send = (data)=>{
+
+        res.writeHead(200, { "Content-Type": "text/html;charset='utf-8'" });
+        res.end(data);
+
+    }
+
+}
+
+var server = function(){
+
+    this._get={};
+    this._post={};
+    var G = this;
+
+    var app = function(req,res){
+
+        changeRes(res);
+
+        var pathname = url.parse(req.url).pathname;
+        if (!pathname.endsWith('/')) {
+            pathname += '/';
+        }
+
+        var method = req.method.toLowerCase();
+
+
+        // 回头调用注册的方法
+        if (G['_'+method][pathname]) {
+            
+            if (method == 'get'){
+                G['_' + method][pathname](req,res);
+            }else{
+
+                var postStr = '';
+
+                req.on('data', (chunk) => {
+                    postStr += chunk;
+                });
+
+                req.on('end', (err) => {
+
+                    res.body = postStr;
+
+                    G['_' + method][pathname](req, res);
+                    
+                });
+               
+            
+            }
+
+        } else {
+
+            res.end('no router');
+        }
+
+    }
+
+    app.get = (string, callback) => {
+
+        // 以下两个判断，是为了规范我们的输入的 string
+
+        if (!string.endsWith('/')) {
+            string = string + '/';
+        }
+        if (!string.startsWith('/')) {
+            string = '/' + string;
+        }
+
+        G._get[string] = callback;
+    }
+
+    app.post = function (string, callback) {
+        if (!string.endsWith('/')) {
+            string = string + '/';
+        }
+        if (!string.startsWith('/')) {
+            string = '/' + string;
+
+        }
+       
+        G._post[string] = callback;
+    }
+
+    return app;
+}
+
+module.exports = server();
+
+--------------------------
+
+nodejs操作MongoDB
+
+
+
+1.安装MongoDB模块到当前项目
+2.引入 MongoDB
+3.连接 var url = "mongodb://localhost:27017/test" 
+注意：MongoDB2.x中是以上写法，在3.x版本中，url直接是MongoDB服务器地址，连接后，回调函数中得到的是一个客户端，通过这个客户端进行选库，其他操作同2.x
+4.一定要记得关闭连接
+
+var http = require('http');
+var ejs = require('ejs');
+
+var mongoclient = require('mongodb').MongoClient;
+
+var app = require('./model/express_router');
+
+var dbUrl = 'mongodb://localhost:27017/test';
+
+http.createServer(app).listen(3000);
+
+app.get('/add',function (req,res) {
+    
+    mongoclient.connect(dbUrl,(err,db)=>{
+
+        if(err){
+            console.log(err);
+            return;
+        }else{
+
+            db.collection('students').insertOne({'name':'朱明浩','age':23,'sex':'male'},(err,result)=>{
+                console.log(result);
+                res.send('增加成功');
+                db.close();
+
+            });
+        }
+
+    })
+    
+})
+
+app.get('/delete',function(req,res){
+    mongoclient.connect(dbUrl, (err, db) => {
+
+        if (err) {
+            console.log("连接失败");
+            return;
+        } else {
+
+            db.collection('students').deleteOne({ 'age': 3 }, (err, result) => {
+                console.log(result);
+                res.send('删除成功')
+                db.close();
+
+            });
+        }
+
+    })
+
+})
+
+app.get('/update',function (req,res) {
+    
+    mongoclient.connect(dbUrl, (err, db) => {
+
+        if (err) {
+            console.log("连接失败");
+            return;
+        } else {
+
+            db.collection('students').updateOne({ 'age': 3 }, { $set: { 'name': '朱杏梓' } }, (err, result) => {
+                console.log(result);
+                res.send('更新成功');
+                db.close();
+
+            });
+        }
+
+    })
+    
+})
+
+app.get('/find',function (req,res) {
+    
+    mongoclient.connect(dbUrl, (err, db) => {
+
+        if (err) {
+            console.log("连接失败");
+            return;
+        } else {
+
+                var cursor = db.collection('students').find({}).limit(10);
+                var list = [];
+                cursor.each((err, docs) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    } else {
+                        if (docs != null) {
+                            list.push(docs);
+                        } else {
+                            ejs.renderFile('views/find.ejs', { list }, (err, data) => {
+                                res.send(data);
+                                db.close();
+                            })
+                        }
+                    }
+
+                });
+
+            };
+        });
+    
+});
+
+
+-------------
+
+express的使用
+
+var express = require('express');
+var app = express();
+
+// 中间件
+// 给 public目录下的文件提供静态web服务
+app.use(express.static('public'));
+
+// 配置虚拟目录
+app.use('/static',express.static('public'));
+
+//设置模板引擎，不需要require进来
+app.set('view engine','ejs');
+
+// 模板的默认位置 /views
+
+// 设置模板的位置
+// app.set('views',__dirname+'/statics');
+
+app.get('/index',(req,res)=>{
+
+    res.render('index');//可以直接在浏览器输出处理后的模板
+    /*居然可以不用回调函数*/
+ 
+})
+
+//传递数据
+app.get('/index',(req,res)=>{
+
+    list = ['zmh','zxz','zyx','zmq'];
+    res.render('index',{list});
+ 
+})
+
+app.listen(3003);
+
+
+===================
+
+中间件：
+
+var express = require('express');
+var app = express();
+
+//静态web服务，所有的静态资源直接写相对public目录的路径即可
+app.use(express.static('public'));
+
+//虚拟静态资源目录
+app.use('/static',express.static('public'));
+意思是：通过 http://localhost:3000/static/images/baidu.png
+进行访问时，先拿到 /static ,然后到 public 目录下找 images/baidu.png 这个资源
+
+注意:不同版本的express，中间件稍有不同，在4.16.3版本中不支持同时设置 普通中间件和虚拟静态目录中间件。但是在4.15.3版本中是可以同时设置的。
+
+所以，在学习的时候，最好拿到 老师的 package.json 文件，然后安装相同的依赖在学习！！！
+
+中间件：就是匹配路由之前和匹配路由之后做的一系列操作
+
+
+var express = require('express');
+var app = express();
+
+
+/**
+ *  使用第三方中间件
+ * 1、安装 body-paser 到项目
+ * 2. 引入，并使用app.use(bodyParser.urlendoded({extended:false}))
+ * 3. 在路由中通过 req.body 获取post提交过来的数据，返回一个json对象。
+ */
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
+// 如果此句注释掉，下面通过 req.body 就无法获取到post提交的数据
+app.use(bodyParser.urlencoded({extended:false}));
+
+// 模板的默认位置 /views
+app.set('view engine','ejs');
+
+
+/**
+ * 静态文件托管中间件
+ */
+app.use(express.static('public'));
+
+// 匹配虚拟目录
+app.use('/static/',express.static('public'));
+
+
+/**
+ * 应用级中间件
+ * 使用next() 路由继续向下匹配，否则，页面加载不下去
+ * 作用：可以做权限判断，假如用户没有登录，则跳转到登录页面，
+ */
+app.use((req,res,next)=>{
+
+    console.log(new Date());
+    next();
+    
+})
+
+/**
+ * 通过app.use()实现路由中间件
+ */
+app.use('/news',(req,res,next)=>{
+
+    console.log('这是app.use()匹配的中间件');
+    next();
+
+});
+
+
+app.get('/index',(req,res)=>{
+    
+    res.render('index');
+
+})
+
+app.get('/login',(req,res)=>{
+    
+    res.render('login');
+
+})
+
+app.post('/dologin',(req,res)=>{
+
+    console.log(req.body);
+    
+    res.send(`<script>alert('提交成功');history.back();</script>`);
+
+})
+
+/**
+ * 路由中间件
+ * next()表示继续往下匹配
+ * 
+ */
+
+app.get('/news',(req,res,next)=>{
+
+  console.log('这是路由中间件');
+  next();
+
+})
+
+app.get('/news',(req,res)=>{
+    
+    res.send("news");
+
+})
+
+/**
+ * 错误处理中间件，如果都没有匹配到，则执行以下中间件
+ */
+app.use((req,res)=>{
+
+    res.status(404).send('路由没有匹配到');
+
+})
+
+app.listen(3003);
+
+--------------------
+
+cookie中间件的使用
+
+var ejs = require('ejs');
+var app = require('express')();
+//1 引入cookie-parser
+var cookie = require('cookie-parser');
+//2 使用cookie中间件
+app.use(cookie());
+
+
+
+app.get('/set',(req,res)=>{
+    //3 设置cookie 当 cookie过期后，再次刷新页面，也不会有cookie信息，需要重新设置
+    res.cookie('name','朱明浩',{maxAge:60000});
+    res.send('设置cookie成功');
+})
+
+app.get('/get',(req,res)=>{
+    //4 通过 req 获取cookie
+    res.send(req.cookies);
+})
+
+app.get('/news',(req,res)=>{
+
+    res.send(req.cookies);
+})
+
+app.listen(8000);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：13
+
+
+学习进度：28

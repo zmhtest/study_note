@@ -1,0 +1,133 @@
+布尔教育composer、laravel教程笔记
+
+手动配置：
+	1.项目根目录新建： composer.json
+		{
+			"require":{
+				"smarty/smarty":"3.1.31"
+			}
+		}
+
+	2.项目根目录运行：
+		composer install
+
+	3.在PHP文件中引入：
+		require(__DIR__.'/vendor/autoload.php');
+
+在修改composer.json文件后，要先运行composer update 才能应用我们的更改。它的作用就是更新composer.lock 文件。
+
+卸载库：composer remove phpmailer/phpmailer
+他会删除vendor目录下的phpmailer和composer.json中的phpmailer/phpmailer
+
+自动引入类库
+	直接在命令行输入：composer require phpmailer/phpmailer
+
+异常处理：RuntimeException inEncrypter.php
+
+php artisan key:generate
+
+    public function add()
+    {
+        // 插入一条数据
+        // $data = ['title'=>'传智播客','content'=>'Java教程','age'=>'10'];
+
+        // 插入多条数据
+        // $data = [['title'=>'布尔教育1','content'=>'laravel教程','age'=>'3'], ['title' => '布尔教育2', 'content' => 'laravel教程', 'age' => '23'], ['title' => '布尔教育3', 'content' => 'laravel教程', 'age' => '13']];
+
+        // $res = DB::table('goods')->insertGetId($data);
+
+        // 更新数据
+        // $res = DB::table('goods')->where('id',1)->update(['content'=>'web前端']);
+
+        // 字段自增、自减
+        // $res = DB::table('goods')->where('id',1)->increment('age',3);
+        // $res = DB::table('goods')->where('id',5)->decrement('age',5);
+
+        // 删除操作
+        // $res = DB::table('goods')->where('id', 5)->delete();
+
+        // 查询操作
+        // $res = DB::table('goods')->get();//获取所有
+        // $res = DB::table('goods')->first();//获取一行
+
+        // 获取单一字段的值,仅仅是值
+        // $res = DB::table('goods')->where('id',8)->value('title');
+
+
+        // $res = DB::table('goods')->select(['title','age'])->get();
+        // $res = DB::table('goods')->select('title','age')->get();
+
+        // $res = DB::table('goods')->whereBetween('id', [1, 5])->get();
+
+        // $res = DB::table('goods')->whereNotBetween('id', [1, 5])->get();
+        
+        // $res = DB::table('goods')->whereNotBetween('id', [1, 5])->get();
+
+        // $res = DB::table('goods')->whereIn('id', [1,3,5])->get();
+        // $res = DB::table('goods')->whereNotIn('id', [1,3,5])->get();
+        
+        
+        // 链式where orwhere或者
+        // $res = DB::table('goods')->where('id',1)->orwhere('id',2)->get();
+        
+        // 多个where并列
+        // $res = DB::table('goods')->where('content','H5全栈')->where('id',2)->get();
+        
+        // 排序
+        // $res = DB::table('goods')->where('id','<',5)->orderBy('id', 'desc')->get();
+     
+        // 限定
+        // $res = DB::table('goods')->where('id','<',5)->orderBy('id', 'desc')->limit(2)->get();
+
+        // 分组计算
+        $res = DB::table('goods')->select('content',DB::raw('count(*) as num'))->groupBy('content')->get();
+        
+        if($res){
+            echo 'success','<br><pre>';
+            
+            dd($res) ;
+            // echo route('addgoods');
+        }else{
+            echo 'fail';
+        }
+    }
+
+
+增加列 php artisan make:migration add_excerpt_to_articels_table --table='articles'
+
+public function up()
+{
+Schema::table('articles', function(Blueprint $table)
+{
+ $table->text('excerpt')->nullable();
+});
+}
+ 
+public function down()
+{
+Schema::table('articles', function(Blueprint $table)
+{
+ $table->dropColumn('excerpt');
+});
+}
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,49 @@
+循环打印表格部分
+
+如何实现PHP与HTML的混编真是一个值得思考的问题
+首先新建一个PHP文件作为母版，也就是PHP和HTML代码的载体
+至于里面要写什么内容，随意 
+如果是PHP部分，就用 <?php ?> 标记即可
+
+PHPstorm是不需要你手动按保存的，他会自动保存，本地就有一个版本库
+
+方法一：
+<?php
+    $arr = ['name'=>'朱明浩','age'=>22];
+    print_r($arr);
+//这种方法是最容易理解的
+echo "<table border='1px'>";
+echo  "<tr><td>名称</td></tr>";
+  foreach($arr as $k=>$v){
+      echo "<tr><td>".$k."</td><td>".$v."</td></tr>";
+        }
+echo "</table>";
+?>
+
+方法二：在HTML页面，也就是模板页面嵌套PHP代码
+问题是，这是一个HTML页面，怎样让PHP代码执行呢？
+这种方法在普通的页面中不起作用，只有在框架中才能这么写，因为框架是一环扣一环，在PHP页面已经引入了这个HTML文件作为模板，所以这个HTML也是被PHP标签包裹着的，所以可以这样书写
+<table>
+<tr bgcolor='gray'><td>名称</td><td>描述</td></tr>
+
+<?foreach($arr as $res){?>
+
+<tr>
+	<td><?echo $res['name'];?></td>
+	<td><?echo $res['description']?></td>
+</tr>
+<?}?>
+</table>
+
+什么时候用while，什么时候用foreach呢？
+foreach是循环取出数组的每一个单元，而数组的每一个单元是由键和值组成，放在$k=>$v 中，方便进一步取数据
+
+
+
+
+
+
+
+
+
+

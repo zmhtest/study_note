@@ -1,0 +1,124 @@
+webpack使用笔记
+
+webpack2.0 和 webpack4.0
+
+查看所有 webpack 命令 ：webpack -h
+
+mkdir webpack-demo && cd webpack-demo
+
+npm init -y //不询问，直接创建package.json文件
+
+npm install --save-dev webpack
+
+npx webpack-cli src/index.js --output dist/bundl
+
+如果 webpack.config.js 存在，则 webpack 命令将默认选择使用它。我们在这里使用 --config 选项只是向你表明，可以传递任何名称的配置文件。这对于需要拆分成多个文件的复杂配置是非常有用。
+
+---
+
+使用webpack部署react开发环境
+
+1. 创建 react项目文件夹react
+
+2. 初始化：
+	项目根目录运行：cnpm init -y
+	在项目根目录生成 package.json 配置文件
+
+3. 全局安装 webpack和webpack-cli
+	cnpm install -g webpack 	
+	cnpm install -g webpack-cli
+
+4. 安装webpack到项目：
+	cnpm install --save-dev webpack
+
+5. 安装babel、babel-loader、babel-core
+	cnpm install --save-dev babel
+	cnpm install --save-dev babel-loader
+	cnpm install --save-dev babel-core
+
+安装react和react-dom
+	cnpm install --save-dev react
+	cnpm install --save-dev react-dom
+
+6. 创建webpack配置文件 webpack.config.js
+	并添加如下内容：
+
+	const path = require('path');
+
+	module.exports = {
+	  entry: './app/main.js',//webpack入口
+	  output: {
+	    path: path.resolve(__dirname, 'dist'),
+	    filename: 'all.js'//输出目录及文件名
+	  },
+	  //指定babel的规则
+	  module: {
+	  rules: [
+	    {
+	      test: /\.js$/,
+	      exclude: /(node_modules|bower_components)/,
+	      use: {
+	        loader: 'babel-loader',
+	        options: {
+	          presets: ['es2015','react']//babel的preset规则，需要安装
+	        }
+	      }
+	    }
+	  ]
+	},
+		watch:true//实时监听，动态打包
+	}			 	
+
+  安装es2015、react
+  cnpm install --save-dev babel-preset-es2015
+  cnpm install --save-dev babel-preset-react
+
+7. 创建app dist 等文件夹和文件
+
+8. 
+
+package.json文件
+
+{
+  "name": "react",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "webpack": "^4.1.1"
+  }
+}
+
+
+这个环境只需要配置一次，下次开发时，直接复制 package.json 和 webpack.config.js 这两个文件到项目根目录，然后运行 cnpm install 将会安装整个项目所需要的所有依赖。
+然后根据webpack.config.js里面配置的要求创建目录及文件即可！！！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

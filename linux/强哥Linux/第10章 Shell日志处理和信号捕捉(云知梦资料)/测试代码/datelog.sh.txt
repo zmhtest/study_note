@@ -1,0 +1,21 @@
+#!/bin/bash
+#datelog.sh
+#当前的日期
+current_date=`date "+%T"`
+#今天的日志文件名
+todaylog="./${current_date}.log"
+#如果日志文件不存在，创建一个
+if [ ! -f $todaylog ]
+then
+       touch $todaylog
+fi
+#输出日志到日志文件
+log_time_format=`date "+%Y-%m-%d %T"`
+echo "${log_time_format} 命令开始" >>$todaylog
+#
+#command blocks
+sleep 4
+#
+#输出日志到日志文件
+log_time_format=`date "+%Y-%m-%d %T"`
+echo "${log_time_format} 命令结束" >>$todaylog

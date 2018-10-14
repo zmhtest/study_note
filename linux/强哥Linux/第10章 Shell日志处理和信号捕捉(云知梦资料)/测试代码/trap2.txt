@@ -1,0 +1,36 @@
+#!/bin/bash
+#wei
+trap "wei" 2
+a=./a.$$
+b=./b.$$
+loop=0
+function wei()
+{
+echo -e "\nreceived interrupt ..."
+echo -n "do you really wish to exit?<y/n>"
+read a
+case $a in
+y)
+        xxx
+        ;;
+n)
+        ;;
+*)
+        wei
+        ;;
+esac
+}
+xxx()
+{
+echo "ctrl+c detected .. now cleaning up ... wait"
+rm -rf ./*.$$ 2>/dev/null
+exit
+}
+while :
+do
+        loop=$[$loop+1]
+        echo $loop
+        df >>$a
+        ls >>$b
+        sleep 1
+done

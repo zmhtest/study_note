@@ -1,0 +1,211 @@
+传智 nodejs 笔记
+
+文件的简单操作:
+
+	var fs = require('fs');
+
+	/**
+	 * 文件的读写操作
+	 * 读取文件 res为读取文件的结果,
+	 * 成功时err返回null,
+	 * 失败时,err是一个错误对象
+	 */
+	var fp = fs.readFile('test.txt',function(err,res){
+
+		console.log(res); /*Buffer*/
+		console.log(res.toString()); /*将buffer转为字符串*/
+		console.log(err);
+
+	// 错误处理判断
+	/*	if (err) {
+			console.log('读取文件失败');
+			return; #如果读取文件失败,则终止
+		} else {
+			console.log(res.toString())
+		}*/
+
+	});
+
+	/**
+	 * 运行结果:
+	 * 	<Buffer 6c 6f 76 65 20 6c 6c2 20 21>
+	 *	love lll forever !
+	 *	null 	
+	 */
+
+
+	/**
+	 * 写入文件 error是错误对象
+	 * 创建文件如果有特殊符号比如@*_是不能创建成功的.
+	 */
+	fs.writeFile('result.txt','很爱很爱你lll',function(error){
+
+		console.log(error);//成功时,返回null
+
+		if(err){
+			console.log('写入失败');
+		}else{
+			
+			console.log('写入成功');
+		}
+	});
+
+-----------------------------------------
+
+http模块:
+	//引入http对象
+	var http =  require('http');
+
+	// 创建服务器
+	var server = http.createServer();
+
+	//丰富服务器的功能
+	// 这里的第一个参数只能写 request,因为这个一个request事件,是系统内置的!!!
+	server.on('request',function(req,res){
+
+		console.log("收到客户端请求:"+req.url);
+		res.write("Hello world");
+		res.end("发送相应数据,并结束响应");
+	})
+	// 收到客户端请求:/
+	// 收到客户端请求:/favicon.ico  默认还会请求这个图标文件，所以要进行过滤 req.url !=='.favicon.ico'
+
+	// 启动服务器,绑定端口号 直接运行这个文件即可启动一个服务器
+	server.listen(8000,function(){
+		console.log('服务器绑定成功,可以通过 localhost:8000来访问');
+
+		//该匿名函数只在服务器第一次启动成功时调用一次
+	});
+
+JSON.parse('[1,2]') 将一个数组转成字符串
+JSON.stringify("[1,2,3]") 同上
+
+-----------------------------------------
+
+node中没有全局作用域,有的只是模块作用域,变量或者函数只在当前的模块文件中起作用,并不会污染其他模块中定义的同名变量或者函数.
+
+require() 函数的使用注意事项:
+	1.相对路径的 ./ 不能忽略,如果忽略了,node将会把他当做内置模块
+	2.可以不写文件的后缀名
+
+require()的作用:
+	1.加载文件模块,并执行里面的代码
+	2.拿到被加载文件模块导出的接口对象
+
+	在每个文件模块中都提供了一个对象 exports 默认是一个空对象
+
+模块间的变量如何相互调用?
+
+	b.js文件
+
+	var name = '李露露';
+	exports.name=name;
+
+	exports.add = function(x,y){
+		return x+y;
+	}
+
+	a.js文件
+
+	var b = require('./b')
+	console.log(b) //{}如果 b 中没有使用exports导出任何变量,那么,require()函数的返回值就是一个空对象
+
+	console.log(b.add(1,2))
+
+-----------------------------------------
+
+端口号的范围:0-65535之间,其中有很多默认的端口号,开发过程中,尽量少使用默认的端口号
+
+代码风格:
+	JavaScript standard style 
+	js中的分号是可以省略的!!!
+
+	当采用无分号的代码风格时,只需要注意以下情况就可以了: () [] `反引号
+		1.开头的时候,则在前面补一个分号就可以了
+
+forEach()函数:遍历数组的每一个元素,放在回调函数的第一个参数中.
+	['苹果','香蕉'].forEach(item=>{
+		console.log(item)
+	})
+
+-----------------------------------------
+
+简单的Apache服务器
+
+var fs = require('fs');
+var http =require('http');
+
+var server = http.createServer();
+
+//这里的路径一定要用 / 而不能使用 \ 否则是认不出的!!!
+var www = 'D:/WWW/node-chuanzhi'
+server.on('request',(req,res)=>{
+
+    //默认访问 index.html
+    var file = '/index.html'
+    if(req.url !== '/'){
+        file = req.url
+        fs.readFile(www + file, (err, result) => {
+            if (err) {
+
+                //如果出错,先往浏览器写入 信息 然后退出程序
+               return res.end('404 not found');
+            }
+            res.end(result)
+        })
+    }
+   
+})
+
+server.listen(3000,()=>{
+    console.log('server is running on localhost:3000');
+    
+})
+
+实现原理:首先把网站的内容通过 fs.fileReader() 读取出来,然后通过 res.end() 方法发送到客户端.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度:02 4
+

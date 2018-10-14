@@ -1,0 +1,53 @@
+shell脚本编程
+
+变量的赋值：
+	[root@centos6-20 shell]# time=`date +%F`
+	[root@centos6-20 shell]# echo $time
+	2018-09-22
+
+	[root@centos6-20 shell]# time1=$(date +%F)
+	[root@centos6-20 shell]# echo $time1
+	2018-09-22
+
+注意：单引号不会解释变量，会原样输出
+
+$RANDOM作为shell中的环境变量，它的范围是 0-32767
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

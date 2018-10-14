@@ -1,0 +1,56 @@
+# ionic入门教程
+
+简介：
+
+
+安装：npm install -g cordova ionic
+
+出错：一个下午都没有弄好！！！
+
+C:\Users\Administrator>cnpm install -g ionic
+Downloading ionic to D:\Program\nodejssymlink\node_modules\ionic_tmp
+[ionic@2.2.1] download ShasumNotMatchError: real sha1:b63761ba8ad84e2cc475ccf5e
+b4223649d95761 not equal to remote:2b9d90b3ae109138084473282c18ea162a5f8248 (io
+ic@2.2.1) (C:\Users\Administrator\.npminstall_tarball\i\o\n\i\ionic\2.2.1-2b9d9
+b3ae109138084473282c18ea162a5f8248.tgz), fail count: 1
+
+经验总结：必须用npm安装ionic，不能用cnpm！！！
+
+npm自身更新：npm install -g npm
+
+可不可以通过粘贴已下载好的ionic文件夹来给nodejs安装上ionic呢？？？
+答案是：可以的！！！
+
+ionic start myApp blank --v2
+ionic start myApp tabs --v2
+ionic start myApp sidemenu --v2
+
+cd myApp
+ionic serve
+
+ionic run android --device
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

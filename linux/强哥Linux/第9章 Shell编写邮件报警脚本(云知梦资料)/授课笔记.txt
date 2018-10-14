@@ -1,0 +1,20 @@
+第9章 Shell编写邮件报警脚本
+
+一.POSTFIX邮件服务器准备
+1.postfix软件-发邮件-25
+2.dovecot软件-收邮件-110
+
+二.编写web服务器监控脚本
+touch web.sh
+
+nc -w 3 localhost 80 &>/dev/null
+
+三.编写mysql数据库监控脚本
+touch mysql.sh
+nc -w 3 localhost 3306 &>/dev/null
+
+四.编写disk空间使用监控脚本
+touch disk.sh
+
+五.编写mem空间使用监控脚本
+touch mem.sh

@@ -1,0 +1,77 @@
+jQuery视频教程笔记 自学it网
+
+jQuery中添加插件的方法
+
+1.直接给jQuery对象绑定一个函数
+eg：jQuery.test = function(str){
+	alert(str);
+}
+
+2.使用extend()方法 里面放一个json对象，值为 函数表达式
+jQuery.extend({
+		test:function(str){
+			alert(str);
+		}
+	})
+
+3、使用命名空间
+
+jQuery.zxit={
+	myAlert:function(str){
+		alert(str);
+	}
+}
+
+在css中要使用left 和 top 来定位，必须要配合 position:absolute;
+使块元素居中：
+1.水平居中 （父元素宽-子元素宽）/ 2
+2.水平居中 （父元素高-子元素高）/ 2
+可以画图加深理解 就是在子元素找一个点，看他要移动多长距离才能到达指定位置，这个值就是这个子元素要整体位移的值
+
+可以通过json的格式，一次添加多个css属性
+div.css({
+		'top':100,
+		'left':200,
+		'position':'absolute'//最后一项不用逗号
+	})
+使用插件方式实现块元素居中
+$.zxit={
+	centerDiv:function(obj){
+		obj.css({
+			'top':($(window).height()-div.height())/2,
+			'left':($(window).width()-div.width())/2,
+			'position':'absolute'
+		});
+		
+		return obj;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

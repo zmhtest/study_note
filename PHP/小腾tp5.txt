@@ -1,0 +1,38 @@
+thinkPHP 5 入门
+
+composer的使用:
+
+1. composer require 包名 #安装包
+2.composer search 包名 #搜索包 
+3.composer install #将composer.json文件中的所有文件都安装
+4.composer update #更新包   
+5. composer remove #删除包
+6.打包依赖 composer archive 
+	会生成一个 .tar 文件 
+7.生成类库映射文件
+	composer dump-autoload 
+
+命名空间：
+
+控制器：
+	创建一个控制器：
+	php think make:controller index/Demo
+
+	如果不指定模块，默认会在common模块下创建该控制器，如果没有common模块则会自动创建该模块
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+进度: 

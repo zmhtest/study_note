@@ -1,0 +1,2832 @@
+兄弟连高老师 php基础部分笔记
+
+GD库部分：
+
+作用：
+1.根据用户数据自动生成图片，如各种报表图、验证码
+2.处理现有的图片，比如图片的缩放，添加水印、图片的剪切
+
+水印：防止别人盗图
+
+水印有：文字水印、图片水印
+
+所有的功能，系统都已经提供了函数。
+
+要求：要在php.ini中开启 gd2 扩展
+
+<?php 
+
+// 创建一张画布
+$tu = imagecreatetruecolor(200, 200);
+
+// 设置颜色
+$white = imagecolorallocate($tu, 255, 255, 255);
+$green = imagecolorallocate($tu, 0, 255, 0);
+$red = imagecolorallocate($tu, 255, 0, 0);
+$blue = imagecolorallocate($tu, 0, 0, 255);
+
+// 给画布填充颜色
+imagefill($tu, 0, 0, $white);
+
+
+// 画线条
+/*imageline($tu,0,0,200,200,$white);
+imageline($tu,0,200,200,0,$white);*/
+
+// 画矩形,只是矩形边框的颜色
+// imagerectangle($tu, 50, 50, 100, 100, $red);
+// 内部填充矩形
+// imagefilledrectangle($tu, 60, 60, 80, 80, $white);
+
+// 画椭圆/圆
+/*imageellipse ($tu, 50, 50, 100, 100, $red);
+imagefilledellipse ($tu, 80, 80, 60, 40, $green);
+imageellipse ($tu, 100, 100, 200, 100, $red);*/
+
+// 画圆弧
+// imagearc($tu,100,150,100,100,0,270,$red);
+
+// 画字符串
+// imagestring($tu, 5, 50, 50, "Hello world!", $red);
+
+// imagestringup($tu, 5, 50, 150, "Hello world!", $red);
+
+// 使用自定义字体画字符串 大小、角度、位置、颜色、字形、文字
+imagettftext($tu, 30, 0, 50, 150, $green, "simfang.ttf", "你好");
+
+
+// 保存图片
+/*imagepng($tu,'green.png');
+imagegif($tu,'green.gif');*/
+
+
+// 向浏览器输出图片
+header("Content-Type:image/gif");
+
+imagegif($tu);
+
+imagedestroy($tu);
+
+echo gd_info();
+
+ ?>	
+
+
+PDO扩展
+
+就是在各种数据库和php之间有一个抽象层。
+
+<?php 
+
+try{
+
+	$db = new PDO("mysql:host=localhost;dbname=test2","root","root");
+
+}catch(PDOException $e){
+	echo "链接失败".$e->getMessage();
+	exit;
+}
+
+// echo "连接成功！";
+
+
+// 获取预定义常量值
+	echo $db->getAttribute(PDO::ATTR_SERVER_VERSION);
+
+	echo $db->getAttribute(PDO::ATTR_CLIENT_VERSION);
+
+	echo $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+
+	echo "自动提交：".$db->getAttribute(PDO::ATTR_AUTOCOMMIT);
+	echo "错误处理模式：".$db->getAttribute(PDO::ATTR_ERRMODE);
+	echo "连接信心：".$db->getAttribute(PDO::ATTR_CONNECTION_STATUS);
+
+	$db->setAttribute(PDO::ATTR_AUTOCOMMIT)
+
+
+
+<?php 
+
+----------------------------------
+
+默认的错误处理模式0，什么都没有提示
+
+	try{
+
+		$db = new PDO("mysql:host=localhost;dbname=test2","root","root");
+
+	}catch(PDOException $e){
+		echo "链接失败".$e->getMessage();
+		exit;
+	}
+
+	执行会出错的语句
+	$res = $db->exec("delete from helloworld");
+
+	if(!$res){
+		echo $db->errorCode();
+		var_dump($db->errorInfo());
+		exit;
+	}
+
+	echo '成功';
+
+-----------------------------
+ 
+	echo $db->getAttribute(PDO::ATTR_ERRMODE);
+	echo "<br>";
+
+	1 警告模式 2 fatal error
+	$db->setAttribute(PDO::ATTR_ERRMODE,1);
+
+	$db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_WARNING);
+
+	// @的作用是屏蔽错误信息
+	$res = @$db->exec("delete from helloworld");
+
+	if(!$res){
+		echo $db->errorCode();
+		var_dump($db->errorInfo());
+		exit;
+	}
+
+-----------------------------------
+
+	第三种错误处理的方法
+
+	 // 这里必须设置成异常模式，下面才能捕捉到异常信息！！！
+	 // 最好在创建pdo对象之后马上设置异常处理模式。 
+	try{
+
+		$db = new PDO("mysql:host=localhost;dbname=test2","root","root");
+
+		$db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+
+	}catch(PDOException $e){
+		echo "链接失败".$e->getMessage();
+		exit;
+	}
+
+
+	try{
+
+		$res = $db->exec("delete from helloworld");
+	}catch(PDOException $e){
+
+		echo "错误信息是：".$e->getMessage();
+	}
+
+	echo "ok";
+
+ ?>
+
+------------------------------
+
+使用PDO执行SQL语句
+
+	$pdo->query()
+	$pdo->exec();
+
+<?php 
+
+	try{
+
+		$db = new PDO("mysql:host=localhost;dbname=test2","root","root");
+
+		$db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+
+	}catch(PDOException $e){
+		echo "链接失败".$e->getMessage();
+		exit;
+	}
+
+	try{
+
+/*		$affected_rows = $db->exec("insert into students value(null,'朱明敏','30')"); 
+
+		// 获取最后插入的id
+		echo $db->lastInsertId()."<br>";
+		echo $affected_rows;*/
+		
+		// 区别是：使用query无法返回影响的行数
+		// $affected_rows = $db->query("insert into students value(null,'朱明师','24')");
+
+		$res = $db->query("select * from students");
+
+		var_dump($res);
+
+		echo '<pre>';
+
+		// $value 就是结果集的每一行，可以看成由两个数组组成，一个索引数组，一个关联数组
+		foreach ($res as $value) {
+
+			var_dump($value);
+		}
+
+	}catch(PDOException $e){
+
+		echo "错误信息是：".$e->getMessage();
+	}
+	
+ ?>	
+
+-------------------------------
+
+事务处理：
+MySQL默认是自动提交的，所以在做事务之前，首先把自动提交取消。
+
+1.在命令行中： set autocommit=0
+
+2.开启事务：start transaction;
+
+3.误删： delete from student;
+
+4.回滚 rollback 
+
+5.结果：数据又回来了
+
+开启自动提交： set autocommit=1
+
+案例：
+<?php 
+
+	try{
+
+		$db = new PDO("mysql:host=localhost;dbname=test2","root","root");
+
+		$db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+
+		// 关闭自动提交
+		$db->setAttribute(PDO::ATTR_AUTOCOMMIT,0);
+
+	}catch(PDOException $e){
+		echo "链接失败".$e->getMessage();
+		exit;
+	}
+
+	try{
+
+		// 开启事务
+		$db->beginTransaction();
+
+		$pay = 100;
+		// 模拟转账事务
+		// 我转出100
+		$res = $db->exec("update students set money=money-($pay) where id = 1");
+
+		if ($res) {
+			echo '我转出100元成功<br>';
+		}else{
+			throw new PDOException("我转出失败<br>");
+		}
+
+		// 他收到100
+		$res = $db->exec("update students set money=money+($pay) where id = 4");
+
+		if ($res) {
+			echo '明师收到100元成功<br>';
+		}else{
+			throw new PDOException("明师接收失败<br>");
+		}
+
+		$db->commit();
+		echo '交易成功<br>';
+
+
+	}catch(PDOException $e){
+
+		echo $e->getMessage();
+		$db->rollBack();
+		echo '交易失败';
+
+
+	}
+	
+
+	// 执行完事务后，再次开启自动提交
+	$db->setAttribute(PDO::ATTR_AUTOCOMMIT,1);
+ ?>
+
+--------------------------------------
+
+预处理：
+作用：提高安全性、提高效率
+
+预处理就是：先把语句写好，发送给MySQL服务器进行编译，数据部分先用？占位，然后再发送数据。
+
+<?php 
+
+	try{
+
+		$db = new PDO("mysql:host=localhost;dbname=test2","root","root");
+
+		$db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+
+	}catch(PDOException $e){
+		echo "链接失败".$e->getMessage();
+		exit;
+	}
+
+	try{
+
+		// $id = $_GET['id'];
+
+		// 下面语句很容易SQL注入
+		// $db->exec("delete from students where id ={$id}");
+		 
+		// echo "delete from students where id ='{$id}'";
+		
+-----------------------
+
+		// 好处就是再MySQL服务器端只编译一次！
+		// 问号 ？ 绑定参数的缺点就是一定要按照顺序，相当于一个索引数组。
+		// $pdostm = $db->prepare("insert into students value(null,?,?,?)");
+		
+		// 绑定参数 
+		$pdostm->bindParam(1,$name);
+		$pdostm->bindParam(2,$age);
+		$pdostm->bindParam(3,$money);
+
+		//给参数赋值
+		$name = '管理员';
+		$age = 38;
+		$money= 56220;
+
+	/*	var_dump($pdostm);
+		// 执行
+		$pdostm->execute();*/
+
+		// 可以直接传入一个数组，不用 bindParam()函数！！！
+		// $pdostm->execute(['丁佳乐',22,3452]);
+
+// ---------------------
+
+		// $pdostm = $db->prepare("insert into students value(null,:name,:age,:money)");
+
+		$pdostm->bindParam("name",$name);
+		$pdostm->bindParam("age",$age);
+		$pdostm->bindParam("money",$money);
+
+		$name = '管理员';
+		$age = 38;
+		$money= 56220;
+
+		// var_dump($pdostm);
+		// 执行
+		// $pdostm->execute();
+
+--------------------------
+		// $pdostm->execute(['name'=>'姚嘉泳','age'=>24,'money'=>53242]);
+	
+		// $pdostm->execute()
+
+	}catch(PDOException $e){
+
+		echo "错误信息是：".$e->getMessage();
+	}
+	
+ ?>
+
+PDO预处理查询：
+
+	list($a,$b,$c) = [1,2,3];
+	echo $a;
+	echo $b;
+	echo $c;
+	list() 
+	用于在一次操作中给一组变量赋值。
+
+	注释：list()只用于数字索引的数组，且假定数字索引从 0 开始。
+
+<?php 
+
+	try{
+
+		$db = new PDO("mysql:host=localhost;dbname=test2","root","root");
+
+		$db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+
+	}catch(PDOException $e){
+		echo "链接失败".$e->getMessage();
+		exit;
+	}
+
+	try{
+
+		$stmt = $db->prepare("select * from students where id>?");
+		// 执行查询
+		$stmt->execute([3]);
+
+		// 获取结果集所有，返回一个二维数组
+		// $res = $stmt->fetchAll(PDO::FETCH_NUM);
+		// $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		// var_dump($res);
+
+		// 获取查询结果，$stmt->fetch()相当于mysql_fetch_array()，是一个关联和索引数组,并且指针会下移
+		echo '<pre>';
+		var_dump($stmt->fetch());
+		var_dump($stmt->fetch());
+		var_dump($stmt->fetch());
+
+		while ($row = $stmt->fetch()) {
+		    var_dump($row['name']);
+		    echo '<br>';
+		}
+
+		// 获取关联数组形式的返回值
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+		    var_dump($row);
+		    echo '<br>';
+		}		
+
+		// 获取关联数组形式的返回值
+		echo '<table border="1" width="800" align="center">';
+		while (list($id,$name,$age,$money) = $stmt->fetch(PDO::FETCH_NUM)) {
+		    
+			echo '<tr>';
+			echo "<td>$id</td>";
+			echo "<td>$name</td>";
+			echo "<td>$age</td>";
+			echo "<td>$money</td>";
+			echo '</tr>';
+
+		}
+		echo '<table>';
+
+
+		// 返回一个对象
+		while ($row = $stmt->fetch(PDO::FETCH_OBJ)) {
+		    var_dump($row->name);
+		    echo '<br>';
+		}
+
+
+		// 在取结果集之前，设置模式，后面就不用设置参数了
+		$stmt->setFetchMode(PDO::FETCH_NUM);
+		$res = $stmt->fetchAll();
+		echo '<pre>';
+		print_r($res);
+
+	}catch(PDOException $e){
+
+		echo "错误信息是：".$e->getMessage();
+	}
+	
+ ?>
+
+可以在执行 $stmt->execute("select name,age from students")
+后，通过 $stmt->bindColumn("name",$name)
+这种方式，将结果存到变量中，与list()效果一样。
+取数据时，直接通过 $name 取
+	
+	while($stmt->fetch()){
+		echo $name;
+	}
+
+--------------
+
+使用PDO存储大数据对象
+
+文件：
+init.inc.php write.php read.php up.html
+
+-----------------------------
+
+文件处理函数：
+
+file_exist($filename);
+
+filetype ( $filename )
+返回文件的类型。 可能的值有 fifo，char，dir，block，link，file 和 unknown
+
+bool is_dir ( string $filename )
+判断给定文件名是否是一个目录。 
+
+bool is_file ( string $filename )
+判断给定文件名是否为一个正常的文件。
+
+pathinfo — 返回文件路径的信息
+
+int filesize ( string $filename )
+取得指定文件的大小
+
+int filectime ( string $filename )
+取得文件的 inode 修改时间。
+
+int filemtime ( string $filename )
+文件的内容上次被修改的时间
+
+bool is_writable ( string $filename )
+如果文件存在并且可写则返回 TRUE
+
+bool is_readable ( string $filename )
+判断给定文件名是否存在并且可读。
+
+bool is_executable ( string $filename )
+判断给定文件名是否可执行
+
+bool unlink ( string $filename)
+unlink — 删除文件
+
+bool rmdir ( string $dirname)
+rmdir — 删除目录
+
+resource opendir ( string $path)
+opendir — 打开目录句柄
+
+void closedir ([ resource $dir_handle ] )
+关闭由 dir_handle 指定的目录流
+
+<?php
+if ($handle = opendir('.')) {
+    while (false !== ($file = readdir($handle))) {
+        if ($file != "." && $file != "..") {
+            echo "$file\n";
+        }
+    }
+    closedir($handle);
+}
+?> 
+
+scandir ( string $directory [, int $sorting_order )
+返回一个 array，包含有 directory 中的文件和目录.
+如果指定第二个参数非零，则倒序排列。
+
+<?php
+$dir    = '/tmp';
+$files1 = scandir($dir);
+$files2 = scandir($dir, 1);
+
+print_r($files1);
+print_r($files2);
+?>
+Array
+(
+    [0] => .
+    [1] => ..
+    [2] => bar.php
+    [3] => foo.txt
+    [4] => somedir
+)
+Array
+(
+    [0] => somedir
+    [1] => foo.txt
+    [2] => bar.php
+    [3] => ..
+    [4] => .
+)
+
+string getcwd ( void )
+取得当前工作目录。
+
+bool chdir ( string $directory )
+将 PHP 的当前目录改为 directory。
+
+<?php
+
+// current directory
+echo getcwd() . "\n";
+
+chdir('public_html');
+
+// current directory
+echo getcwd() . "\n";
+
+?>
+
+DIRECTORY_SEPARATOR 目录分隔符
+
+PHP_EOL 换行符号
+
+$_REQUEST 
+默认情况下包含了 $_GET，$_POST 和 $_COOKIE 的数组。 
+
+网站根目录和操作系统根目录
+mkdir('/hello') 系统根目录
+<img src="/a.jpg" /> 网站根目录
+
+<?php 
+
+$dir = opendir('up-data');
+
+while($filename = readdir($dir)){
+
+	if ($filename != '.' && $filename !='..') {
+		// 一定要注意目录，找对才可以！
+		$filename = 'up-data/'.$filename;
+		if(is_dir($filename)){
+			echo "目录".$filename;
+		}else{
+			echo '文件'.$filename;
+		}
+		
+		// echo $filename.'<br>';
+	}
+}
+ rewinddir($dir); //将目录的指针恢复到开头位置
+
+echo "<hr>";
+
+/*while($filename = readdir($dir)){
+
+	if ($filename != '.' && $filename !='..') {
+		// 一定要注意目录，找对才可以！
+		$filename = 'up-data/'.$filename;
+		if(is_dir($filename)){
+			echo "目录".$filename;
+		}else{
+			echo '文件'.$filename;
+		}
+		
+		// echo $filename.'<br>';
+	}
+}*/
+	
+	// 遍历目录下的所有文件和目录，返回数组
+	var_dump(scandir('up-data'));
+
+	echo '<br>';
+
+	//返回匹配到的文件到一个数组
+	print_r(glob("up-data/*.php"));
+
+
+ ?>
+
+统计目录中的个数和大小：
+
+<?php 
+	
+	$fileN = 0;
+	$dirN = 0;
+	function getFileNum($file){
+
+		global $fileN;
+		global $dirN;
+		$dir = opendir($file);
+
+
+		while ($filename = readdir($dir)) {
+
+			if ($filename != '.' && $filename != '..') {
+
+				$filename = $file.'/'.$filename;
+
+				if (is_dir($filename)) {
+					
+					$dirN++;
+					getFileNum($filename);
+
+				}else{
+					$fileN++;
+				}
+			}
+		    
+		}
+
+		closedir($dir);
+
+	}
+
+	getFileNum('up-data');
+
+	echo '目录个数为：'.$dirN.'<br>';
+	echo '文件个数为：'.$fileN;
+ ?>
+
+<?php 
+	
+	$dirSize = 0;
+
+	function getDirSize($file){
+
+		global $dirSize;
+
+		$dir = opendir($file);
+
+
+		while ($filename = readdir($dir)) {
+
+			if ($filename != '.' && $filename != '..') {
+
+				$filename = $file.'/'.$filename;
+
+				if (is_dir($filename)) {
+					
+					getDirSize($filename);
+
+				}else{
+
+					$dirSize+=filesize($filename);
+				}
+			}
+		    
+		}
+
+		closedir($dir);
+
+	}
+
+	getDirSize('up-data');
+
+	echo '目录大小为：'.($dirSize/2**10).'KB<br>';
+	
+ ?>
+
+bool move_uploaded_file ( string $filename , string $destination )
+move_uploaded_file — 将上传的文件移动到新位置
+
+parse_ini_file('info.ini',true))
+成功时以关联数组 array 返回设置，失败时返回 FALSE。 
+
+<?php 
+/*[first section]
+name=朱明浩
+age=24
+sex=male
+
+[second section]
+name=朱杏梓
+age=8
+sex=female
+
+结果
+array(2) { ["first section"]=> array(3) { ["name"]=> string(9) "朱明浩" ["age"]=> string(2) "24" ["sex"]=> string(4) "male" } ["second section"]=> array(3) { ["name"]=> string(9) "朱杏梓" ["age"]=> string(1) "8" ["sex"]=> string(6) "female" } }
+
+*/
+// 只有第二个参数为true时才会按节读取！！！
+var_dump(parse_ini_file('info.ini',true));
+
+ ?>
+
+删除文件夹
+<?php
+	
+	function deldir($dirname)
+	{
+		if(!file_exists($dirname)){
+			die('文件夹不存在');
+		}
+
+		if (is_file($dirname)) {
+			
+			unlink($dirname);
+			echo '删除文件成功';
+			exit;//如果是一个文件删除后就不往下执行了！
+		}
+
+		$dir = opendir($dirname);
+		while ($filename=readdir($dir)) {
+
+			if ($filename !='.' && $filename != '..') {
+				$filename = $dirname.'/'.$filename;
+				if (is_dir($filename)) {
+					
+					deldir($filename);
+
+				}else{
+
+					unlink($filename);
+				}
+
+
+			}
+		    
+		}
+
+		closedir($dir);
+		rmdir($dirname);
+
+	}
+	$dirname = 'up-data/b';
+	deldir($dirname);
+	echo '删除'.$dirname.'成功';
+?>
+
+更加简练的写法：
+<?php
+	
+	function deldir($dirname)
+	{
+		if(!file_exists($dirname)){
+			die('文件夹不存在');
+		}
+
+		if (is_file($dirname)) {
+			
+			unlink($dirname);
+			echo '删除文件'.$dirname.'成功<br>';
+
+		}else{
+
+		$dir = opendir($dirname);
+		
+		while ($filename=readdir($dir)) {
+
+			if ($filename !='.' && $filename != '..') {
+				$filename = $dirname.'/'.$filename;
+
+				deldir($filename);
+			}
+		    
+		}
+
+		closedir($dir);
+		rmdir($dirname);
+
+	}
+}	
+	$dirname = 'up-data/c';
+	deldir($dirname);
+	echo '删除'.$dirname.'成功';
+?>
+
+//递归创建目录
+	mkdir('up-data/a/c/b/c/d',0644,true);
+
+function create_folders($dir) {
+    return is_dir($dir) or (create_folders(dirname($dir)) and mkdir($dir, 0777));
+}
+
+rename — 重命名一个文件或目录
+bool rename ( string $oldname , string $newname
+
+复制目录
+<?php 
+
+function copydir($srcdir,$todir)
+{
+	// 首先判断文件是否存在
+	if (file_exists($todir)) {
+		if(!is_dir($todir)){
+			echo '目标不是一个目录';
+			exit;
+		}
+	}else{
+		mkdir($todir);
+	}
+		
+	$dir = opendir($srcdir);
+
+	while ($file=readdir($dir)) {
+
+	    if ($file != '.' && $file != '..') {
+
+	    	$srcfile = $srcdir.'/'.$file;
+	    	$tofile = $todir.'/'.$file;
+
+	    	if (is_dir($srcfile)) {
+
+	    		copydir($srcfile,$tofile);
+
+	    	}else{
+	    		copy($srcfile,$tofile);
+	    	}
+	    }
+	}
+}
+
+	copydir('up-data','data');
+	echo 'copy 成功';
+
+ ?>
+
+文件的基本操作：
+
+文件的整体操作：
+<?php 
+	
+	// touch('zmh.txt');
+ 
+	// rename('zmh.txt','zxz.txt');
+
+	// copy('zxz.txt','zyx.txt');
+	
+	// unlink('zxz.txt');
+
+/*	$fp = fopen('test.txt','a+');
+	截取文件的前 100 字节
+	ftruncate($fp, 100);*/
+
+	// 对文件内容的操作
+	// $file = file_get_contents('test.txt');
+	// echo $file;
+
+	// file_put_contents('test.txt', '我正在学习php编程');
+	// 注意：使用file_put_contents()会覆盖源文件的内容！
+
+	// 读取远程网址数据
+	// $file = file_get_contents('http://www.baidu.com');
+	// echo $file;
+
+	// file_put_contents('baidu.txt',$file);
+
+	// 读取文件并输出在浏览器。
+	// readfile("http://www.baidu.com");
+	// readfile("baidu.txt");
+	// readfile("test.txt");
+
+	// 把文件的每一行存再数组里。
+/*	$arr = file('gd.php');
+	echo count($arr);
+	echo '<pre>';
+	var_dump($arr);*/
+ ?>
+
+ 文件的精确操作：
+ 
+ fwrite ( resource $handle , string $string)
+ fwrite — 写入文件
+
+<?php 
+
+//文件不存在时创建，存在时把文件内容清空
+// $fp = fopen('test.txt','w');
+
+// 以追加的方式打开，指针位于末尾，写的方式，文件不存在会创建
+// $fp = fopen('test.txt','a');
+
+// 读写，追加，尝试创建
+// $fp = fopen('test2.txt','a+');
+
+// 以二进制的方式读
+// $fp = fopen('test2.txt','rb');
+
+
+$fp = fopen('test2.txt','r');
+
+// 读一个字符，指针下移一个字符
+// echo fgetc($fp);
+
+// 循环逐个输出 效率非常低
+/*while(!feof($fp)){
+	echo fgetc($fp);
+}
+*/
+
+// 每次输出一行，指针下移一行
+// echo fgets($fp);
+
+/*while(!feof($fp)){
+	echo fgets($fp);
+}
+
+echo '<hr>';
+
+// 指针重置
+rewind($fp);
+echo fgets($fp);*/
+
+// 设置指针位置 
+// fseek($fp,2);
+// echo fgetc($fp),'<br>';
+
+// SEEK_END 设定位置为文件尾,-5表示从指针位置向前偏移5字节
+// fseek($fp,-5,SEEK_END);
+// echo fgets($fp),'<br>';
+
+// 当前指针的位置
+// echo ftell($fp);
+
+// fwrite($fp,'hello,heooldsfsafs');
+
+// 读指定字节
+// echo fread($fp,10);
+
+// 读取所有内容
+// echo fread($fp,filesize('test2.txt'));
+
+// 每次读取指定长度，适用于大文件读取
+/*while(!feof($fp)){
+	echo fread($fp,1024);
+}*/
+
+fclose($fp);
+
+ ?>
+
+使用文件存储实现简单的留言板：
+
+<?php  
+
+	if(isset($_POST['submit'])){
+		// var_dump($_POST);
+		// 获取表单提交的数据，并组织字符串
+		$mess = "{$_POST['name']}||{$_POST['title']}||{$_POST['content']}[n]";
+		// echo $mess; 
+		
+		// 把留言存储到文件中  以追加的方式
+		$fp = fopen('message.txt','a');
+		fwrite($fp,$mess);
+		fclose($fp);
+	}
+
+	//取出文件内容，到网页显示
+	if (file_exists('message.txt')) {
+		$mess = file_get_contents('message.txt');
+
+		// 去除最后一个换行符号
+		$mess = rtrim($mess,'[n]');
+
+		// 返回每一行
+		$rows = explode('[n]', $mess);
+
+		foreach ($rows as $m) {
+
+			/*echo "<pre>";
+			var_dump($m);*/
+
+			list($name,$title,$content) = explode('||',$m);
+			echo "$name $title  $content".'<br><hr>';
+		}
+
+		// var_dump($arr);
+
+	}
+
+?>
+-----------------------------
+
+封装函数的方法：
+
+<?php  
+	$filename = 'message.txt';
+
+	if(isset($_POST['submit'])){
+		 
+		// 获取表单提交的数据，并组织字符串
+		$mess = "{$_POST['name']}||{$_POST['title']}||{$_POST['content']}[n]";
+
+		addmessage($filename,$mess);
+	
+	}
+
+	//取出文件内容，到网页显示
+	if (file_exists('message.txt')) {
+
+		showmessages('message.txt');
+	}
+
+	function addmessage($filename,$mess)
+	{
+		$fp = fopen($filename,'a');
+		fwrite($fp,$mess);
+		fclose($fp);
+	}
+
+	function showmessages($filename)
+	{
+		$mess = file_get_contents($filename);
+
+		// 去除最后一个换行符号
+		$mess = rtrim($mess,'[n]');
+
+		// 返回每一行
+		$rows = explode('[n]', $mess);
+
+		foreach ($rows as $m) {
+
+			list($name,$title,$content) = explode('||',$m);
+			echo "$name $title  $content".'<br><hr>';
+		}
+	}
+
+?>
+
+
+	<form action="index.php" method="post">
+		<p>
+		用户：<input type="text" name="name" id=""></p>
+		<p>标题：<input type="text" name="title" id=""></p>
+		<p>内容：<textarea name="content" id="" cols="30" rows="10"></textarea>
+		<p><input type="submit" value="提交" name="submit"></p>
+	</form>
+
+体会：使用文件也可以做简单的存储，但是非常麻烦，需要自己组织字符串的结构。
+在取出数据的时候还要进行各种字符串、数组操作。
+
+文件锁机制：
+作用：防止多用户同时读写时出现的数据紊乱。
+
+主要函数；flock($fp,option)
+参数二：读锁LOCK_SH
+写锁：LOCK_EX
+解锁：LOCK_UN
+可以给每个锁 +LOCK_NB 防止阻塞
+<?php  
+	$filename = 'message.txt';
+
+	if(isset($_POST['submit'])){
+		 
+		// 获取表单提交的数据，并组织字符串
+		$mess = "{$_POST['name']}||{$_POST['title']}||{$_POST['content']}[n]";
+
+		addmessage($filename,$mess);
+	
+	}
+
+	//取出文件内容，到网页显示
+	if (file_exists('message.txt')) {
+
+		showmessages('message.txt');
+	}
+
+	function addmessage($filename,$mess)
+	{
+		$fp = fopen($filename,'a');
+		if (flock($fp,FLOCK_EX+LOCK_NB)) {
+			fwrite($fp,$mess);
+			fclose($fp);
+			flock($fp,LOCK_UN);
+
+		}else{
+			echo '文件读锁添加失败';
+		}
+
+	}
+
+	function showmessages($filename)
+	{
+		$fp = fopen($filename,'r');
+		if (flock($fp,LOCK_SH)) {
+			
+			while (!feof($fp)) {
+			    $mess = fread($fp,filesize($filename));
+			}
+
+			flock($fp,LOCK_UN);
+
+			$mess = rtrim($mess,'[n]');
+
+			$rows = explode('[n]', $mess);
+
+			foreach ($rows as $m) {
+
+				list($name,$title,$content) = explode('||',$m);
+				echo "$name $title  $content".'<br><hr>';
+			}
+
+		}else{
+			echo '文件上锁失败';
+		}
+	}
+?>
+
+------------------------------------
+
+文件上传
+
+可以在php.ini中修改文件上传的有关设置：
+开启文件上传
+file_uploads = On
+
+设置文件上传限制
+upload_max_filesize = 20M
+
+设置表单post文件大小限制
+post_max_size = 8M
+
+注意：在设置 post_max_size 时一定要比upload_max_filesize,因为post提交不是只有文件，还有其他的表单数据！！！
+
+<?php 
+
+/*echo "<pre>";
+	var_dump($_POST);
+
+	var_dump($_FILES);*/
+
+/*	if ($_FILES['pic']['error']==0) {
+		if(move_uploaded_file($_FILES['pic']['tmp_name'],"../up-data/".$_FILES['pic']['name'])){
+
+			echo '上传成功！';
+			
+		}else{
+			echo '上传失败！';
+		}
+	}else{
+		echo '没有选择文件';
+	}
+*/
+
+	//第一步 判断是否获取到客户端的文件
+	if($_FILES['pic']['error']>0){
+		die('服务器没有获取到文件');
+		//可以进一步判断 error 的值，判断什么出错
+	}
+
+// 第二步 判断文件类型：
+	$hz = @array_pop(explode('.',basename($_FILES['pic']['name'])));
+	// echo $hz;
+	$allowtype = ['png','jpg','gif','JPG'];
+
+	if(!in_array($hz, $allowtype)){
+		die('文件类型不支持');
+	}
+
+	// 第三步 判断文件大小 
+	$maxsize = 1500000;
+	if ($_FILES['pic']['size']>$maxsize) {
+
+		die('文件超出1.5M');
+		
+	}
+
+	// 第四步 改变文件名 
+	$name = "../up-data/".date("ymdhis").rand(100,999).'.'.$hz;
+
+	move_uploaded_file($_FILES['pic']['tmp_name'],$name);
+	echo '成功';
+	
+ ?>
+
+------------------
+
+多文件上传：
+只需要多加几个表单，多加一层for循环即可！
+
+<?php 
+
+/*echo '<pre>';
+	var_dump($_FILES);
+	array(1) {
+  ["pic"]=>
+  array(5) {
+    ["name"]=>
+    array(4) {
+      [0]=>
+      string(17) "130G1104557-0.jpg"
+      [1]=>
+      string(17) "130G6121429-1.jpg"
+      [2]=>
+      string(17) "130G6121429-9.jpg"
+      [3]=>
+      string(9) "cj002.bmp"
+    }*/
+
+$num = count($_FILES['pic']['name']);
+
+for($i=0;$i<$num;$i++){
+
+	//第一步 判断是否获取到客户端的文件
+	if($_FILES['pic']['error'][$i]>0){
+		echo '服务器没有获取到文件<br>';
+		continue;
+		//可以进一步判断 error 的值，判断什么出错
+	}
+
+// 第二步 判断文件类型：
+	$hz = @array_pop(explode('.',basename($_FILES['pic']['name'][$i])));
+	// echo $hz;
+	$allowtype = ['png','jpg','gif','JPG'];
+
+	if(!in_array($hz, $allowtype)){
+		echo '不支持的文件类型<br>';
+		continue;
+	}
+
+	// 第三步 判断文件大小 
+	$maxsize = 1500000;
+	if ($_FILES['pic']['size'][$i]>$maxsize) {
+
+		echo '文件超出1.5M<br>';
+		continue;
+		
+	}
+
+	// 第四步 改变文件名 
+	$name = "../up-data/".date("ymdhis").rand(100,999).'.'.$hz;
+
+	move_uploaded_file($_FILES['pic']['tmp_name'][$i],$name);
+	echo $_FILES['pic']['name'][$i].'上传成功<br>';
+}	
+ ?>
+
+表单中：
+<form action="mul-upload.php" method="post" enctype="multipart/form-data">
+
+	user:<input type="text" name="user" id=""><br>
+	<input type="hidden" name="MAX_FILE_SIZE" value="10000000">
+	<!-- 提示上传限制 -->
+	pic<input type="file" name="pic[]" id=""><br>
+	pic<input type="file" name="pic[]" id=""><br>
+	pic<input type="file" name="pic[]" id=""><br>
+	pic<input type="file" name="pic[]" id=""><br>
+	<input type="submit" value="上传">
+</form>
+
+可以尝试用面向对象的方法封装一个文件上传类，可以设置 上传路径 文件大小 文件类型 文件名是否随机
+
+文件下载：
+
+----------------------------
+
+函数部分；
+
+全局变量就是在函数外面定义的变量，供所有函数共用，在脚本执行完后释放。
+
+局部变量：函数内部声明的，函数每被调用一次，都重新生成函数内部的所有局部变量，函数执行完毕，该函数的所有局部变量都释放。
+
+静态变量放在静态段：用 static 声明
+函数中声明的静态变量只在第一次调用时声明，以后的调用会直接使用静态段里面的该变量。
+静态变量只在同一个函数中共享。
+
+	function add(){
+		static $a = 0;
+		$a++;
+		echo $a;
+	}
+
+	function test(){
+		static $a = 0;
+		$a++;
+	}
+	//不同函数内部的局部变量，即使同名，也是属于不同的！！！
+	add(); 1
+	add(); 2
+	test();
+	test();//对结果没有影响
+	add(); 3
+
+内存结构：逻辑上分4段
+
+栈内存：全局/局部变量
+堆内存：
+
+伪类参数有：
+1、number	数字即可
+2、callback	回调函数
+3、mixed	所有的类型都可以
+
+引用变量：
+	$a = 10;
+	$b = &$a;
+	$a\$b都指向10
+
+1.只有在内存中的变量，才有地址,因为变量就是存放某个值的地址
+
+2.如果函数声明中有 & 调用函数传参数时，必须是一个变量
+
+<?php 
+
+
+	function test(&$a)
+	{
+		$a = 100;
+	}
+
+	$a = 10;
+	echo $a,'<br>';//10
+
+	test($a);
+
+	echo $a;//100
+
+	// test(20);
+	//  Only variables can be passed by reference 
+ ?>
+
+默认参数：
+可以给所有的参数都设置默认值，如果给部分参数设置默认值，一定要放在后面
+
+可变个数参数的函数
+
+/*	function test($a,$b)
+	{	//可以取得函数调用传过来的所有参数
+		$arr = func_get_args();
+		var_dump($arr);
+	}
+
+	test(1,2,3,4,5,6,7);*/
+
+变量函数：就是将函数名赋给一个变量，然后通过变量名()的方式调用函数/
+
+	function add ($a,$b){
+		return $a+$b;
+	}
+
+	$var = 'add';
+
+	$var();
+
+这样做的好处：假如有很多个函数，我们只需要改变变量的值，即可实现调用不同的函数。
+
+php回调函数：
+
+使用自定义排序函数：usort($arr,'mysort');
+
+<?php 
+
+$arr = [3,5,1,6,7,4,2];
+
+$arr2 = ['aa','a','aaa','aaaaaa','sdfsafewaasfs','sfsfd'];
+
+/*sort($arr);
+
+echo '<pre>';
+
+print_r($arr);
+*/
+
+/*function mysort($a,$b)
+{
+	return $b-$a;
+}
+
+usort($arr,'mysort');
+echo '<pre>';
+
+print_r($arr);
+*/
+
+/*function compare($a,$b)
+{
+	// return strlen($a)- strlen($b);
+	return strlen($b)- strlen($a);
+}
+usort($arr2,'compare');
+
+echo '<pre>';
+
+print_r($arr2)*/
+
+ ?>
+
+----------------
+
+利用回调函数自定义过滤规则
+
+<?php  
+
+function demo($num,$call)
+{
+	for($i=0;$i<$num;$i++){
+		if($call($i)){
+			continue;
+		}
+		echo '<br>';
+		echo $i;
+	}
+}
+
+function mysort($a)
+{
+	return $a == strrev($a);//
+}
+
+demo(150,'mysort');
+
+?>
+
+使用 call_user_func_array('callback',array)
+调用用户自定义函数，用数组的形式传参。
+
+call_user_func_array($call,[$i])
+
+调用类里面的方法作为回调函数：
+只能用 call_user_func_array()
+因为变量函数只能接收字符串形式的回调。
+
+
+function demo($num,$call)
+{
+for($i=0;$i<$num;$i++){
+		if(call_user_func_array($call,[$i])) {
+			continue;
+		}
+		echo '<br>';
+		echo $i;
+	}
+}
+
+class Filter
+{
+
+    function one($id)
+    {
+        return $id % 5 == 0;
+    }    
+
+
+    static function two($id)
+    {
+        return $id == strrev($id);
+    }
+
+}
+
+$f = new Filter();
+
+
+// demo(200,[$f,'one']);//调用对象的普通方法
+demo(200,['Filter','two']);//调用对象的静态方法
+
+递归：就是在函数内部，当符合一定的条件是再次调用函数自身，递归是 递 和 归 两个过程，最先执行的函数最后结束。递归的最深层一定要有条件结束，然后层层返回结束父函数。
+
+<?php 
+//用递归的方式打印出当前目录及子目录
+/*function showDir($path,$level = 0){
+    $fh = opendir($path);
+    while(($row = readdir($fh)) !== false){
+        if(($row == '.')||($row == '..')){
+            continue;
+    }
+        $row = mb_convert_encoding($row,'utf-8', "gbk");//输出转换为GBK编码
+        echo str_repeat("&nbsp;&nbsp;&nbsp;&nbsp;",$level),$row,'<br/>';
+        if(is_dir($row)){
+            showDir($path.'/'.$row,$level+1);
+        }
+    }
+    closeDir($fh);
+}
+  showDir('.');*/
+
+  // 递归求和
+/*function sum($n){
+    if($n>1){
+        return $n+sum($n-1);
+    }else{
+        return 1;
+    }
+}
+echo sum(10);*/
+
+/*function jiecheng($n){
+    if($n>1){
+        return $n*jiecheng($n-1);
+    }else{
+        return 1;
+    }
+}
+echo jiecheng(6);*/
+
+?>
+
+----------------
+
+PHP中的匿名函数：
+PHP5.3新增的
+var= function(){
+	
+};//匿名函数一定要加 ; 结束！！！
+
+<?php 
+
+// 与js中的匿名函数一样，可以实现函数的全部功能。
+	$var = function($a,$b){
+
+		return $a+$b;
+	};
+
+	echo $var(12,32);
+
+	var_dump($var);//是一个 Closure对象
+ ?>
+
+闭包：
+子函数可以使用父函数的局部变量，这就是闭包。
+
+一个简单的闭包案例：使用use关键字，使子函数可以调用父函数的局部变量。
+如果在js中，根本不用use，子函数会自动找到父函数的局部变量。
+
+<?php 
+
+function demo(){
+	$a = 10;
+	$b = 20;
+	$var = function() use ($a,$b) {
+
+		echo $a,$b;//不用 & 相当于复制一份
+	};
+
+	$var();
+
+}
+	
+	demo();
+
+ ?>
+
+--------------------------
+
+function demo(){
+	$a = 10;
+	$b = 20;
+	$var = function() use (&$a,&$b) {
+
+		echo $a,$b;//使用地址符，就是引用传参
+	};
+
+	$var();
+	echo $a,$b; //结果同上
+}
+
+完整的闭包是，1，内部子函数可以访问父函数的局部变量，父函数直接把闭包子函数作为返回值，这样就可以在父函数的外面，通过 父函数()()这样的形式调用父函数内的闭包函数，从而实现外部访问或者修改父函数内部的局部变量！！！
+
+<?php 
+
+	function demo(){
+	$a = 10;
+	$b = 20;
+	$var = function($str) use (&$a,&$b) {
+
+		echo $str.'<br>';
+		$a++;
+		echo $a.'||||||||||||'.$b.'<br>';
+
+	};
+
+	return $var;
+
+}
+	// var_dump(demo());//Closure
+	// demo()('hello');
+	
+	$res = demo();
+	$res('hello'); //11
+	$res('hello'); //12
+	$res('hello');//13
+
+ ?>
+
+总结：闭包函数返回时，该函数内部变量处于激活状态，没有被释放（因为闭包函数还会访问到该变量），再次调用该函数时，该函数的局部变量是在上一次变化的基础上变化。
+
+使用匿名函数作为回调函数传参：
+
+
+------------------
+
+数组部分
+
+list($a,$b,$c,$d)=[1,2,3,4];
+list($a,,$c,$d)=[1,2,3,4];中间可以空着
+两边个数不一定相同
+只能将下标连续的索引数组赋给左边的变量。是按下标0开始找的
+
+each()
+<?php 
+	$arr = ['朱明浩','张信哲'];
+
+	$res = each($arr);
+	var_dump($res);
+
+	// array(4) { [1]=> string(9) "朱明浩" ["value"]=> string(9) "朱明浩" [0]=> int(0) ["key"]=> int(0) } 返回一个关联和索引数组
+	// 
+	// 特点：每调用一次，返回数组的一个单元，指针下移一个单元，到最后返回 false
+
+ ?>
+
+<?php 
+	$arr = ['朱明浩','张信哲','朱宇轩','朱明强'];
+
+	// $res = each($arr);
+	// var_dump($res);	
+	// echo '<br>';
+	// $res = each($arr);
+	// var_dump($res);	
+	// echo '<br>';
+	// $res = each($arr);
+	// var_dump($res);	
+
+
+	// array(4) { [1]=> string(9) "朱明浩" ["value"]=> string(9) "朱明浩" [0]=> int(0) ["key"]=> int(0) } 返回一个关联和索引数组
+	// 
+	// 特点：每调用一次，返回数组的一个单元，指针下移一个单元，到最后返回 false
+
+	// 可以结合while循环来实现遍历数组，再结合list()直接将遍历出的结果赋给多个变量。
+	
+	while($tmp=each($arr)){
+		list($key,$name) = $tmp;
+		echo $key.'==='.$name.'<br>';
+	}
+
+ ?>
+
+数组的指针：
+
+next()
+prev()
+end()
+reset()
+
+数组的常用函数
+记住：所有数组和字符串的处理函数全部都要记住！！！
+
+array array_values(array) 返回数组中所有的值
+
+<?php 
+
+	$arr = ['name'=>'朱明浩','age'=>23,'sex'=>'男'];
+
+	$arr2 = ['朱明浩','张信哲','詹姆斯','朱明强'];
+
+	// 可以返回关联数组或索引数组的值
+	// $res = array_values($arr2);
+
+	// 返回数组的键
+	// $res = array_keys($arr2);
+
+	// 返回 值所对应的键 如果传入第三个参数 true 会按照严格的完全类型和值匹配去找
+	// $res = array_keys($arr2,'朱明强');
+
+	var_dump($res);
+	echo '<br>';
+ ?>
+
+//判断$value是否在数组中
+bool in_array($value,$array,[true/false]);
+
+#根据$value返回键
+array_search($value,$arr) 返回值对应的键，只返回找到的第一个
+
+ #键是否存在
+array_key_exists($key,$arr) 
+
+ #判断变量是否有值，如果没被赋值，或值为NULL，则返回false
+isset($arr['key']) 如果key=>null,则返回false
+
+ #交换数组的键和值
+array_flip($arr);
+但是数组有个特点，键是唯一的，值可以是重复的。
+
+如果值重复，交换后，后面的会把前面的覆盖。
+
+数组的下标只能是整型和字符串
+
+ #反转数组，将数组中元素的顺序反过来,默认第二个参数是false,如果是true，保留原数组的键值的对应关系（只对索引数组有效）
+array_reverse($arr,[true/false]);
+
+count('aaa');返回1，只要是字符串都返回1
+
+ #递归统计数组的子元素个数
+count($arr,1) 
+
+ #统计数组中 值 出现的次数，返回一个数组 （value=>3 这种形式的数组）
+array_count_values($arr)
+
+ #返回一个值不重复的数组，如果原数组中有重复的值，则返回第一个
+ array_unique($arr);
+
+	
+	// $res = array_reverse($arr2,true);
+	// var_dump($res);
+	// echo '<br>';
+	// array(3) { [2]=> string(3) "男" [1]=> int(23) [0]=> string(9) "朱明浩" } 
+
+	#键和值对调
+	// $res = array_flip($arr);
+
+	#值出现的次数
+	// $res = array_count_values($arr);
+	// print_r($res);
+	#Array ( [朱明浩] => 2 [23] => 2 [男] => 1 [朱杏梓] => 1 )
+
+
+	#返回一个值不重复的数组
+	// $res = array_unique($arr);
+	// print_r($res);
+	// Array ( [name] => 朱明浩 [age] => 23 [sex] => 男 [2] => 朱杏梓 ) 
+	// 由此可以看出，如果一个数组中既有关联数组，又有索引数组，索引数组的下标从0开始
+
+ #过滤数组的部分元素，返回过滤后的数组,默认过滤与 false 有关的数组元素，比如：null false '' 0 都会被过滤。
+ array_filter($arr)
+ #自定义过滤呢？
+
+ array_filter($arr,'callback');
+
+ <?php 
+
+	$arr = [1,3,5,2,22,56,-39,32,-3,89,-22,0,false,'',null];
+
+	$res = array_filter($arr);
+	var_dump($arr);
+	echo '<br>';
+	var_dump($res);
+	echo '<br>';
+
+	// 符合条件的就留下，也就是留下true的，过滤掉false的。
+/*	function func($a)
+	{
+		return $a>0;
+	}*/
+
+/*	function func($a)
+	{
+		return $a % 2 == 0 && $a != false;
+	}*/
+
+
+/*	$res = array_filter($arr,'func');
+	var_dump($res);*/
+
+	// 匿名函数法 过滤后索引从0开始
+	$res = array_values(array_filter($arr,function ($a)
+	{
+		return $a % 3 == 0 && $a != false;
+	}));
+	var_dump($res);
+
+ ?>
+
+------------------------------------
+
+ #array_walk(&array,callback);
+ 直接改变的是原数组
+ 对数组的每个函数应用用户函数。
+
+<?php 
+
+$arr = ['one'=>1,'two'=>2,'three'=>3,'four'=>4,'five'=>5];
+
+// 既可以获得值，又可以获得键
+/*function foo(&$value,$key)
+{
+	// echo $key.'==='.($value+=1).'<br>';
+	$value+=5;
+}*/
+
+// array_walk($arr, 'foo');
+// print_r($arr);
+
+// 也可以用匿名函数,可以传入第三个参数作为匿名函数的第三个参数。
+	array_walk($arr,function(&$value,$key,$str){
+		echo $key.$str.$value.'<br>';
+	},'######');
+ ?>
+
+ #可以用回调函数处理多个数组
+ array_map(callback,$arr1,$arr2);
+
+------------------------------------
+
+<?php 
+
+	$arr1 = [1,2,3,4,5];
+	$arr2 = [2,4,6,8,10];
+
+// 处理两个数组，处理结果放在一个新的数组
+	function foo($a,$b)
+	{
+		return $a*$b;
+	}
+
+	$arr = array_map('foo',$arr1,$arr2);
+
+	print_r($arr); 
+	print_r($arr1);//原数组并不会改变
+/*	echo '<pre>';
+	print_r($arr2);*/
+
+ ?>
+
+------------------------------------
+
+数组的排序：
+注意：系统自带的排序函数比自己写的都强，因为系统函数的底层都是用C语言写的。
+
+排序函数：
+sort($arr);按照升序排列
+rsort($arr) 按照降序排列
+
+ksort()按键名升序排列
+Krsort()按键名降序排列
+
+asort();升序排列，并保持索引关系
+arsort();降序排列，保持索引关系
+
+建议：索引数组用 sort()\rsort()
+	  关联数组用 asort()\arsort()
+
+natsort();按照自然顺序排列，也就是我们平时熟悉的顺序 1 2 3 11 12 。。
+natcasesort();按自然排序，不区分大小写
+
+usort($arr,callback);用户自定义排序
+uasort($arr,callback);用户自定义排序，保持索引关系
+
+多维数组的排序：
+array_maltisort();
+第二个数组的排序会受到第一个数组的影响，会对应上第一个数组。
+
+如果根据一个二维数组中的某一项进行排序，首先要把这一项取出来，作为该排序函数的第一个参数，第二个参数为这个二维数组。
+
+拆分、合并数组：
+
+从数组中取出一组：
+
+array_slice($arr,$offset,[$length]);
+
+array_splice(&$arr,$offset,$length);
+改变原数组！！！
+
+------------------------------------
+
+
+<?php 
+
+	$arr = [1,3,6,5,18,14,12];
+
+	// 从下标为2的开始取，取3个长度
+	// $res = array_slice($arr,2,3);
+
+	// 从倒数第二个开始取，往后取2个，返回一个下标从0开始的索引数组。
+	// $res = array_slice($arr,-2,2);
+
+	// 如果设置第三个参数为true，将保留原来的键
+	$res = array_slice($arr,-2,2,true);
+	echo '<br>';
+	print_r($res);
+
+ ?>
+
+------------------------------------
+
+<?php 
+
+	$arr = [1,2,3,5,6,7,12];
+
+	// array_splice($arr,2);//把下标2及其后面的都删掉 Array ( [0] => 1 [1] => 2 )
+
+	// array_splice($arr,2,3);#删除下标2开始的3个
+
+	#从倒数第三个删2个
+	// array_splice($arr,-3,2);#
+
+	array_splice($arr,-3,2,['hello','world']);#用数组元素替换掉被删除元素的位置
+
+	echo '<br>';
+
+	print_r($arr);
+
+ ?>
+
+------------------------------------
+
+<?php 
+
+	$arr = ['os','webserver','db','language'];
+
+	$arr2 = ['linux','apache','mysql','php'];
+
+	$res = array_combine($arr, $arr2);
+
+	print_r($res);
+
+	// Array ( [os] => linux [webserver] => apache [db] => mysql [language] => php )
+	// 合并两个数组，其中一个数组作为下标，另一个数组作为值
+
+
+ ?>
+
+------------------------------------
+
+<?php 
+
+	/*$a = [1,3,5,6,2,4,8];
+	$b = [2,4,7,8];*/
+
+	// $c = $a+$b;
+	// 下标相同的会覆盖，前面的覆盖后面的。
+	
+	// $c = array_merge($a,$b);#同名的关联数组，后面会覆盖前面，如果是索引数组，会重新索引
+
+	// $c = array_intersect($a, $b);#计算两个数组的交集
+
+	// print_r($c);
+
+	$res = array_diff($a,$b);
+	// 返回只在第一个数组中有的元素
+	  
+	$a = [1,3,5,6,2,4,8];
+	$b = [1,3,5,4,7,8];
+
+	#要实现的功能，只取出数组前面相同的部分，遇到不同的，就不取了
+
+	function demo($a,$b)
+	{
+		$min = count($a)-count($b)>0 ? count($b) : count($a);
+
+		$arr = [];
+
+		for($i=0;$i<$min;$i++){
+			if ($b[$i]==$a[$i]) {
+				$arr[$i] = $a[$i];
+			}else{
+				break;
+			}
+		}
+
+		return $arr;
+	}
+
+	print_r(demo($a,$b));
+ ?>
+
+------------------------------------
+
+数组与数据结构
+
+模拟压栈：压入后面
+$arr = [];
+array_push($arr,1);
+array_push($arr,2);
+array_push($arr,3);
+
+模拟弹出：
+array_pop($arr); 返回弹出的数组单元
+
+用array_unshif()和array_pop()模拟队列的先进先出
+
+$arr = [];
+array_unshift($arr,1);
+array_unshift($arr,2);
+array_unshift($arr,3);
+
+// 3 2 1
+
+array_pop();//1
+
+此外：用 array_shift() 表示从数组前面一个。
+
+------------------------------------
+
+array_rand($arr);
+返回随机的数组下标，这样设计的理由是，通过下标可以取得值，如果返回的是值，通过值找到的下标就有可能重复。
+
+shuffle();打乱原数组，引用传参来的
+
+range(10,20);生成10-20范围内的一个数组
+range(0,10,2);第三个参数是设置步长
+
+array_sum();求数组各个单元的总和
+
+$arr = [1,2,3];
+array_sum($arr);
+
+<?php 
+	$arr = [14,11,4,6,2,7,33];
+
+
+	// $rankey = array_rand($arr);#返回随机key
+	// echo $arr[$rankey];
+	
+	// $sum = array_sum($arr);
+	// echo $sum;
+
+	// shuffle($arr);
+	// print_r($arr);
+
+	// $arr = range(0,10);
+	// 
+	// $arr = range(10,0);#倒序
+
+	// $arr = range(10,0,2);#设置步长
+	// array(6) { [0]=> int(10) [1]=> int(8) [2]=> int(6) [3]=> int(4) [4]=> int(2) [5]=> int(0) }
+
+	// var_dump($arr);
+
+	#指定范围填充数组
+	// $arr = array_fill(0,5,'helloworld');
+	// print_r($arr);
+ ?>
+
+------------------------------------
+
+会话控制部分
+
+网络传输的七层协议：
+
+TCP协议的特点：请求稳定可靠，但是会一直保持连接状态，太占用资源。
+
+http协议：有TCP的稳定性，但是一旦连接上并取得内容，马上释放掉连接。
+
+所以http是无状态性的，也就是服务器根本不知道客户端都干了啥。
+
+因此，会话技术应运而生。
+
+深入理解会话技术：
+用户从网站的一个页面点击链接，访问其他页面，都是属于不同的http访问，服务器根本不知道是同一个用户在访问。
+
+所以，我们需要把用户登录的信息，保存在客户端或者服务器，当用户再访问其他页面时，就可以获取到已经保存的cookie或session信息，从而实现知道客户端是同一个人在访问。
+
+会话控制的思想就是允许服务器跟踪同一个用户做出的连续请求。
+
+PHP中的四种变量：
+	1.page级变量，
+	2.两个页面间的变量，get
+	3.用户级别的变量，cookie、session
+	4.全局变量，文件或数据库中的数据
+
+cookie信息不直接显示在浏览器页面，它是通过http头信息传递的。
+
+设置cookie时，通过响应头，将cookie信息存储在客户端的特定文件夹的与域名有关的目录。然后，用户再次请求同一个域名下的其他网页时，cookie信息自动被封装在http请求头信息里面，所以在该网站的任何网页都可以取到所设置的cookie信息。
+
+one.php
+<?php 
+	$name = '朱明浩';
+
+	$username = '朱杏梓';
+	$email = 'zxz@163.com';
+	echo 'helo';
+
+	//注意：在setcookie前不能有任何输出，因为setcookie是设置response header信息,r如果开启了 output-bufferring=4096则不会报错 
+	setcookie('name',$name,time()+24*3600);
+
+	setCookie("zxz['name']",$username,time()+3600);
+
+	setCookie("zxz['email']",$email,time()+3600);
+	
+	echo '设置成功';
+ ?>
+ response Header：
+Set-Cookie:name=%E6%9C%B1%E6%98%8E%E6%B5%A9; expires=Sat, 31-Mar-2018 01:42:37 GMT; Max-Age=86400
+注意一个细节：在第一次访问 one.php 时，只是响应头有以上set-cookie信息，在请求头是没有cookie信息的，当再次访问one.php时就在request header 有 cookie信息。
+
+two.php
+<?php 
+	echo $_COOKIE['name'];
+ ?>
+request header
+Cookie:name=%E6%9C%B1%E6%98%8E%E6%B5%A9
+
+通过查看不同目录下的cookie发现：cookie信息只能在设置cookie文件的那个文件夹下可以被访问到！！！
+也就是在one.php的同级目录才可以访问到。
+
+可以设置多个cookie，只需要：
+setCookie('username',$username,time()+3600);
+setCookie('password',$pwd,time()+3600);
+
+如果想存一个数组，必须指定 key
+	setCookie("zxz['name']",$username,time()+3600);
+	setCookie("zxz['email']",$email,time()+3600);
+
+删除cookie,只需要把过期时间设为 time() 之前。或者，值为 ''
+	setcookie('name','',time()-1);
+
+为什么有些开发者测试的时候，发现setcookie之前echo了信息也没有报错呢？
+
+因为当前大部分的PHP应用都是5.3+ 的，有些甚至用上了7。PHP5.3+版本中，因为默认开启了缓冲区，并且默认size为4096，所以在setcookie之前echo的数据，以及cookie的header头信息，都会在缓冲区被封装成HTTP包，发给客户端啦~所以也就不会产生上图中的报错信息（请勿修改HTTP的header头信息）
+
+当你设置output_buffering为0也就是在php.ini关闭缓冲区的时候，就需要手动ob_start来开启缓冲区了
+
+ob_start();  
+echo "i am going to setcookie";  
+  
+var_dump(setcookie('buhehe', 'asdasdasdasdad'));  
+  
+ob_end_flush();  
+  
+print_r($_COOKIE);  
+
+如果不设置过期时间，到浏览器关闭为一个会话，cookie过期！！！
+
+第四个参数可以设置路径，默认是当前目录，如果设置时设置了path，删除时也要写上path
+
+cookie只能一个一个删。
+
+------------------------------------
+
+session技术
+
+第一次访问时，给用户分配一个session id，（这个session id是以cookie的方式保存在客户端并以cookie的方式再次发送给服务器的；）并在服务器新建一个和 session id关联的文件夹用于存放该用户的数据。
+
+当用户访问该网站的其他页面，利用session id，就可以找到服务器上该用户session文件，从而实现跟踪用户。
+
+问题：还是要用到 cookie ，万一用户禁用了cookie呢？
+
+解决：地址栏也可以保存session id，并且是用户禁止不了的！！！
+
+设置头信息：
+session_start();前面也不能有任何输出。
+
+$_SESSION就是一个普通的超全局数组！！！
+写入session数据：$_SESSION['name']='朱明浩';
+
+ 在所有需要使用session机制的页面都要开启session！！！
+
+//判断客户端是否有了sessionid，如果有，直接使用这个sessionid开启会话，不会再次创建sessionid文件夹！！！
+ session_start();
+
+删除session
+
+	session_start();
+
+	$_SESSION = [];//清空内存中的session数组
+
+	彻底删除服务器的session文件
+	session_destroy();
+
+	删除客户端cookie中的session id
+	echo session_name();//返回session名
+	
+	//判断是否是通过cookie机制保存的sessionid
+	if(isset($_COOKIE[session_name()])){
+		setCookie(session_name(),'',time()-1,'/');
+	}
+
+one.php
+	<?php 
+
+	// echo 'helo';由于开启了output-bufferring前面可以有输出
+	session_start();
+	// 在响应头信息设置了session id
+	// Set-Cookie:PHPSESSID=vd50qeh1q03vuckeopmo9hiho7; path=/ 
+	// 
+	$_SESSION['name'] = '朱明浩';
+	$_SESSION['age'] = 23;
+	$_SESSION['sex'] = '男';
+
+	echo '设置成功';
+
+ 	?>
+
+two.php
+
+	<?php 
+		// 注意：在使用 $_SESSION的页面也需要开启session
+		session_start();
+
+		print_r($_SESSION);
+
+		echo session_name();
+
+ 	?>
+
+three.php
+
+	<?php 
+		session_start();
+
+		print_r($_SESSION);
+
+		$_SESSION = [];
+
+		session_destroy();
+
+		if(isset($_COOKIE[session_name()])){
+			setCookie(session_name(),'',time()-1,'/');
+			echo '删除成功';
+		}
+
+	?>
+
+有关session的所有配置都在php.ini文件中。
+
+默认一个session的生命周期是 直到浏览器关闭，所以关闭浏览器后，再次打开，将会是不同的session会话，会重新生成session文件，重新分配sessionid！！！
+session.cookie_lifetime = 0;
+
+session文件，默认保存在服务器的临时文件夹 tmp
+session.save_path="D:\phpStudy\tmp\tmp"
+
+session.cookie_path = '/'
+这就是为什么删除sessionid时需要加第四个参数 '/'
+
+session的自动垃圾回收机制：
+
+为什么会有垃圾的存在：session文件还没有删除，用户直接关闭浏览器，用户再次打开浏览器，重新生成一个新的session文件，上次那个session文件就永远成为垃圾了！！！
+
+垃圾回收机制：
+
+只要有对session的操作，无论session值有没有改变，就算是单纯的访问，也会导致服务器session文件的修改时间发生变化！！！
+
+#指定session文件的过期时间
+session.gc_maxlifetime = 1440
+
+#文件过期后，当1000次没再访问该页面就会删除此session文件
+session.gc_probability = 1
+session.gc_divisor = 1000
+
+也就是说：session文件被删除的条件为：过期，并且其他用户访问到次数超过设定的频率值。
+
+1000-5000之间较为合理！！！
+
+也就是说：你登录一个网站，长时间不刷新，很多的其他用户也访问这个网站时，你的session文件就有可能被删除。
+
+<?php 
+
+	// echo 'helo';由于开启了output-bufferring前面可以有输出 
+	
+	$id = !empty($_GET[session_name()])?$_GET[session_name()]:'';
+	if($id != ''){
+		session_id($id);
+	}
+	session_start();
+	// 在响应头信息设置了session id
+	// Set-Cookie:PHPSESSID=vd50qeh1q03vuckeopmo9hiho7; path=/ 
+	// 
+	$_SESSION['name'] = '朱明浩';
+	$_SESSION['age'] = 23;
+	$_SESSION['sex'] = '男';
+
+	echo '设置成功';
+
+	echo session_name().'='.session_id();
+
+
+ ?>
+	<a href="one.php?<?php SID; ?>">one</a>
+	<a href="two.php?<?php SID; ?>">two</a>
+	<a href="three.php?<?php SID; ?>">exit</a>
+实测并不好使！！！
+
+这种可用：
+<?php 
+// 注意：在使用 $_SESSION的页面也需要开启session
+	
+	$id = !empty($_GET[session_name()])?$_GET[session_name()]:'';
+	if($id != ''){
+		session_id($id);
+	}
+	session_start();
+
+	print_r($_SESSION);
+
+	echo session_name().'='.session_id();
+
+ ?>
+	<a href="one.php?<?php echo session_name().'='.session_id(); ?>">one</a>
+	<a href="two.php?<?php echo session_name().'='.session_id(); ?>">two</a>
+	<a href="three.php?<?php echo session_name().'='.session_id(); ?>">exit</a>
+
+原因原来这样！！！
+所以如果想要在浏览器开启cookie的时候用基于cookie的方式，在未开启cookie的时候使用url的方式就进行如下设置（最常用的方式，推荐）
+在php.ini文件中
+session.use_trans_sid=1
+session.use_only_cookies=0
+session.use_cookies=1
+或者 在php程序中
+ini_set(“session.use_trans_sid”,”1″);
+ini_set(“session.use_only_cookies”,0);
+ini_set(“session.use_cookies”,1);
+
+------------------------------------
+
+memcached技术
+
+安装：一定要以管理员身份运行
+	
+memcached.exe -d install
+memcached.exe -d uninstall
+memcached.exe -d start
+memcached.exe -d stop
+memcached.exe -h 获取帮助
+
+使用telnet连接： telnet localhost 11211
+注意：中间是空格
+
+查看memcached服务器信息：直接在黑窗口输入 stats
+
+退出：quit
+
+注意：有些设置在window下是不好使的！！！
+
+常用的组合设置：
+在linux下：./usr/local/bin/memcached -d -u root  -l 192.168.1.197 -m 2048 -p 12121
+在window下：d:\App_Serv\memcached\memcached.exe -d RunService -l 127.0.0.1 -p 11211 -m 500
+
+装好memcached后，还要安装memcached.dll扩展库
+
+一定要看清 PHP版本，ts、nts、phpstudy是32还是64的
+
+基本操作：
+
+<?php 
+	
+	class Test
+	 {
+	     var $a=1;
+	     var $b=2;
+	     var $c=3;
+	 }
+
+	$mem = new Memcache;
+
+	// 开启连接
+	$mem->connect('localhost',11211);
+
+	// $res = $mem->add('name','朱明浩',MEMCACHE_COMPRESSED,0);
+	$mem->add('age',23,MEMCACHE_COMPRESSED,0);
+	$mem->add('weight',60,MEMCACHE_COMPRESSED,0);
+	// 如果已经存在，则添加失败！
+	
+	// $mem->add('one','this is a test',MEMCACHE_COMPRESSED,0);
+
+	// $mem->add('two',new Test(),MEMCACHE_COMPRESSED,0);
+	
+	// $mem->add('three',['1','2','3','4'],MEMCACHE_COMPRESSED,0);
+	
+	// 更改或者添加
+	// $mem->set('weight',65,MEMCACHE_COMPRESSED,0);
+
+	// 取出数据
+	echo '<pre>';
+/*	var_dump($mem->get('weight'));
+	var_dump($mem->get('one'));
+	var_dump($mem->get('two'));
+	var_dump($mem->get('three'));
+	var_dump($mem->get('four'));*/
+
+	// 取出多个
+	// var_dump($mem->get(['three','four']));
+
+	// 删除数据
+	// $mem->delete(['two','three']);
+	// $mem->delete('one');
+
+	// 清除所有
+	// $mem->flush();
+
+	// 自增、自减，默认步长为1
+	$mem->increment('age',4);
+	$mem->decrement('weight',4);
+
+	// 关闭连接
+	$mem->close();
+
+ ?>
+
+分布式存储
+
+添加一台服务器即可：
+Memcache::addServer向连接池中添加一个memcache服务器
+
+有多台服务器，就都用addServer
+$mem->addServer('localhost',11211)
+$mem->addServer('192.168.1.104',11211)
+
+安全问题：
+1.内网访问，设置 -l 主机名 
+
+2.设置防火墙
+
+memcached的应用
+<?php 
+
+	//缓存数据库的数据，实现第一次访问时，从数据库取，返回给用户的同时，存一份到内存，第二次访问时，直接到内存中取数据！
+	
+	$mem = new Memcache;
+
+	$mem->addServer('localhost',11211);
+
+	$sql = "select name,age,money from students where id<?";
+
+	$key = $sql;
+
+	$data = $mem->get($key);
+
+	if(empty($data)){
+
+		try{
+			$pdo = new PDO("mysql:host=localhost;dbname=test2",'root','root');
+		}catch(PDOException $e){
+
+			echo '连接失败'.$e->getMessage();
+			exit;
+		}
+
+		$stmt = $pdo->prepare($sql);
+
+		$stmt->execute([6]);
+
+		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		//每5秒向数据库重新获取数据 
+		$mem->set($key,$data,MEMCACHE_COMPRESSED,5);
+		echo '第一次从数据库中获取数据';
+	}
+	echo '<pre>';
+
+	print_r($data);
+
+	// $mem->flush();
+
+	$mem->close();
+
+ ?>
+
+------------------------------------
+
+字符串函数：
+
+字符串可以按照数组的方式取：
+$str = "hello world";
+
+$str{0}
+$str[0]
+都是可以的
+
+会先转为字符串，在统计个数
+strlen(1000); //4
+
+<?php
+    //声明一个关联数组，数组名为$lamp, 成员有4个
+    $lamp = array( 'os'=>'Linux', 'webserver' =>'Apache', 'db'=>'MySQL', 'language'=>'php' );
+    
+    //可以解析，双引号中对于数组索引，右方括号(])标志着索引的结束,
+    //但是注意：不要在［］中使用引号，否则会在引号处结束
+    echo "A OS is $lamp[os].";
+    
+    //不能解析，如果在对关联数组下标使用引号就必须使用花括号，否则将出错
+    echo "A OS is $lamp['os'].";
+    
+    //可以解析，如果在对关联数组下标使用引号就必须使用花括号，否则将出错
+    echo "A OS is {$lamp['os']}.";
+    
+    //可以解析，注意PHP将数组下标看作常量名，并且常不存在时将常量名称转为了字中，效率低
+    echo "A OS is {$lamp[os]}.";
+    
+    echo "This square is $square->width meters broad."; //可以解析，对象中的成员也可以解析
+    echo "This square is $square->width00 centimeters broad."; //不能解析，可以使用花括号解决
+    
+    echo "This square is {$square->width}00 centimeters broad."; //可以解析， 使用花括号解决
+
+------------------------------------
+
+echo 和 print()的区别：
+	1.print有返回值 1；echo 没有
+	2.echo可以打印多个参数
+
+	die('sssssss') 其实是exit('ssssss') 的别名
+
+退出时，设置一个标记
+die(0);
+exit(0);
+
+die(1);
+exit(1);
+
+ord();根据字符返回ASCII码
+chr();根据ASCII返回字符
+
+printf();格式化输出，从C语言引入来的，很少用。
+
+printf("%d,%c",$int,$str);
+
+字符串转换格式：
+%%	返回百分比符号
+%b	二进制数
+%c	依照ASCII值的字符
+%d	带符号十进制数
+%e  科学计数法（如1.5e3）
+%u	无符号十进制数
+%f或%F 	浮点数
+%o	八进制数
+%s	字符串
+%x或%X  十六进制数
+%f0.2 小数点后两位
+
+sprintf();格式化返回
+不是输出！！可以借助echo 输出
+
+<?php
+    //声明一个字符串，其中左侧有三个空格，右侧两个空格，总长度为9个字符
+    $str = "   lamp  ";   
+    
+    echo strlen( $str );                //输出字符串的总长度 9
+    echo strlen( ltrim($str) );       //去掉左侧空格后的长度输出为 6
+    echo strlen( rtrim($str) );       //去掉右侧空格后的长度输出为 7
+    echo strlen( trim($str) );        //去掉两侧空格后的长度输出为 4
+
+    //声明一个测试字符串，左侧为数字开头，右侧为省略号“…” 
+    $str = "123 This is a test ...";  
+    echo ltrim($str, "0..9");         //过滤掉字符串左侧的数字，输出：This is a test ...
+    echo rtrim($str, ".");              //过滤掉字符串右侧所有“.”，输出:123 This is a test
+    
+    //过滤掉字符串两端的数字和大写字母还有“.”，输出：his is a test
+    echo trim($str, "0..9 A..Z .");   
+
+
+<?php
+    $str = "LAMP";                           
+    echo str_pad($str, 10);                //指定长度为10，默认使用空格在右边填补"LAMP“
+    //指定长度为10，指定在左边填补" -=-=-=LAMP"
+    echo str_pad($str, 10, "-=", STR_PAD_LEFT); 
+    //指定长度为10，指定两端填补 " _ _ _LAMP_ _ _“
+    echo str_pad($str, 10, "_", STR_PAD_BOTH);
+    echo str_pad($str, 6 , "_ _ _");    //指定长度为6， 默认在右边填补" LAMP_ _"
+
+函数:ucfirst( ) 
+	将字符串第一个字符改大写。 
+	语法: string ucfirst(string str); 
+	本函数返回字符串 str 第一个字的字首字母改成大写。
+函数:ucwords( ) 
+	将字符串每个字第一个字母改大写。 
+	语法: string ucwords(string str); 
+	本函数返回字符串 str 每个字的字首字母全都改成大写
+
+strip_tags — 从字符串中去除 HTML 和 PHP 标记
+string strip_tags ( string $str [, string $allowable_tags ] )
+第二个参数是设置允许的标签，也就是可以解释的标签
+
+strnatcmp — 使用自然排序算法比较字符串
+	格式：int strnatcmp ( string $str1 , string $str2 )
+该函数实现了以人类习惯对数字型字符串进行排序的比较算法，这就是“自然顺序”。注意该比较区分大小写。 
+
+<?php
+     $arr1 = $arr2 = array("img12.png", "img10.png", "img2.png", "img1.png");
+
+     echo “使用strcmp排顺序后：\n";
+     usort($arr1, "strcmp");
+     print_r($arr1);
+     //[0] => img1.png [1] => img10.png [2] => img12.png [3] => img2.png
+     
+     echo “\n 使用strnatcmp排序后：\n";
+     usort($arr2, "strnatcmp");
+     print_r($arr2);
+     //[0] => img1.png [1] => img2.png [2] => img10.png [3] => img12.png 
+?> 
+
+
+函数: strrev( ) 
+	颠倒字符串。将字符串前后颠倒。 
+	语法: string strrev(string string);
+
+函数：number_format()语法：string number_format ( float number [, int  
+     decimals [, string dec_point, string thousands_sep]] )
+就是将字符串格式化成人类容易辨别的数字：11,111,223,434.534
+
+函数：md5（） 加密函数
+   格式：string md5 (string str [, bool raw_output] ) 
+使用md5()加密时，最好嵌套几层md5()
+
+函数：nl2br( )
+语法：string nl2br ( string string )将字符串中”\n”转成HTML换行符“<br />”
+函数：htmlspecialchars()
+把指定特殊符号转换成实体，如&lt;&gt;
+'&' ：'&amp;' 	'“' ：'&quot;'
+'< '：'&lt;'    '>' ：'&gt;' 
+
+------------------------------------
+
+正则表达式
+
+/*
+ * 原子： 
+ *
+ * 	1. 打印字符(a-z A-Z 0-9 !@#$%^&*()_+) 和非打印字符
+ *
+ *
+ *
+ * 	\ 转义字符
+ *
+ * 	一、 可以将有意义的字符转成没有意义的原子字符  (将有意义变成原子)
+ * 	二、 可以将没有意义的字符转成有意义的原子
+* 	三、 a-z A-Z 0-9 _   所有没有意义的字符， 加上转义也没有意义的， \@ 都是可加可不加的
+*
+*
+* 	2.  所有的数字， 所有的字， 所有的空白, 所有字母， 特殊符号
+*
+*
+*	\d     代表任意一个数字     [0-9]
+*	\D     代表任意一个非数字   [^0-9]
+*
+* 
+*	\w     代表任意一个字  a-z A-Z 0-9 _   [a-zA-Z_]
+*	\W     代表任意一个非字 除了 a-z A-Z 0-9 _之外的所有字符   [^a-zA-Z0-9_]
+*
+*
+*	\s   代表空白    [\t\n\f\v]
+*	\S   代表非空白 [^\t\n\f\v]
+*
+*
+* 	3. 自己定义原子表
+*
+* 	[13579]
+* 	[^a-zA-Z]  -从哪到哪区间范围  ^除列表中的
+*
+*
+* 	4 点(.)能代表所有的
+ *
+ */
+
+
+/*  元字符： 不能在正则表达式中单独使用， 用来修饰原子的。 
+ * 
+ *   * 用来修饰其前面的原子可以出现0个1个或多个 (任意次)  {0,}
+ *
+ *   + 用来修饰其前面的原子可以出现1次或多次， 不能没有至少要出现在次 {1,}
+ *
+ *   ? 用来修饰其前面的原子可以出现0次或1次 {0,1}
+ *
+ *   {m}  m = 3 用来修饰其前面原子只能出现 m次， 多一次和少一次都不可以
+ *   {n,m} {2,5} 用来修饰其前面的原子出现个数在n到m之间，包括n和m
+ *   {n,} {2,} 用业修饰其前面的原子可以出现至少次
+ *   {,m} {,5}   不行， 可以以0开始
+ *
+ *   | 是或的关系， 表示它两边的原子，只要有一个出现就可以, 但是， ｜优先级是最低的， 
+ *
+ *   ^ 或 \A 表示必须以什么开始, 这个必须写正则表达式的最前面
+ *   $ 或 \Z 表示必须以什么结束， 这个必须写正则表达式的最后面
+ *
+ *
+ *   \b 单词边界
+ *   \B 不是单词边界
+ *   	
+ *
+ *   . 
+ *   []
+ *
+ *
+ *   () 第一个作用： 必变优先级别 
+ *      第二个用用： 将小原子，变成大原子
+ *	第三个作用： 子模式, 整个表达式是一个大的模式， 小括号中是每个独立的子模式
+ *	第四个作用： 反向引用  括号前面加 ?: 可以取消反向引用
+ */
+
+
+/*  
+ *  模式修正符号(单个字符)
+ *
+ *  1. 模式修正符号要写在定界符号外， 放在右边
+ *
+ *  	"/go*gle/i"
+ *  2. 模式修正符号， 一个字符就是一个功能， 可以组合使用
+ *
+ *  	"/go*gle/ieU"
+ *
+ *  作用：
+ *  	模式修正符号可以修正正则表代式的解释, 或扩充了正则表达式的功能 
+ *
+ *
+ *  	i : 修正正则表达式不区分大小写（默认是区分大小写的）	
+ *
+ *  	m : 修正符号修正正则表达式可以视为多行， 在使用 ^ 或 $ 这两个符号时， 每一行满足都可以。  （默认视为一行处理）
+ *
+ *  	s:  修正正则表达式中的 . 可以匹配换行符号 (默认 . 不能匹配回车符号)
+ *
+ *  	x:  修正正则表达式，可以省略空白
+ *
+ *  	U:  (.*, .+) 正则表达式比较贪婪,   .*?  .+?
+ *
+ */
+
+strrchr — 查找指定字符在字符串中的最后一次出现
+string strrchr ( string $haystack , mixed $needle )
+该函数返回 haystack 字符串中的一部分，这部分以 needle 的最后出现位置开始，直到 haystack 末尾。 
+
+------------------------------------
+
+错误和异常处理
+
+语法错误、运行时错误、逻辑错误
+
+<?php
+
+// 关闭所有PHP错误报告
+error_reporting(0);
+
+// Report simple running errors
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
+// 报告 E_NOTICE也挺好 (报告未初始化的变量
+// 或者捕获变量名的错误拼写)
+error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+
+// 除了 E_NOTICE，报告其他所有错误
+error_reporting(E_ALL ^ E_NOTICE);
+
+// 报告所有 PHP 错误 (参见 changelog)
+error_reporting(E_ALL);
+
+// 报告所有 PHP 错误
+error_reporting(-1);
+
+// 和 error_reporting(E_ALL); 一样
+ini_set('error_reporting', E_ALL);
+
+?> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：GD库画时钟 文件下载 会话控制cookie的应用 邮件实例 字符串面试
+正则表达式函数部分
+

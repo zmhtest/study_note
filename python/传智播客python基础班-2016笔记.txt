@@ -1,0 +1,94 @@
+# 传智播客2016 python基础班教程笔记
+
+创始人：龟叔（Guido） 	诞生于1991年
+
+查看关键字：
+import keyword
+keyword.kwlist
+['and', 'as', 'assert', 'break', 'class', 'continue', 'def', 'del', 'elif', 'els
+e', 'except', 'exec', 'finally', 'for', 'from', 'global', 'if', 'import', 'in',
+'is', 'lambda', 'not', 'or', 'pass', 'print', 'raise', 'return', 'try', 'while',
+ 'with', 'yield']
+
+字符串：
+
+最小的存储单位是一个字节。
+一个字节的最大值：255
+
+对于每个视频教程都要看两遍以上，基础尤为重要！！！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：06  03
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

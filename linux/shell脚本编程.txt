@@ -1,0 +1,737 @@
+shell脚本编程-阿铭
+
+#!/bin/bash #这行必须是脚本的第一行，前面不能有空格。也叫魔法字符串。
+
+cat <<EOF 
+	这是一个菜单
+	hello world
+
+EOF
+注意：这个EOF必须顶格
+
+[root@centos6-20 ~]# echo $BASH
+/bin/bash
+
+历史命令文件夹：
+	~/.bash_history
+
+历史命令的数目	
+[root@centos6-20 ~]# echo $HISTSIZE
+1000
+
+history -c #清除内存中的历史记录，并不会删除.bash_history文件中的
+
+只有当退出终端时，这个历史记录才会保存到文件中。
+
+
+这个 HISTSIZE 环境变量是保存在 /etc/profile 这个环境变量设置文件中的。
+
+	HISTSIZE=1000
+	
+如果修改了 /etc/profile 这个文件，需要 source /etc/profile 才会生效，退出重新登录也会生效。
+
+设置历史记录时间显示格式：
+
+	HISTTIMEFORMAT="%Y/%m/%d %H:%M:%S "
+	
+环境变量的级别：
+
+	1.shell终端级别,切换终端将会失效
+	
+	2.用户级别，由用户家目录下的 .bash_profile控制
+	
+	3.全局，系统级别 /etc/profile 
+
+shell终端的配置文件：
+
+	1.用户级别的，用户家目录的 .bashrc 文件 
+	
+	2.系统级别的，对所有用户都有效的：/etc/bashrc 
+	
+	如果 .bashrc 和 /etc/bashrc 都对同一个变量进行了设置，将以用户级别为准， .bashrc 
+	
+给历史记录文件设置，只允许追加，而不允许删除的a权限：
+	chattr +a ~/.bash_history 
+	
+	[root@centos6-20 ~]# lsattr .bash_history
+	-----a-------e- .bash_history
+
+如果没有正常退出终端，历史记录将会不全。
+
+!!表示执行最后一个命令
+
+!word 执行上一条以 word开头的命令。
+
+centos7 中支持命令的参数的自动补全。
+	但是需要安装： yum install -y bash-completion 
+	需要重启系统才能生效，但是默认是安装的！！！
+
+设置别名：
+	1.直接在命令行设置：
+	  [root@zmh ~]# alias restartnet="systemctl restart network"
+	
+	2.在.bashrc文件中设置
+	
+	3.在 /etc/profile.d/ 这个目录下的文件
+		这个目录定义了各种shell中的别名设置
+		
+取消别名设置：
+	unalias restartnet 
+	
+通配符：
+	
+	* 任意个任意字符，可以在字符串的任何位置
+	
+	? 任意的一个字符，而不是 0或1个
+	
+	[n-m] n-m范围内的一个
+		ls [1-3].txt #相当于 [123]，可以写成[1,2,3]
+		1.txt  2.txt  3.txt
+	
+	[12345] 匹配其中的任意一个 
+	
+	[a-zA-Z] [0-9A-Za-z]
+
+	{1,2,3,a} 与 [] 类似，也是其中的任意一个
+		[root@zmh ~]# ls {1,3,a}.txt
+		1.txt  3.txt  a.txt
+	
+重定向输出：
+	
+	错误信息的重定向输出 2> 
+	  错误追加： 2>> 
+		[root@zmh ~]# lsa
+		bash: lsa: 未找到命令...
+		[root@zmh ~]# lsa 2> a.txt 
+		[root@zmh ~]# cat a.txt 
+		bash: lsa: 未找到命令...
+
+	&> 集成了 > 和 2> 可以把正确和错误的都进行重定向。
+		[root@zmh ~]# ls 1.txt aaaaa.txt &>a.txt 
+		[root@zmh ~]#  cat a.txt
+		ls: 无法访问aaaaa.txt: 没有那个文件或目录
+		1.txt
+	
+	&>> 也是集成了 >> 和 2>> 
+	
+	把正确和错误的输出重定向到不同的文件：
+		[root@zmh ~]# ls 1.txt aaaaa.txt >a.txt 2>b.txt 
+		[root@zmh ~]# cat a.txt 
+		1.txt
+		[root@zmh ~]# cat b.txt 
+		ls: 无法访问aaaaa.txt: 没有那个文件或目录
+
+	文件重定向到命令： < 
+		wc -l < a.txt  
+
+任务管理：		
+	暂停一个命令，把它放在后台 Ctrl+z 
+
+	fg 调到前台，如果不加参数，默认最后一个 
+	fg 2  
+	
+	bg 调到后台并运行，如果不加参数，默认最后一个 
+	bg 2
+
+	jobs #列出后台的所有任务 
+
+	sleep 10 暂停10s
+	
+	对于运行在前台的进程，要先暂停Ctrl+z，才能通过bg切换到后台运行！！！
+	
+	直接扔到后台： sleep 1000 & 
+	
+	jobs只能在本终端查看到任务。
+	
+环境变量：
+	env 
+	set 除了系统的，还可以查看自定义的
+	
+自定义变量：
+	如果变量值中有特殊符号，使用单引号，比如 $ 
+	双引号可以解释变量！！！
+	
+	局部变量： a=10 
+	  只在当前终端bash有效
+	
+	全局变量的设置： export a=10
+	
+	取消变量：unset a
+	
+pstree 查看进程树
+
+在shell中输入zsh等命令将进入子shell
+
+脚本变量：
+	[root@zmh ~]# ./1.sh 1 2 3
+	这个脚本有3个参数
+	./1.sh 1 2 3
+	1 2 3
+	这个程序的pid为16316
+	后台进程的pid为 16317
+	
+	[root@zmh ~]# cat 1.sh
+	#!/bin/bash
+	#这是一行注释
+	echo "这个脚本有$#个参数"
+	echo $0 $1  $2 $3
+	echo $*
+	echo "这个程序的pid为"$$
+	sleep 1000 & 
+	echo "后台进程的pid为 $!"
+
+验证$!为后台程序的PID	
+	[root@zmh ~]# sleep 100 &
+	[1] 16700
+	[root@zmh ~]# echo $!
+	16700
+	[root@zmh ~]# ps -anx |grep 16700
+	 16700 pts/2    00:00:00 sleep
+
+验证$$为当前进程的PID
+	[root@zmh ~]# echo $$
+	16488
+	[root@zmh ~]# ps -anx |grep 16488
+	16488 pts/2    00:00:00 bash
+ 	
+把命令的执行结果赋给变量：
+	1、a=`ls`
+	1.sh 2.txt 3.txt 4.txt aa.txt
+	
+	2、b=$(ls)
+	[root@zmh ~]# echo $b
+	1.sh 2.txt 3.txt 4.txt aa.txt
+	
+	[root@zmh ~]# a= `ls `
+		bash: 1.sh: 未找到命令...
+	#等号两边不能有任何空格 
+	
+变量与字符串的拼接：
+	
+	a=a 
+	[root@zmh ~]#  echo ${a}hello     
+	ahello
+	如果直接 echo $ahello 是无法识别的！！！
+	
+双引号可以解释变量，而单引号不可以：
+	
+	$a=a
+	[root@zmh ~]# echo "$a hello world"
+	a hello world
+	[root@zmh ~]# echo '$a hello world' 
+	$a hello world
+
+PS1，修改shell中命令之前的提示部分：	
+	[root@zmh ~]# set |grep PS1
+	PS1='[\u@\h \W]\$ 
+	
+	[root@zmh ~]# echo $PS1
+	[\u@\h \W]\$ #大写W，表示显示短路径
+	
+	#改为全路径：
+	PS1='[\u@\h \w]\$'
+	[root@zmh /etc/sysconfig]#
+
+转义符号 \ 比如直接输出 \$a 
+	
+cut命令的使用：
+
+  cut passwd -d ":" -f 1-3 
+  #根据 : 切分passwd文件，取出1-3列 缺点是：连同切分的符号也包含其中
+
+	[root@zmh ~]#head -2 passwd |cut -d ":" -f 1
+	root
+	bin
+	[root@zmh ~]#head -2 passwd |cut -d ":" -f 1,2
+	root:x
+	bin:x
+	[root@zmh ~]#head -5 passwd |cut -d ":" -f 1-4
+	root:x:0:0
+	bin:x:1:1
+	daemon:x:2:2
+	adm:x:3:4
+	lp:x:4:7
+
+排序:sort
+	sort /etc/passwd #将首字符排序（a->z）输出
+	
+	结果是一样的：
+		head -n 3 passwd 
+		head -3 passwd 
+
+	sort -n #先排列字母开头的，再排列数字的，它把字母和特殊符号都看成了0
+	
+	sort -nr a.txt #反向排列
+	
+wc 统计行数，字符数
+	wc -l a.txt
+	wc -m a.txt 
+
+# cat -A 会把文件隐藏的内容显示出来	
+	[root@zmh ~]#cat -A a.txt 
+	1.txt$
+	alfak$	
+
+去重：uniq ，需要配合sort命令使用，因为它只能识别相邻的相同的行。
+	sort a.txt |uniq
+
+	统计重复的次数：
+		sort a.txt | uniq -c
+
+tee 输出重定向命令的使用：相当于 > 只是它是有控制台输出的。
+	sort a.txt |uniq -c |tee aa.txt		
+
+	tee的追加 tee -a ,相当于 >> 
+
+tr 替换
+	cat 1.txt |tr 'a' 'A'
+	cat 1.sh |tr '[echo]' '[ECHO]' 注意：是一一对应的
+
+切割：split
+	1.根据文件大小切分：
+		split -b 100M bigfile
+		split -b 100 bigfile #默认以字节为单位。
+
+	2.根据行数切分
+		split -l 100 bigfile
+
+构建大文件：
+	find /etc/ -type f -name "*conf" -exec cat {} >> b.txt
+	等价于 ：find /etc/ -type f -name *.conf |xargs cat |tee -a b.txt
+	等价于：find /etc/ -type f -name *.conf |xargs cat >>  c.txt
+
+
+特殊符号：
+	; 在一行中输出多条命令
+
+正则：grep 
+	-o 把符合条件的字符，单独成行打印出来
+		grep -o  'root' passwd |wc -l #这样就可以统计出现的次数了
+
+	-n 表示行数，出现了多少行
+
+	--color 
+		[root@zmh ~]# which grep
+		alias grep='grep --color=auto'
+			/usr/bin/grep
+
+	高级的用法：
+		grep -A2 -n 'root' passwd	#符合条件的行和后两行
+		grep -B2 -n 'root' passwd	#符合条件的行和前两行
+		grep -C2 -n 'root' passwd	#符合条件的行的前后两行
+
+	-r 可以递归查找
+		grep -r 'root' /boot |wc -l #统计目录下的文件中包含root字段的文件的个数，也就是可以深入到文件最里面查找！！！
+
+	过滤掉空行和#开头的行：需要用两个grep
+		grep -v '^$' passwd |grep -v '^#'
+
+	grep中可以使用正则，但是不可以使用 ？ + | 这些符号
+
+	但是 egrep 是可以使用这些符号的。
+
+	egrep 相当于 grep -E 
+
+	? 表示 0个或者1个
+
+	* 表示任意个
+
+	. 表示任意字符
+
+	()表示一组
+
+	{n}表示n个
+
+	{n,m}n-m个
+
+	{n,}n个以上
+
+	+ 表示 至少一个 
+
+	| 表示枚举  ‘root|mysql’
+
+	sed -r -n '/mysql|root/p' passwd #注意：使用 sed 进行过滤输出必须加-n,否则会全部输出！！！
+
+	egrep 'root|mysql' passwd 	#同上
+
+	egrep '(oo){2}' passwd #过滤连续两个oo的行
+
+	egrep '(oo){1,}' passwd
+
+	egrep '(oo){1,2}' passwd
+
+sed 中使用正则，加 -r 选项，相当于 grep -E ，同样可以使用 ? + |	
+	
+	sed -e 参数可以指定多个表达式 ：
+	nl passwd |sed -n -e '/root/p' -e '/mysql/p'
+	相当于：nl passwd |sed -n '/root/p;/mysql/p'
+	分号可以将多个规则写在一起
+
+	sed 是不显示行号的，如何实现显示行号呢？
+		egrep -n '.*' passwd | sed -n '3p'
+
+	nl passwd 	#连同行号一起输出。
+
+	nl passwd |sed -n '/root/p'
+
+
+
+
+
+
+
+
+	打印出目录下的所有文件夹：
+
+	#!/bin/sh
+	#打印/etc/下面的所有目录
+
+	for f in `ls /etc/`; do  #如果是一个目录，最后的 /也是可以省略的。
+		if [[ -d "/etc/$f" ]]; then		#这里不能写成 (())的形式
+				echo "/etc/$f"
+			fi	
+	done
+
+	#这里表示目录的双引号可以省略，但是不能使用单引号。
+
+	seq 1 3  #产生一个范围内的数 1 2 3
+
+	for in 循环，默认是以 空白字符作为分隔符，如果一行中有空白字符，循环输出将会被拆分成多行，然而如果要整行输出呢？
+	需要结合 awk和sed	
+
+	n=`wc -l a.txt |awk '{print $1}'`
+	for i in `seq 1 $n`; do sed -n "$i"p 1.txt; done  
+		注意变量与其他字符的分割，
+			1.双引号单独包括变量
+			2."${i}p"
+	注意：$() 和 `` 的作用是一样的，都是执行里面的语句。
+
+强大的管道命令：
+	for i in $(seq 1 $n); do sed -n "$i"p a.txt |grep root |awk -F: '{print $6}' |tr '/' ' '; done
+
+	替换功能	'行号s/查找/替换/g'
+	vim中的替换	:1,5s/bin/sbin/g
+
+	灵活使用替换：
+	1.可以实现删除，也就是将查找的内容替换成空
+		sed 's/toor//g' a.txt
+
+	调换两个单词的位置：，\2 表示反向引用前面的
+		sed -r 's/([^:]+)(:.*:)([^:]+$)/\3\2\1/' a.txt
+
+	直接将修改反映到文件中：
+		-i 参数即可
+
+awk相关：
+
+	匹配打印：
+
+	awk -F: '$1~"toor" {print $1}' passwd  #匹配$1中包含toor的行
+
+	awk -F: '$1=="toor" {print $1}' passwd	#匹配$1==toor的行。
+
+	awk -F : '$=="root"||NR>55 1{print $1}' passwd	#||或者，NR表示行号 ，也可以使用 && 
+
+	重新定义OFS分隔符：
+		awk -F: '$1=1 {OFS=":";print}' passwd
+		因为当赋值之后，原来的分隔符都没了！！！
+
+	NF表示字段号。
+
+shell编程：
+	bash -x 1.sh 运行shell脚本，会把整个过程都显示出来。	
+
+	[root@zmh ~]# sh -x a.sh
+		+ echo $'\346\254\242\350\277\216\346\235\245\345\210\260shell\347\274\226\347\250\213\344\270\226'
+		欢迎来到shell编程世
+
+时间相关：
+
+	[root@zmh ~]# date
+	2018年 05月 22日 星期二 16:39:04 CST
+
+	[root@zmh ~]# date +%y #年份，2位
+	18
+
+	[root@zmh ~]# date +%Y  #年份，4位
+	2018
+
+	[root@zmh ~]# date +%m #月份
+	05
+
+	[root@zmh ~]# date +%d  #日期
+	22
+
+	[root@zmh ~]# date +%H  #小时
+	16
+
+	[root@zmh ~]# date +%M  #分钟
+	38
+
+	[root@zmh ~]# date +%S  #秒
+	29
+
+	[root@zmh ~]# date +%h  
+	5月
+
+	[root@zmh ~]# date +%s  #时间戳
+	1526978326
+
+	[root@zmh ~]# date -d @1526978326  #由时间戳反推时间
+	2018年 05月 22日 星期二 16:38:46 CST
+
+	[root@zmh ~]# date +%F
+	2018-05-22
+
+	[root@zmh ~]# date +%T
+	16:46:32
+
+	[root@zmh ~]# date '+%F %T' #双引号也可以
+	2018-05-22 16:47:56
+
+	[root@zmh ~]# date +%w #星期 week 
+	2
+
+	[root@zmh ~]# date +%W  #一年中的第几周
+	21
+
+	bc #计算器 
+
+	cal -y 输出日历
+
+	date -d "xxx" 显示string指定的时间
+
+	[root@zmh ~]# date -d "+1 day" "+%F %T"
+	2018-05-23 16:59:16
+
+	[root@zmh ~]# date -d "+1 month" "+%F %T"
+	2018-06-22 16:59:26
+
+	[root@zmh ~]# date -d "+1 week" "+%F %T"
+	2018-05-29 16:59:34
+
+	[root@zmh ~]# date -d "+1 year" "+%F %T"
+	2019-05-22 16:59:43
+
+	[root@zmh ~]# date -d "-1 day" "+%F %T"
+	2018-05-21 16:59:53
+
+	[root@zmh ~]# date -d "-1 hour"
+	2018年 05月 22日 星期二 16:01:41 CST
+
+	还可以是 min	 sec
+ 
+	export 定义的变量也是仅仅在当前终端下的shell有效，当新开一个终端将会失效。
+
+	
+
+	[root@zmh ~]# echo $[$a+$b]
+	3
+
+	[root@zmh ~]# echo `expr $a + $b`
+	3
+
+	[root@zmh ~]# echo $(expr $a + $b)
+	3
+
+	[root@zmh ~]# echo $(($a+$b))
+	3
+
+	if : #shell中 : 就表示真
+
+	if 中的条件判断 
+
+		|| -o
+
+		&& -a
+
+		[ conditon1 ] || [ condition2 ]
+
+写个猜数字的游戏：
+	#!/bin/bash
+	while :
+	do
+	result=$[$RANDOM/3276]  #初始化随机数，$RANDOM的范围是32767
+	i=0
+
+	while :
+	do
+
+	read -p "请输入你要猜的数字：" g
+	gg=`echo $g |egrep '[^0-9]' |wc -l `  #数据有效性的判断
+	if (($gg!=0));then
+		echo "您输入的不是数字，请重新输入数字！"
+		break  #重新开始
+	fi
+
+	i=$[$i+1]  #累计输入的次数
+
+	if (($g>$result)); then
+		echo "大了"
+	elif [ $g -lt $result ];then
+		echo "小了"
+	else
+		clear  #清屏
+		echo "恭喜你，猜对了"
+		echo "你一共猜了${i}次"
+		sleep 1
+		break  #退出当前循环，重新开始游戏
+	fi
+	done
+	done
+
+	逻辑判断
+	[root@zmh ~]# [ -e a.sh ] && echo "file exits"
+	file exits  
+		# && 表示当前面的条件成立才执行后面的语句部分
+
+	[ -e c.sh ] && echo "file exists" || touch c.sh
+	#表示如果文件存在提示 file exits 1如果不存在则创建
+
+	|| 表示当前面不成立才执行。
+
+	可以通过以下方法判断输入的是否是数字
+		[root@zmh ~]# echo '12asd3' |grep -q '[^0-9]' 
+
+	#如果用户输入的不是数字返回真，可以直接写在if的条件部分
+
+	[root@zmh ~]# echo $?
+	0 	#表示执行成功
+
+	/dev/null 相当于垃圾桶，当我们不关心执行的输出结果时，可以把结果重定向到/dev/null
+
+	当我们只关心命令是否执行成功，而不关心结果时，可以这样做：
+
+	if ls /tmp/sada &> /dev/null ;then echo ok;else echo "not ok";fi
+
+	exec 指定脚本中内容输出的位置：可以是正确的输出和错误的输出
+
+		[root@zmh ~]# cat exec.sh
+		#!/bin/sh
+		d=`date +%F`
+
+		exec &> /tmp/$d.log  
+
+		等价于：exec > /tmp/$d.log 2> &1
+		#统一输出到这个文件中，还可以改成错误的输出 2> 即可
+
+		ls /etc/asldfja; #错误的输出
+		cd /asldfj
+		echo 'asdjfl;kj'  #正确的输出
+
+	[ -z $n ] #判断$n是否为空,如果为空，返回真
+
+case：可以参考httpd的文件进行学习 
+
+循环：
+	seq 10 -1 1 #10....1
+	seq 1 +3 10 #1 4 7 10
+
+监控系统的负载：实现功能，每个30s监控一次，用到死循环+sleep 30
+	[root@zmh ~]# w |head -1 |awk -F'load average: ' '{print $2}' |cut -d ',' -f1
+	0.02
+
+	可以用两次awk
+	[root@zmh ~]# w |head -1 |awk -F'load average: ' '{print $2}' |awk -F, '{print $1}'
+	0.00
+
+	可以通过 echo $? 来取得函数中的return值
+
+函数部分：显示网卡的ip地址的函数
+	#!/bin/bash
+	getip() #注意函数名不能去与系统中命令相同的名字！！！
+	{
+	ifconfig |grep -A1 "${1}: " | tail -1|awk '{print $2}'
+	}
+
+	read -p "请输入网卡名字：" e
+	result=`getip $e`
+	echo "$e ip addr is : ${result}"
+
+	问题：如何在脚本执行 ip addr 这种带有空格的命令呢？
+
+学神部分：
+	[root@zmh ~]# echo "this is apple " |sed 's/apple/dog/'
+	this is dog
+
+	匹配单词 \b 
+
+	#注意：多个匹配表达式使用 ; 隔开，以下语句比使用两个 -e 的效率要高，因为sed是流水作业，有n个-e表达式，就要执行多少次流水加工！！！
+
+	echo this is an apple |sed  's/\bis\b/are/;s/apple/apples/'
+		this are an apples
+
+	实现同样的效果：
+	[root@zmh ~]# echo this is an apple |sed -e 's/\bis/are/' -e 's/apple/orange/'
+	this are an orange
+
+	sed是支持 sed脚本的，然后通过 -f 参数来调用
+
+	[root@zmh ~]# sed -f script.sed  a.sh
+	1 2 3 4
+
+	[root@zmh ~]# cat a.sh
+	one two three four
+
+	[root@zmh ~]# cat script.sed
+	s/one/1/
+	s/two/2/
+	s/three/3/
+	s/four/4/
+
+awk 
+  内置变量
+    awk 中变量的调用是不需要 $ 符号的
+	FS 	分隔符
+	FILENAME 文件名
+
+	分隔符除了是 空格 , : ; 还可以是指定的单词，任意都是可以的。
+
+	可以指定多个分隔符 
+		awk -F "[,:;]+"  #表示分隔符可以是 , : ; 中的一个或多个 比如:: 
+
+	awk 中多条命令用分号 ; 隔开
+
+	替换某个字段，直接重新赋值即可：
+		[root@zmh ~]# echo "this is an apple" |awk '{$2="是";print }'
+		this 是 an apple
+
+	awk 一共分为三个模块 'BEGIN{} {} END{}'
+	在BEGIN模块定义的变量，后面的模块都可以使用，输出多个内容，除了可以用 , 分割，还可以自定义分隔符 比如 "======="
+
+	[root@zmh ~]# echo 'this is the main' |awk 'BEGIN{NAME="朱明浩";print "BEGIN",NAME} {print $0"========"NAME} END{print "END",NAME}'
+
+		BEGIN 朱明浩
+		this is the main========朱明浩
+		END 朱明浩
+
+	这种写法也是可以的！！！	
+	[root@zmh ~]# awk '
+	> BEGIN{print "this is begin"}
+	> '
+
+老段sed awk 编程部分
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：25

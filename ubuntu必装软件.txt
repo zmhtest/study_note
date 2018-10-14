@@ -1,0 +1,42 @@
+安装atom
+sudo add-apt-repository ppa:webupd8team/atom  
+sudo apt-get update  
+sudo apt-get install atom
+
+安装notepad++ 
+sudo add-apt-repository ppa:notepadqq-team/notepadqq
+sudo apt-get update
+sudo apt-get install notepadqq
+
+安装adobe-flashplugins
+注意：首先要在 软件和更新 勾选 其他软件 Canonical 合作伙伴
+
+安装wps
+提示却什么就装什么
+
+安装网易云音乐
+sudo dpkg -i netxxxxx
+sudo apt install -f #补全需要的依赖
+
+编辑软件源
+sudo gedit /etc/apt/source.list
+
+替换hosts文件
+sudo mv hosts /etc/hosts
+
+安装有道词典：
+$ sudo apt-get install python3-pyqt5
+有些不能安装则$ sudo apt-get -f install
+$ sudo apt-get install tesseract-ocr
+$ sudo dpkg -i youdao-dict_1.0.2~ubuntu_amd64.deb
+安装失败：始终无法安装 qtdeclarative5-controls-plugin
+在bantu是不能运行deepin版有道的。
+
+安装搜狗
+安装依赖即可
+
+搜狗输入法。
+
+
+
+

@@ -1,0 +1,207 @@
+react教程--传智
+
+诞生于Facebook内部,于2013年开源
+
+设计思想比较优秀,一直沿用至今 
+
+库:
+	小而巧的库 library 
+	优点:船小好调头 可以轻松从一个库切换到另外一个库
+
+框架framework
+	大而全的是框架 
+	提供了一整套的解决方案 从一个框架转移到另外一个框架是比较困难的
+
+库是提供了很多工具供我们调用的,而框架则是按照特定流程调用我们的代码.
+
+前端的三大主流框架:
+	三大框架一大抄 
+	互相模仿 
+
+	angular(印度)是最早的,Vue是最火的(关注的人多,中国),react是最流行的(用的多,世界范围内)
+
+印度的软件行业是比较发达的.
+
+react和vue的对比
+	1.模块化:从代码角度分析 把一些可复用的代码,抽离为单个模块,便于项目的维护和开发
+
+	2.组件化:从UI角度分析  把一些可复用的UI元素,抽离为单独的组件,便于项目的维护和开发
+
+    3.组件化的好处:随着项目规模的增大,手头的组件越来越多,很方便把现有的组件拼接成一个网页
+
+    4.vue:通过 vue文件创建对应的组件
+
+    5.react如何实现组件化
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+环境的配置：
+
+1. cnpm init
+创建 package.json 身份证
+
+2. cnpm install --save-dev webpack 
+--save-dev 表示项目依赖
+前提：cnpm -g install webpack
+
+3.创建 webpack.config.js文件
+
+4.
+
+---
+
+jsx语法介绍
+
+注意：
+1.jsx必须被一个容器包裹
+ JSX elements must be wrapped in an enclosing tag
+错误案例：
+return <h1></h1><h1></h1>
+
+2.标签必须闭合 <br /> <img />
+
+3.return(
+	<div>
+		<h1></h1>
+		<h1></h1>
+	</div>
+)
+不能这样：return 
+		<div>
+			<h1></h1>
+			<h1></h1>
+		</div>
+也就是不能换行，js中换行表示语句的结束，相当于加分号。
+
+4.class要写成className
+
+5.label 的for要写成htmlFor
+
+6. 可以使用{}临死插入一个简单表达式
+ 可以是：三元运算符、简单运算、函数的调用
+ 	render(){
+		return (
+			<div>
+				<h1 >你好{100+100}</h1>
+				<p data-a="10">react very good</p>
+				{this.welcome()}
+			</div>
+		)
+	}
+
+
+7. 如果使用自定义属性，必须使用 data- 前缀，否则报错
+
+8. 可以设置样式，style={{"width":"100px","height":"100px","background":"red"}}
+
+9. 数组，定义一个DOM元素的数组arr，利用{arr},会自动展开每一项
+
+	let arr = ["黒叶","白蜡","桂味","妃子笑"].map((item,index)=>{
+			return	<li key={index}>{item}</li>
+		});
+
+	<ul>
+		{arr}
+	</ul>
+
+组件：
+import React from "react";
+class App extends React.Component{
+
+	haha(lanmu){
+		if(lanmu=='篮球'){
+			return (
+				<ul>
+					<li>乔丹</li>
+					<li>科比</li>
+					<li>库里</li>
+				</ul>
+			)
+		}else if(lanmu=="足球"){
+			return (
+				<ul>
+					<li>梅西</li>
+					<li>C罗</li>
+					<li>李玮锋</li>
+				</ul>
+			)
+		}
+	}
+	
+	render() {
+
+		let	css = {"width":"100px","height":"100px","background":"blue"};
+
+		let arr = ["黒叶","白蜡","桂味","妃子笑"].map((item,index)=>{
+			return	<li>{item}</li>
+		});
+
+		return (
+			<div>
+
+				{this.haha("足球")}
+
+				<div style={{"width":"100px","height":"100px","background":"red"}}></div>
+
+				<div style={css}></div>
+
+				<ul>
+					{arr}
+				</ul>
+
+			</div>
+			)
+	}
+}
+
+export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度: 1 3
+
+
+
+
+
+
+
+

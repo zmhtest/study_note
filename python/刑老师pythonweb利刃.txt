@@ -1,0 +1,58 @@
+python就业前景
+
+前景非常好，所有教程，只认传智播客！！！
+
+刑老师 python专家
+
+毕向东 java大牛
+
+苏坤 C#大牛
+
+尹成 C/C++大牛
+
+#web开发利刃
+
+如何在CentOS 6上同时安装Python 2.7和Python 3.3
+
+安装前准备
+
+yum groupinstall "Development tools"
+大概80M
+
+yum install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel
+
+编译Python之前您最好先安装一系列的开发工具和一些拓展库，虽然不是必须的，但这样Python才能依赖这些工具和拓展库展示它强悍的功能。下面是利用yum进行工具和拓展库安装的示例命令
+
+熟悉linux是成为大牛的第一步
+
+立志成为全栈工程师，必须前端后端都懂，也要懂得项目的部署运营
+
+爬虫，桌面应用，云计算，大数据分析
+
+full stack developer
+
+mvt 设计思想 相当于 php 中的 	MVC 
+模型 视图 html模板
+
+
+熟悉 gitbook 的使用 
+
+熟悉 DJANGO 框架的使用
+
+可以使用 pip list 查看安装的python组件
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,190 @@
+php新特性 燕十八主讲
+
+第一课 PHP新特性
+三元运算符
+$page = $page ? : 1;
+表示：如果$page有值返回$page ,没有值 返回1 ，也就是省略了 ?$page
+
+新增加了匿名函数，类似于js
+比如：
+
+$fun = function(){
+	echo "hello";
+}
+
+$fun();//调用函数
+
+PHP中的普通函数
+<?php
+$arr = array(1,2,3,4);
+function incre($arr){
+	foreach($arrr as $k=>$v){
+		$arr[$k] = $v + 1;
+	}
+	return $arr;
+}
+print_r(incre($arr));
+
+通过自定义一个回调函数，让用户自己决定改如何操作数组
+
+$arr = array(1,2,3,4);
+function incre2($arr,$callback){
+	foreach($arr as $k=>$v){
+		$arr[$k] = $callback($v);
+	}
+	return $arr;
+}
+$res = incre($arr,function($x){return $x+1;});
+print_r($res);
+
+$res = incre($arr,function($x){return $x*2;});
+print_r($res);
+
+理解上面的代码：真的与js很相同，在js中
+可以这样 var fun = function(){} 
+调用 fun();
+
+这是一种将函数名和函数结构体分离的一种写法
+
+同理：$callback 是函数名 
+$callback($v)就是调用了function($v){return $v+2} 
+$x 只是形参，实际调用时，实参会进行运算 形参是可以任意的变量，只是起到占位的作用
+
+在PHP 5.4以上，数组也可以向js那样书写 $arr = ['a','b','c'];
+
+写关联数组同样可以用中括号 $arr = ['a'=>'小明','b'=>'xiaohong','c'=>'小强'];
+
+支持从函数调用表达式中直接用括号取得数组单元 加入$fun()返回的是一个数组
+可以这样：$fun()[0]
+
+临时 调用对象的一个方法，用完，对象就消失
+
+class Dog{
+	public function bark(){
+		echo 'wangwang!';
+	}
+}
+(new Dog())->bark();
+
+PHP5.4中重新开启了短标签支持
+也就是可以在HTML代码中 通过 <?=$title;?> 这种方式输出 分号可以不加
+
+
+trait特性：只要use了trait定义的’类‘，就可以使用它们的所用方法
+
+trait Dog{
+	public function bark(){
+		echo 'wangwang!';
+	}
+}
+
+trait bird{
+	public function fly(){
+		echo 'i can fly !';
+	}
+}
+
+class super{
+	use Dog,bird;
+}
+
+(new super())->bark();
+(new super())->fly();
+
+PHP5.5新特性
+以前empty()只能用来判断一个变量，不能用来判断 表达式 或者 函数返回结果
+但是在5.5中
+可以 if(empty($a+2))  empty($t())
+
+$a=1;
+function t(){
+	return 'hello';
+}
+if (!empty(t())) {
+	# code...
+	echo 'ok有内容';
+}
+
+以上都是可以的
+空数组，空字符串 empty()返回true
+函数没有返回值或者返回false empty()也是true
+
+所有的函数，也就是带括号的，都有返回值
+在不确定是什么是可以使用 var_dump()进行打印
+
+生成器
+
+function getAll(){
+	return [1,2,3,4];
+}
+案例：一步将数组中的每个单元取出来 
+传统方法 $res = getAll(); foreach($res as $v){echo $v;} 两步
+
+对于只需调用一次的内容，尽量直接用表达式表示，不要在多赋给一个变量
+
+可以利用生成器，让这两步同时进行
+
+function getAll(){
+	for($i=1;$i<6;$i++){
+		yield $i;//生成 $i 并没有赋给数组单元
+	}
+}
+
+foreach(getAll() as $v){
+	echo $v.'<br>';
+}
+
+PHP 5.6中 允许用const将常量定义在类外部，而且，可以定义常量值为一个数组
+ const CN = 'China';
+ const UN =['china','USA'];
+ echo UN[1];//取出USA
+
+可变参数
+传统方法；借助 func_get_args($num);获得函数所有传过来第$num个实参
+
+在js中arguments是所有函数内部都有的，由于接收实参的数组，存放的是各个实参的值
+
+用法： ...$c
+
+案例：
+function add($a,$b,...$c){
+	print_r($c);//解释：把$a,$b 之后的所有实参 包裹在一个数组 $c 中
+}
+add(1,2,3,4,5,6,7);
+
+可以将一个数组赋给不定参数,解包作为参数传递 
+$arr = [1,2,3];
+function test($a,$b,$c,$d){
+	echo $a,$b,$c,$d;
+}
+test(0,...$arr);
+
+2**3=8 **是一个运算符
+
+PHP7新特性
+判断表单或者地址栏有没有传参数过来
+传统方法： $page = isset($_GET['page'])?$_GET['page']:1;
+新方法：$page = $_GET['page']??1;
+
+弱类型：表示灵活
+PHP也允许限制变量类型了
+可以在变量前面限制类型 int $a 
+可以在函数括号后面用 :int 来限制返回值类型
+
+类也可以是匿名的
+全靠小括号
+比如：
+(new (class{public $leg=4;}))->leg;
+
+
+
+
+
+
+
+
+
+
+
+
+

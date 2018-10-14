@@ -1,0 +1,117 @@
+shell编程:就是把一系列的Linux命令写在一个文件里，然后通过bash来解释执行。
+
+方法一：
+1.书写命令；a.sh
+2.调用bash执行：/bin/bash a.sh
+
+方法二：
+1.在a.sh中：
+#！/bin/bash
+xxx
+xxx
+2.添加权限 chmod u+x a.sh
+3.执行 ./a.sh
+
+变量：
+设置变量时不需要加 $
+取出来用时需要加$
+
+系统变量：
+$USER
+$HOME
+
+将命令的返回值赋给一个变量：dt = `date`
+echo $date
+
+文件判断表达式：
+[ -d -f -e -r -w -x filename ]
+格式很严格
+是否是：目录，文件，存在，权限
+
+if 条件表达式
+then
+语句块
+else
+语句块
+fi
+
+数学表达式：
+-gt:> 
+-lt: <
+-ge: >=
+-le: <=
+-eq: =
+-ne: !=
+
+$[ $no1+$no2 ]
+注意格式
+
+字符串判断表达式
+=
+
+控制结构
+bash风格循环：
+
+for name in lucy lily poly
+do
+	echo $name
+done
+
+任务：循环遍历判断，并且删除/usr/local/src下面的所有目录
+
+循环删除目录
+
+C风格的for循环：
+sum=0
+for((i=1;$i<=10;i++))
+do
+	sum=$[ $sum+$i ]
+done
+echo $sum
+
+
+
+脚本传参:
+./a.sh china usa japan
+
+脚本里：$1 $2 $3
+即可取出变量
+
+定时任务：
+
+crontab -e
+格式为：* * * * *
+分别表示：分、时、日、月、周
+
+eg：
+2 1 * * * aaa 表示每天1:02分执行aaa命令
+
+*/2 * * * *
+表示每隔两分钟执行
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

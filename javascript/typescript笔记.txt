@@ -1,0 +1,327 @@
+typescript教程笔记
+
+在vscode中配置typescript环境：
+
+全局安装：cnpm i -g typescript
+
+1.项目根目录建 tsconfig.json
+    {
+        "compilerOptions": {
+            "module": "es6",
+            "target": "es6",//转换成 js 所遵循的规范
+            "noImplicitAny": false,//是否强制类型检测
+            "removeComments": true,
+            "sourceMap": false,//是否生成 .map 文件
+            "allowJs": false,
+            "outDir": "." //编译输出目录
+        }
+        ,
+        "exclude": [
+            "node_modules"
+        ]
+    }
+
+ctr+shift+b 打开编译，生成如下文件task.json
+    {
+
+        "version": "0.1.0",
+        "command": "tsc",
+        "isShellCommand": true,
+        "args": ["-p", "."],
+        "showOutput": "silent",
+        "problemMatcher": "$tsc"
+    }
+
+F5打开调试，生成如下文件 launch.json
+
+    {
+       
+        "version": "0.2.0",
+        "configurations": [
+            
+            {
+                "type": "node",
+                "request": "launch",
+                "name": "启动程序",
+                "program": "${workspaceRoot}\\a.js",//配置需要调试的文件，通常是程序的入口，main.js文件
+                "outFiles": []
+            },
+            {
+                "type": "node",
+                "request": "attach",
+                "name": "附加到进程",
+                "address": "localhost",
+                "port": 5858,
+                "outFiles": []
+            }
+        ]
+    }
+
+有类型的script
+类型：
+    void 空，一般由于返回值
+    symbol ？
+    null 只有null一个值
+    undefined 只有一种值undefined
+    enum 枚举，有限的可能性 比如：性别、星期、
+        // 定义枚举类型
+        enum gender{
+            male,
+            female
+        }
+
+        // 声明sex为gender这个枚举类型
+        let sex:gender
+        sex=gender.male
+
+全部代码：
+    // 定义枚举类型
+    enum gender {
+      male,
+      female
+    }
+
+    // 声明sex为gender这个枚举类型
+    let sex: gender;
+    sex = gender.male;
+
+    // udf只有undefined一种值
+    var udf: undefined;
+    udf = undefined;
+
+    // nu只有null一种值
+    let nu: null;
+    nu = null;
+
+    // 变体变量：any 就是任何类型
+    // js中原本的变量就是变体变量 var
+    var a: any;
+    a = "hello";
+    a = 12;
+    a = true;
+    a = undefined;
+    a = null;
+
+    // 类型推测，就是根据初始化时的值，推断类型，也叫隐式类型声明
+    var b = 12; //等价于 var b:number = 12
+    // b="123" 报错
+
+    // 冲突检测，编译器会自动排除无用的选项
+    var person;
+    switch (person) {
+      case gender.female:
+        console.log("hello sir ");
+        break;
+      case gender.male:
+        console.log("hello sir ");
+        break;
+      default:
+        console.log("hi miss");
+        break;
+    }
+
+    // 联合类型
+    var c: number | string;
+    c = 12;
+    c = "hello";
+    // c = false //报错
+    var d: boolean;
+    c = d ? 12 : "hello";
+    // c = d?12:false //报错
+
+    // 数组也有类型
+    var arr = [12, 3, 4]; //隐式类型声明 相当于 var arr:number[]=[]
+    // arr[3] = "hello" //error
+
+    var arr2 = ["hello", 12, false]; //对应都是联合类型
+    arr2.push(true);
+    console.log(arr2);
+
+    // 函数也有类型，参数、返回值，并且参数的个数和类型都要一致才能调用
+
+
+    // declare var $;声明外部有一个$,如果不声明会报错
+    /* declare var $;
+    $(function () {
+        $("#div").click(function(){
+            alert("hello")
+        })
+    }) */
+
+    // window document 为内置的外部变量，可以不用声明
+    /* window.onload = function () {
+        alert("hello")
+        document.getElementById('div1').onclick = function () {
+            alert("hello world")
+        }
+    }; */
+
+    // 函数签名，实际上就是给参数设定类型为函数
+
+    function ajax(url:string,success:(res:string,code:number)=>void,error:(code:number)=>void) {
+        
+    }
+
+    // 以下两种写法都可以：
+    ajax(
+        '1.txt',
+        // (str:string,code:number)=>{str=12,code='11'}, error
+        (str:string,code:number)=>{str='22',code=11},
+        (err:number)=>{},
+    )
+    ajax(
+        '1.txt',
+        (str,code)=>{str='12',code=12},
+        (err)=>{},
+    )
+
+    // 对象类型 object type
+    var e:{x:number,y:number,z?:boolean,a?:string} //可选参数，与正则的 ？ 相同0或1个
+    // 键名一定要对应！！！
+    e = {x:12,y:12}
+    e = {x:12,y:12,z:false}
+    e = {x:12,y:12,z:true,a:'he'}
+
+    // 在函数的参数中也可以用可选参数
+    function foo(a:number,b:string,c?:number) {}
+    foo(12,'hello')
+    foo(12,'hello',12)
+
+    // function foo1(a:object) {} //不建议使用 object，因为下面的对象类型已经可以很好的限制类型了
+    function foo1(a:{x:number,y:number}) {}
+    foo1({x:12,y:14})
+
+    // 接口 interface，就是，如果某个变量要属于这个接口就必须实现接口里面所定义的属性或者方法
+    interface point{
+        x:number,
+        y:number
+        z?:number //接口中的可选参数
+    }
+
+    var p:point;
+    p = {x:12,y:13}
+    p = {x:12,y:13,z:11}
+    // p = {x:12,y:'13'}不兼容
+
+    // ts中是真正的面向对象,具有类型修饰符，构造函数
+
+    class Person {
+
+        public name:string;
+        private age:number;
+        protected sex :string;
+
+        show(){
+            console.log(`${this.name} ${this.age}`);
+        }
+        constructor(name:string,age:number){
+            this.name = name;
+            this.age = age;
+        }
+    }
+
+    var people = new Person("朱明浩",23)
+    people.name = "朱杏梓"
+    // people.age = 8
+    // people.sex = "male"
+    people.show()
+
+    // 泛型、多态
+    // 定义一个泛型类
+    class Calc<T>{
+        // 设置泛型类属性的类型为泛型
+        a:T;
+        b:T;
+        c:T;
+    /*     constructor(a:T,b:T){
+            this.a = a;
+            this.b = b;
+        } */
+        show(d:T){
+            alert(d)
+        }
+    }
+
+    // 这里没哟限制类型，calc中的属性可以是任何类型
+    var obj = new Calc()
+    obj.a = 12;
+    obj.a = "12";
+
+    // 将泛型限制在number/string这个类型内,只能使用Calc中定义的属性
+    var obj2 = new Calc<number|string>();
+    obj2.a = 12;
+    obj2.b = 12;
+    obj2.c = '12';
+    // obj2.show(false);error,only can number and string
+    obj2.show(12);
+
+    // Array的底层就是通过泛型来实现的
+    var arr = [1,2,3]
+    var arr:number[] = [1,2,3]
+    var arr:Array<number> = new Array<number>(1,2,3)
+    console.log(arr);
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：

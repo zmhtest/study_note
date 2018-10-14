@@ -1,0 +1,700 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"h",
+				"height"
+			],
+			[
+				"per",
+				"per3"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"fle",
+				"flex"
+			],
+			[
+				"ali",
+				"align-items\tproperty"
+			],
+			[
+				"succe",
+				"successfully"
+			],
+			[
+				"bo",
+				"body"
+			],
+			[
+				"resol",
+				"resolve\t.resolve()"
+			],
+			[
+				"resolve",
+				"resolve"
+			],
+			[
+				"set",
+				"setTimeout\tsetTimeout()"
+			],
+			[
+				"func",
+				"func (*myhandel)\tfunc (...) {...} ʂ"
+			],
+			[
+				"Hand",
+				"HandlerFunc\tfunc(http.ResponseWriter, *http.Request) ʈ"
+			],
+			[
+				"Wri",
+				"WriteString\tn int, err error ƒ"
+			],
+			[
+				"htt",
+				"http\t package ρ"
+			],
+			[
+				"respo",
+				"ResponseWriter\tinterface ¡"
+			],
+			[
+				"imp",
+				"import\timport (...) ʂ"
+			],
+			[
+				"im",
+				"import\timport (...) ʂ"
+			],
+			[
+				"fmt",
+				"fmt.Println"
+			],
+			[
+				"requ",
+				"require('http"
+			],
+			[
+				"var",
+				"var〔keyword〕"
+			],
+			[
+				"font",
+				"font-size"
+			],
+			[
+				"fu",
+				"function"
+			],
+			[
+				"wid",
+				"width"
+			],
+			[
+				"displ",
+				"display"
+			],
+			[
+				"j",
+				"jquery.min.js"
+			],
+			[
+				"display",
+				"displayCount"
+			],
+			[
+				"prepa",
+				"prepare(\"select"
+			],
+			[
+				"hello",
+				"helloworld"
+			],
+			[
+				"var_dump",
+				"var_dump($res"
+			],
+			[
+				"func_get_",
+				"func_get_args"
+			],
+			[
+				"age",
+				"age=23"
+			],
+			[
+				"file",
+				"filename"
+			],
+			[
+				"PDO",
+				"PDOException"
+			],
+			[
+				"tex",
+				"text-center"
+			],
+			[
+				"btn-",
+				"btn-default"
+			],
+			[
+				"ajax",
+				"ajax_del"
+			],
+			[
+				"tag",
+				"strip_tags"
+			],
+			[
+				"k",
+				"ku.jpg"
+			],
+			[
+				"json_",
+				"json_encode"
+			],
+			[
+				"tr",
+				"true"
+			],
+			[
+				"ife",
+				"ife\tif … else"
+			],
+			[
+				"mouse",
+				"mouseout"
+			],
+			[
+				"col",
+				"color"
+			],
+			[
+				"de",
+				"development"
+			],
+			[
+				"consol",
+				"console.log"
+			],
+			[
+				"inner",
+				"innerHTML"
+			],
+			[
+				"has",
+				"has-error"
+			],
+			[
+				"f",
+				"f\tAnonymous Function"
+			],
+			[
+				"flex",
+				"flex-end"
+			],
+			[
+				"cono",
+				"console.log"
+			],
+			[
+				"for",
+				"for\tfor (…) {…}"
+			],
+			[
+				"new",
+				"newBook"
+			],
+			[
+				"spa",
+				"space-around"
+			],
+			[
+				"space",
+				"space-between"
+			],
+			[
+				"ex",
+				"exports.str"
+			],
+			[
+				"con",
+				"console.log"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					""
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Run"
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Test"
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Install"
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Cross-Compile (Interactive)"
+				],
+				[
+					"Packages/Golang Build/Go.sublime-build",
+					"Clean"
+				],
+				[
+					"Packages/GoSublime/GoSublime.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/Golang Build/Go.sublime-build",
+				"Run"
+			]
+		],
+		[
+			[
+				[
+					"Packages/SASS Build/SASS - Compressed.sublime-build",
+					""
+				],
+				[
+					"Packages/SASS Build/SASS.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/SASS Build/SASS.sublime-build",
+				""
+			]
+		],
+		[
+			[
+				[
+					"Packages/lessc/lessc.sublime-build",
+					""
+				],
+				[
+					"Packages/lessc/lessc.sublime-build",
+					"Non-Minified"
+				]
+			],
+			[
+				"Packages/lessc/lessc.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 203.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"Package Control: install",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control in",
+				"Preferences: Package Control Settings – Default"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package→安装插件"
+			],
+			[
+				"Package Control: i",
+				"Package Control: Install Package"
+			],
+			[
+				"autop",
+				"Autoprefix CSS"
+			],
+			[
+				"auto",
+				"Autoprefix CSS"
+			],
+			[
+				"Package Control:i",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				":q",
+				"Snippet: header&footer-quote"
+			],
+			[
+				":w",
+				":w - Save"
+			],
+			[
+				":G",
+				"Snippet: groups"
+			],
+			[
+				"Package Control: in\t",
+				"Package Control: Install Package→安装插件"
+			],
+			[
+				"install",
+				"Package Control: Install Package→安装插件"
+			],
+			[
+				"in",
+				"Package Control: Install Package→安装插件"
+			],
+			[
+				"i",
+				"Package Control: Install Package→安装插件"
+			]
+		],
+		"width": 540.0
+	},
+	"console":
+	{
+		"height": 130.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)",
+			"node 01.js",
+			"node"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/F/学习笔记/python/传智播客Python教程笔记.txt",
+		"/F/学习笔记/软件测试/python基础.txt",
+		"/F/学习笔记/软件测试/软件测试基础=传智播客.txt",
+		"/E/WWW/bootstrap/01.html",
+		"/E/project/2018-7-8.txt",
+		"/E/myproject/2018-7-8.txt",
+		"/E/project/李露露.txt",
+		"/F/学习笔记/nodejs/nodejs-it营.txt",
+		"/E/python-basic/day02/03.py",
+		"/E/WWW/python-传智/python笔记.txt",
+		"/F/学习笔记/python/东哥Python云计算开发王者.txt",
+		"/E/WWW/Python-basic/传智播客Python基础教程笔记.txt",
+		"/D/测试-传智/就业班视频+资料/python基础/Python基础-02/04-作业/作业.txt",
+		"/F/学习笔记/服务器/nginx教程笔记.txt",
+		"/F/学习笔记/软件测试/tkinter/test.py",
+		"/D/WWW/node-chuanzhi/自定义模块.js",
+		"/H/windows/win8.1/系统说明.txt",
+		"/H/windows/win10prowm/win10prowm.txt",
+		"/H/windows/win10pro/win10专业版说明.txt",
+		"/F/下载/nodejs-IT营/01 NodeJs 简介 安装 开发工具配置 - avi/nodejs软件提示包和webstrom/nodejs安装文件和配置提示包说明.txt",
+		"/D/soft/python35/Lib/tkinter/__init__.py",
+		"/D/feiq/Recv Files/04-作业/作业01day.txt",
+		"/C/Users/Administrator/Desktop/作业01day.txt",
+		"/F/学习笔记/python/微信平台二次开发.txt",
+		"/D/feiq/Recv Files/作业180814.txt",
+		"/D/feiq/Recv Files/作业01day.txt",
+		"/F/Python教程/Python微信开发神器-视频/Python下载必看.txt",
+		"/E/测试-传智/就业班视频+资料/python基础/Python基础-01/04-作业/作业01day.txt",
+		"/F/学习笔记/python/中谷教育python教程.txt",
+		"/F/学习笔记/PHP/云之梦thinkPHP5.0教程笔记.txt",
+		"/F/学习笔记/软件测试/测试理论.txt",
+		"/F/学习笔记/软件测试/web手工测试上课笔记.txt",
+		"/E/测试-传智/数据库部分.txt",
+		"/E/测试-传智/软件测试.txt",
+		"/E/测试-传智/其他/New Text Document.txt",
+		"/E/测试-传智/就业班视频+资料/Linux/day03完整/笔记.txt",
+		"/E/测试-传智/就业班视频+资料/Linux/Linux课件及环境安装/readme.txt",
+		"/E/测试-传智/就业班视频+资料/Linux/day02完整/完成版-笔记.txt",
+		"/F/学习笔记/go笔记.txt",
+		"/E/测试-传智/就业班视频+资料/web手工/Web手工Day1/5-作业/作业.txt",
+		"/D/feiq/Recv Files/allpairs/114.txt",
+		"/D/feiq/Recv Files/allpairs/jieguo.txt",
+		"/F/学习笔记/数据库与缓存/mogodb.txt",
+		"/E/测试-传智/就业班视频+资料/web手工/Web手工Day2/5-作业/作业.txt",
+		"/D/WWW/TPshop/router.php",
+		"/F/学习笔记/版本控制/svn版本控制.txt",
+		"/F/学习笔记/软件测试/环境搭建.txt",
+		"/D/myproject/李露露.txt",
+		"/C/Users/Administrator/AppData/Roaming/feiq/Recv Files/allpairs/success.txt",
+		"/C/Users/Administrator/AppData/Roaming/feiq/Recv Files/allpairs/114.txt",
+		"/E/softTestcode/day4/综合练习.html",
+		"/E/测试-传智/测试基础班视频+资料/04day/5-作业/README.txt",
+		"/E/软测笔记-myself/day4/link.css",
+		"/E/软测笔记-myself/day4/盒子阴影.html",
+		"/E/软测笔记-myself/day4/凹凸文字.html",
+		"/E/软测笔记-myself/day4/文字阴影.html",
+		"/E/软测笔记-myself/day4/过渡效果.html",
+		"/E/软测笔记-myself/day4/圆角.html",
+		"/E/软测笔记-myself/day4/外链内嵌.html",
+		"/D/WWW/js高级/工厂函数.html",
+		"/F/学习笔记/燕十八php+linux+前端/燕十八Linux教程笔记.txt",
+		"/F/学习笔记/java学习笔记/动力节点Java基础.txt",
+		"/F/学习笔记/javascript/传智前端36期js高级.txt",
+		"/E/软测笔记-myself/day3-朱明浩/表单练习-朱明浩.html",
+		"/E/软测笔记-myself/day3-朱明浩/01 类名应用.html",
+		"/D/WWW/js高级/oop.html",
+		"/E/softTestcode/jq/警告文本框.html",
+		"/D/WWW/bootstrap/下拉菜单.html",
+		"/E/softTestcode/绚丽效果/参考代码/JQuery实战第一讲：概述、环境准备及入门实例/UserVerify/js/userVerify.js",
+		"/E/softTestcode/绚丽效果/参考代码/JQuery实战第一讲：概述、环境准备及入门实例/UserVerify/css/userVerify.css",
+		"/D/【8】炫丽效果教你做之jQuery实战/参考代码/JQuery实战第一讲：概述、环境准备及入门实例/UserVerify/js/jquery.js",
+		"/D/WWW/bootstrap/分页.html",
+		"/D/WWW/bootstrap/test.html",
+		"/D/WWW/bootstrap/列表.html",
+		"/D/WWW/bootstrap/图片.html",
+		"/D/WWW/bootstrap/块居中.html",
+		"/D/WWW/bootstrap/块居中-1.html",
+		"/D/WWW/bootstrap/导航.html",
+		"/D/WWW/bootstrap/快速浮动.html",
+		"/D/WWW/bootstrap/按钮.html",
+		"/D/WWW/bootstrap/按钮组嵌套.html",
+		"/I/Java学习笔记/java笔记.txt",
+		"/D/WWW/bootstrap/模态框.html",
+		"/E/测试-传智/测试基础班视频+资料/03day/5-作业/README.txt",
+		"/E/测试-传智/测试基础班视频+资料/03day/5-作业/02 作业/表单练习.html",
+		"/D/WWW/inline-block/02.html",
+		"/D/soft/Sublime Text/Data/Packages/User/linshi.html",
+		"/D/soft/Sublime Text/Data/Packages/User/1.html",
+		"/D/WWW/inline-block/01.html",
+		"/E/软测笔记-myself/day3/01 类名应用.html",
+		"/E/软测笔记-myself/day3/表单练习.html",
+		"/F/学习笔记/python/cookbook笔记.txt",
+		"/F/学习笔记/燕十八php+linux+前端/燕十八js笔记.txt",
+		"/F/学习笔记/ps教程笔记.txt",
+		"/D/WWW/bootstrap/01.html",
+		"/D/WWW/flex/flex-色字.html",
+		"/F/学习笔记/markdown入门笔记.txt",
+		"/F/学习笔记/Adobe系列/ps教程笔记.txt",
+		"/E/软测笔记-myself/传智软测基础班.txt",
+		"/D/WWW/flex/test.html",
+		"/D/WWW/flex/flex直接子元素转为block.html",
+		"/D/WWW/flex/flex干掉margin重叠.html",
+		"/D/WWW/flex/flex.html",
+		"/D/WWW/flex/align-items.html",
+		"/D/WWW/flex/align-content.html",
+		"/D/WWW/flex/02.html",
+		"/D/WWW/flex/01.html",
+		"/F/diary-record the important moment in my life/2018-7-9.txt",
+		"/F/diary-record the important moment in my life/a.txt",
+		"/G/JAVA/毕向东历经5年锤练--史上最适合初学者入门的Java基础视频/Code/day02/Demo.java",
+		"/I/尚学堂王勇/动力节点java全套/资料及源代码/源代码/chapter01/HelloWorld.java",
+		"/I/尚学堂王勇/动力节点java全套/资料及源代码/源代码/chapter01/A.java",
+		"/G/JAVA/毕向东历经5年锤练--史上最适合初学者入门的Java基础视频/Code/day03/SwitchTest.java",
+		"/I/尚学堂王勇/动力节点java全套/资料及源代码/源代码/chapter01/HelloWorld.class",
+		"/D/soft/Sublime Text/Data/Packages/User/Preferences.sublime-settings",
+		"/F/学习笔记/java学习笔记/韩顺平循序渐进学java基础.txt",
+		"/E/softTestcode/javacode/Hello.java",
+		"/G/JAVA/毕向东历经5年锤练--史上最适合初学者入门的Java基础视频/Code/day01/123.java",
+		"/E/softTestcode/javacode/helloworld.java",
+		"/E/测试-传智/测试基础班视频+资料/02day/5-作业/README.txt",
+		"/F/学习笔记/安卓学习笔记/黑马28期李印东笔记.txt",
+		"/D/soft/Sublime Text/Data/Packages/Default/Preferences.sublime-settings",
+		"/F/学习笔记/flex&vue/flex笔记-小凡老师.txt",
+		"/F/学习笔记/windows操作系统/dos命令行教程.txt",
+		"/F/学习笔记/IDE的使用/emmet使用教程.txt",
+		"/D/WWW/javascript-基础/选项卡.html",
+		"/D/WWW/javascript-基础/01.html",
+		"/F/学习笔记/javascript/李炎恢jQuery教程笔记.txt"
+	],
+	"find":
+	{
+		"height": 32.0
+	},
+	"find_in_files":
+	{
+		"height": 121.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"priority0"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 32.0
+	},
+	"input":
+	{
+		"height": 45.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.9o://D:\\WWW\\go\\src":
+	{
+		"height": 155.0
+	},
+	"output.9o://D:\\WWW\\koa":
+	{
+		"height": 275.0
+	},
+	"output.GoSublime-output":
+	{
+		"height": 175.0
+	},
+	"output.exec":
+	{
+		"height": 221.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.git":
+	{
+		"height": 156.0
+	},
+	"output.godoc-output":
+	{
+		"height": 175.0
+	},
+	"output.golang_build":
+	{
+		"height": 175.0
+	},
+	"output.gotools_syntax_errors":
+	{
+		"height": 149.0
+	},
+	"output.markdown":
+	{
+		"height": 175.0
+	},
+	"output.mdpopups":
+	{
+		"height": 0.0
+	},
+	"output.nodejs":
+	{
+		"height": 63.0
+	},
+	"pinned_build_system": "Packages/Java/JavaC.sublime-build",
+	"project": "软件测试-传智.sublime-project",
+	"replace":
+	{
+		"height": 60.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"D:\\soft\\Sublime Text\\软件测试笔记.sublime-workspace"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 158.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

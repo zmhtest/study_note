@@ -1,0 +1,91 @@
+# sublime text3 使用技巧 
+
+>优点：界面整洁美观、文本功能强大，且运行速度极快，非常适合编写代码，写文章做笔记。
+>真的要好好研究，神一样的编辑器！
+
+###我的第一篇markdown文档
+
+错误：
+Sublime Text
+Package Control
+There are no packages available for installation
+
+据说是IPv6的原因，如果我们的Intent服务提供者（ISP）不支持IPv6就会引发上述错误
+解决：把原来的 Package Control 删掉，手动下载插件包：https://sublime.wbond.net/Package%20Control.sublime-package，复制到%SumlimeText_HOME%\Data\Installed Packages路径，重启 sublimeText 就行了。
+
+
+### 在Submine Text 3中要开启自动换行功能
+
+开启自动换行功能的步骤：
+1、打开 Preferences -> Setting - User（设置 - 用户）
+2、在最后一个花括号（即“｝”）前添加如下内容即可：
+"word_wrap" : true
+
+
+#### 设置用 alt+m 打开 markdown preview；ctrl+b 用浏览器打开
+
+在 `按键绑定-用户` 添加
+
+	[
+		{ "keys": ["alt+m"], "command": "markdown_preview", "args": {"target": "browser", "parser":"markdown"} },
+		{ "keys": ["ctrl+b"], "command": "open_in_browser" }
+	]
+ 
+可以在 **查看->布局**设置将一个文件拆分成多个窗口，也可以设置分组
+
+### 安装SublimeCodeIntel: 代码提示插件
+特点：可根据是python、java等自动代码提示
+安装步骤：
+打开Package Control[Preferences>>Package Control]
+输入 install 选择关联出来的install package
+
+### 将html转为pdf
+
+直接在浏览器 ctrl+p 打开打印窗口，在输出目标选择 **另存为 PDF **
+
+### markdown 直接转 PDF
+
+可以借助 markdown 编辑器
+
+### 为什么在谷歌浏览器无法安装插件
+
+问题：打不开谷歌的插件扩展网站
+
+使用离线方式安装，先下载 .crx 离线包，然后直接拖动到谷歌浏览器即可，简单快捷！！！
+
+1.Chrome浏览器访问网址：chrome://extensions/
+2.把“开眼V1.0.8.crx”插件文件拖进刚打开的浏览器页面，点击确定即可。
+
+有一点很好的是在360极速浏览器也可以使用谷歌浏览器插件，因为他们使用的内核是一样的。
+
+####使用蓝灯来实现翻墙
+
+
+### 最简单快捷的翻墙
+下载hosts文件，在网络上搜索“谷歌浏览器hosts文件下载”，就会出来很多，然后随便找一个的时间比较新点的下载就载了，建议hosts文件保存到桌面比较好找。
+
+### 解决谷歌浏览器最新版设置不了字符编码问题：
+>必须是谷歌浏览器才有效
+添加一个Google插件
+https://chrome.google.com/webstore/detail/set-character-encoding/bpojelgakakmcfmjfilgdlmhefphglae
+添加这个插件后，右击网页，可以看到一个01的选择，就可以看到可以选择各种编码了
+
+### 直接安装蓝灯也是可以的 
+
+但是 蓝灯 是一个收费软件
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

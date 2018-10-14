@@ -1,0 +1,252 @@
+html部分
+
+表格的相关属性：
+<caption>表格标题</caption>
+cellspacing=0 : 表示单元格之间的距离为零，也就是单线的表格
+cellspading=10 ： 表示内容与表格单元格边框之间的距离
+
+<tbody></tbody> 作用：可以定义多个，就是网络传输过程中，不必等全部内容加载完就可以部分显示。
+
+<thead>:表格的头部
+
+<table>
+  <thead>
+    <tr>
+      <th>
+        居中并加粗显示
+      </th>
+      <th>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+      </td>
+       <td>
+      </td>
+    </tr>    
+    <tr>
+      <td>
+      </td>
+       <td>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<a href="mailto:sohu.com?subject=hahaha&c=hehe">联系我们</a>
+
+单选按钮必须要有name属性，并且name属性的值相等。
+
+lable标签可以设置快捷键：
+<lable assesskey='u' for='userid'>
+	用户名：<input id="userid" name='user' type="text" />
+</lable>
+此时只需要在键盘上按 alt+u 即可将焦点定位到 userid 这个文本框，此外，只要鼠标点击文本框所在行即可将焦点定位到输入框！！！
+
+<pre></pre>: 原样格式化输出里面的所有内容。
+
+<marquee direction=“”behavior=“”> : 跑马灯效果
+
+<base> 标签 ：规定这个网页的所有超链接的目录
+
+伪类选择器：就是元素的一种状态。 
+a:link
+a:visited
+a:hover
+a:active
+再定义时要注意顺序： l v h a
+
+@import url('1.css') 在样式表中链接其他的样式表
+
+<link rel='stylesheet' href='1.css' />
+
+设置超链接没哟下划线：text-decoration:none
+
+css滤镜：通过了一些代码完成了样式
+
+JavaScript部分
+js的基于对象就是说，js中的对象都是现成的。
+Java是面向对象的
+
+<script>标签可以放在HTML中的任意位置。
+直接<script></script>即可，无需说明type='text/JavaScript'
+
+<script src="1.js"></script> 虽然中间不谢任何内容，但是也必须是双标签！！！
+
+alert() 是window对象的一个方法
+
+操作本地数据叫做 IO
+操作网络数据叫做 Socket
+
+var = variable
+
+变量只定义而没有初始化就是 undefined
+
+border-colapse:collapse 去除单元格的空隙
+
+border: red 1px solid
+
+ js中的动态函数：
+ var function = new Function('x','y','var sum=x+y; return sum')
+前面是参数，后面是函数体。
+
+匿名函数
+var show = function(){
+	alert('gogogo')
+}
+show()
+
+window.onload = function(){
+	alert('窗口所有内容加载完毕');
+}
+网页内容加载完所执行的动作。
+
+window.onload = method; 这是一个函数名即可，无需括号！！！
+
+with的使用
+with(对象){
+	alert(属性)
+	//可以使用对象的所有属性和方法，而不用每次都写对象
+}
+
+对象也可以通过中括号的形式访问其中的属性和方法！！！
+
+for(s in Student){
+	alert(student[s]);//可以打印出Student对象的所有属性值
+}
+
+字符串对象有很多常用的方法：str.link('http://www.baidu.com') 
+str.match()
+str.substr()
+str.charAt('2') 下标为2的字符
+
+6.toString(2) 表示将6转换成二进制的字符串
+
+DOM编程：文档对象模型
+其实就是将一些标记型的文档以及文档中的内容当成对象。
+
+为什么要将这些文档和标签封装成对象呢？
+答：因为可以在对象中定义属性和行为，可以方便操作这些对象。
+
+html、xhtml、xml 都是标记型文档
+DHTML则是多个技术的综合体，叫做动态的HTML。
+HTML负责将数据进行标签封装
+CSS负责标签的样式
+DOM负责将标签以及标签中的数据封装成对象。
+JavaScript负责通过程序设计的方式来操作这些对象。
+
+标签之间存在层次关系：
+html
+	|--head
+		|--title
+		|--base
+		|--link
+		|--meta
+	|--body
+		|--div
+		|--form	
+
+通过这个标签层次可以形象的看做是一个树形结构，我们也称标记型文档加载进内存的是一颗DOM数。
+
+标签以及标签中的内容都是这棵树上的节点。
+
+当标记型文档加载进内存，内存中就有了棵DOM树，所以这个标记型文档不宜太大。
+
+DOM对于标记型文档的解释有一个弊端，就是文档过大相对消耗资源，对于大型文档可以使用SAX这种方式解释。
+
+DOM在封装标记型文档时有三层模型：
+DOM1:针对HTML文档
+DOM2：针对xml文档
+DOM3：针对xml文档
+ 	
+document就是代表这个网页文件。
+
+DOM4J：DOM for Java
+
+样式对象：
+divObj.style.backgroundColor='yello'
+
+divObj.nodeName
+divObj.nodeType
+divObj.nodeValue
+
+节点类型：
+标签型节点 1
+文本型节点 3
+注释型节点：8
+属性型节点：2
+
+注意：标签之间存在空行时会存在一个空白节点！
+
+获取父节点：obj.parentNode 属性
+获取子节点：直接后代 childNodes，是一个集合
+获取上一个兄弟节点：obj.nextSibling
+获取下一个兄弟节点：obj.previousSibling
+
+window对象
+
+获取事件源对象的两种方式：
+1.通过event对象的srcElement属性
+2.将事件源对象通过this传入
+
+有必要将 getElementById()进行封装
+return 。。。
+
+碰到有很多元素、标签、集合的，一定要想到循环！！！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：18

@@ -1,0 +1,16 @@
+!/bin/bash
+#wei
+trap "wei" 2
+loop=0
+function wei()
+{
+echo "you just hit ctrl+c ,at number $loop"
+echo "I will now exit"
+exit
+}
+while :
+do
+        loop=$[$loop+1]
+        echo $loop
+        sleep 1
+done

@@ -1,0 +1,75 @@
+命名空间：
+
+
+解决的问题：
+1.常量冲突
+2.函数名冲突
+3.类名冲突
+
+a.php
+<?php
+	
+namespace index;
+
+	class Person{
+
+		function eat(){
+			echo '吃面条';
+		}
+	}	
+
+namespace admin;
+	class Person{
+
+		function eat(){
+			echo '吃面包';
+		}
+	}
+
+	$person1 = new Person();
+	$person->eat();
+
+	$person2 = new \index\Person();
+	$person2->eat();
+
+
+注意：第一个命名空间前不能有任何代码！
+
+命名空间的作用域，从 namespace开始，直到下一个namespace，之间都是第一个命名空间的。
+
+根空间，所有的命名空间都是在根空间 \ 下的
+
+use的使用：
+
+
+b.php
+
+<?php
+include "a.php";
+use \index\Person;
+use \admin\Person as P;//起别名
+
+$person = new Person();
+$person->eat(); //吃面条
+
+$p = new P();
+
+如果不用use，则需要写完整的命名空间
+	$person = new \index\Person();
+
+使用const定义常量比define()函数效率快
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,7 @@
+apache相关
+
+如何配置才能在访问网站是不用输入index.php?
+只需在index.php同级目录下添加.htaccess文件进行URL重写即可
+
+详细解读Apache服务器
+

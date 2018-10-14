@@ -1,0 +1,101 @@
+云之梦smarty教程笔记
+
+smarty 的作用原理：
+1.封装一个smarty类，里面包含两个方法
+	assign() 和 display()
+
+class Smarty{
+	public $arr;
+	function assign($key,$val){
+		$this->arr["$key"] = $val;
+	}
+
+	function display($file){
+		$str = file_get_contents($file);//取得文件
+
+		$ptn = '/\{\$(.+)\}/i';//匹配{}
+
+		$rep = '<?php echo $this->arr[$1]';
+
+		$page = preg_replace($ptn,$rep,$str);//执行替换
+
+		$fielname = "tpls_c/".md5($file)."php";//生成文件名
+
+		file_put_contents($filename,$page);
+
+		include $filename;
+
+		//当执行display后，将替换{}内容，并生成一个新的文件，最后include进来
+
+	}
+}
+
+注意：网站文件夹不能有中文！！！
+
+改动分隔符的两个方法：
+
+1.改源码：Smarty.class.php $left_delimiter 不推荐
+2.动态修改：
+$Smarty->left_delimiter="<{";
+$Smarty->right_delimiter="}>";
+
+写在display之前
+
+同一个文件名 md5() 后生成的文件名是一样的！！
+
+缓存就相当于访问一个静态的HTML页面，速度会相当快。
+
+设置模板、编译文件目录
+$smarty->setTemplateDir('tpl');
+$smarty->setCompileDir('tpl_c');
+
+$smarty->template_dir = 'tpl';
+$smarty->compile_dir = 'tpl_c';
+
+开启缓存 默认缓存1h
+$smarty->cache_dir = 'cache';
+$smarty->caching = true;
+
+开启缓存后smarty的执行过程：
+第一次访问index.php --> smarty会加工模板，生成编译文件 --> 再生成一份缓存文件 --> 返回给用户
+
+当第二次访问 index.php --> smarty首先会判断模板文件是否有变化，如果没变化，直接访问缓存文件，如果有变化（修改了模板），会重新生成编译文件、缓存文件 --> 返回给用户
+
+开启缓存后，在 index.php 修改原有变量的值，将不会生成新的编译文件和缓存文件，除非删除缓存文件或者缓存到期。
+
+模板一旦修改，就一定会再次编译，生成新的缓存！！！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

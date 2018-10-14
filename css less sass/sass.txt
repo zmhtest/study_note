@@ -1,0 +1,147 @@
+sass教程笔记
+
+安装：
+1、因为sass依赖于ruby环境，所以装sass之前先确认装了ruby。先导官网下载个 ruby
+
+2、添加淘宝镜像
+	gem sources --remove https://rubygems.org/
+	gem sources -a https://ruby.taobao.org/
+
+3、gem install sass
+
+	查看版本
+	sass -v
+
+	查看帮助
+	sass -h
+
+4、编写 scss文件：
+	
+	$red:red;//定义变量
+	$border:5;
+
+	.red{
+		color:$red;
+	}
+
+	.border{
+		//变量与字符串拼接，用 #{$var}xxx
+		border: solid #{$border}px $red;
+	}
+
+5、编译成 .css 文件
+D:\WWW\sass>sass 01.scss
+.red {
+  color: red; }
+
+.border {
+  border: solid 5px red; }
+
+压缩scss文件：
+D:\WWW\sass>sass --style compressed 01.scss 01.css
+
+结果：一行显示
+D:\WWW\sass>more 01.css
+.red{color:red}.border{border:solid 5px red}
+/*# sourceMappingURL=01.css.map */
+
+添加监视：只要sass文件有改动，自动编译！！！
+D:\WWW\sass>sass --watch -t compressed 01.scss
+
+复用（相当于less中的混入）@extend .a
+
+.center{
+	text-align:center;
+}
+
+.box{
+	@extend .center
+}
+
+sass也支持mixin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

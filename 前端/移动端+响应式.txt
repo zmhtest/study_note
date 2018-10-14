@@ -1,0 +1,163 @@
+移动端+响应式
+
+CSS3新属性
+
+css3过渡属性:
+	transition 属性添加到有过渡属性的标签上.
+
+	语法: transition: all .4s 
+	all表示所有的属性,可以是单独设置某个过渡属性
+	.4s表示持续时间 ,前面的 0.4s 省略了
+	参数3:用来是指运动形式 可以是  liner ease 
+	参数4:用来是设置延时的时间,也就是停顿多长时间开始
+
+	注意: 如果将过渡属性写在hover上,只有鼠标移上时才有过渡,鼠标移出是没有过渡的;
+	只有把transition属性写在原始标签上才会有鼠标移入和移出都有过渡效果.
+
+转换属性:一个元素在页面的 位置 大小 角度 的变化
+	主要是2D转换
+	语法: tranform: translate()/
+	分类: 1.位移 2.缩放 3.角度 
+
+	  1.位移:
+		tranform: translate(10px) #只有一个参数时表示水平的位移,正数表示向右位移
+
+		tranform: translate(-10px) #只有一个参数时表示水平的位移,负数表示向左位移
+
+		tranform: translate(10px,10px)
+		#两个参数时,表示水平和垂直方向的位移
+
+		还可以用百分比的形式表示
+	  
+	  2.缩放
+	  	transform: scale(2); 
+	  	#一个参数表示,宽和高都缩放,小于1为缩小,大于1为放大
+
+	  	transform: scale(0.5,2); 
+	  	#两个参数表示,宽变为原来的0.5,高变为原来的2倍 
+
+	  	注意:这种缩放是从元素的中心开始的!!!
+
+	  	案例:缩放的线条
+
+	  3.旋转
+	    transform: rotate(90deg);
+	    #沿着 z轴 旋转一定的角度 
+
+动画属性:
+	1.动画的定义:
+		@keyframes 自定义动画名称{
+			from{
+				left: 0px;
+			}
+			to{
+				left: 800px;
+			}
+		}
+
+	2.在标签中引入动画
+		div{
+			annimation: move 2s;
+			position: relative;
+		}
+
+	多组动画:
+		@keyframes move{
+		
+			0%{
+				top:0;
+				left:0;
+			}		
+			25%{
+				top:0;
+				left:500px;
+			}		
+			50%{
+				top:300px;
+				left:500px;
+			}		
+			75%{
+				top:300px;
+				left:0px;
+			}		
+			100%{
+				top:0;
+				left:0;
+			}
+		}
+
+		#参数分别表示:指定动画 整个动画的持续时间 动画效果(ease ease-in ease-out ease-in-out linear) 延时 动画的重复次数
+		animation:move 3s ease-out 0s 2/infinite alternate;
+
+		infinite 设置循环永久播放
+		alternate 动画倒着播放
+
+day2 响应式 
+	媒体查询 
+	@media (){
+		具体的css样式
+	}
+
+	媒体查询就是检测一下当前设备的属性,然后判断是否满足,从而确定大括号内的样式是否执行.
+
+	@media ( max-width:1000px ){
+		div {
+			background: orange;
+		}
+	}
+	无论我们如何写css样式,它仍然遵循后写的覆盖先写的
+	就是用来书写,符合某种条件下的css样式,所以千万不能忘记写上具体的标签
+
+	#orientation:landScape表示横屏的 宽 > 高
+	#orientation:portrait表示竖屏的
+	@media (orientation:landScape){
+		div {
+			border-radius: 50%;
+			background: seagreen;
+		}
+	}
+
+	如果需要多个条件一起使用,可以使用 and 进行条件的连接
+		#注意 and 两边必须要有空格
+		@media ( min-width:700px) and (max-width:1200){
+
+		}
+
+	一些其他的设备(了解内容)
+		screen 彩屏设备(就是常用的互联网设备)
+		tv     电视机
+		print  打印设备
+		all    表示所有设备
+
+		#设备类型和设备条件之间必须要用and连接
+		@media screen and ( min-width:700px){
+			div{
+
+			}
+		}
+
+媒体查询的引入:
+	方法1:
+		外链式:在外部的css文件中写 媒体查询的条件以及对应的样式,然后通过 <link rel="stylesheet" href="01.css" /> 的方式引入
+
+	方法2:
+		<link rel="stylesheet" href="02.css" media="all and (min-width:700) and (max-width:1200)" />
+		外部的css文件只需要书写普通的样式即可,条件判断通过link标签的media属性来设置
+
+	box-sizing:border-box; 对margin不起作用的!!!
+	所以要通过设置 border大小和颜色来伪造空隙!!!
+
+	需求:一行显示4个li标签,并且是响应式的,平均分布在一行
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度: 

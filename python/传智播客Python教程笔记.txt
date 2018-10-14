@@ -1,0 +1,1291 @@
+# 传智播客Python教程笔记
+#### 基础数据类型：
+
+	a = 123  
+	b = 123  
+	c = 123
+
+> Python中变量是不用修饰符的，以上代码表示，在内存中有a、b、c三个指针指向了123，
+可以使用id(变量)查看变量指向的值地址，所以以上结果是一样的
+如果给变量a重新赋值，相当于将a这个指针重新指向内存中的其他位置，此时id(a)的值也就变了
+
+>注意：如果a、b、c都不指向123时，
+重新定义一个变量d，并赋值123，此时d就自动指向内存中原来的123，
+也就是123并不是马上就释放
+
+Python中的垃圾回收机制和java类似，
+当内存不够用时会自动回收
+引用计数：
+
+del 变量 //删掉变量名，引用计数 -1
+
+#### 使用Python来抓取一个网页：
+python2.7
+
+    #! /usr/bin/python
+    #conding=utf-8 //指定编码文件，完美支持中文
+    import request
+    res = request.get('www.baidu.com')
+    fh = open('baidu.html','w')
+    fh.write(res.content)
+    fh.close()
+
+#### 简单函数
+
+1. def开头，函数不需要返回值
+
+2. 参数不需要指定类型
+
+3. 
+靠缩进来表示函数体
+4. 函数后面需要冒号 :列表下面段落与代码区必须至少要有一个空行，两个tab
+
+
+
+        def add(x,y):
+            z = x + y
+            return z
+
+        res = add(3,5)
+        print res
+
+
+> 注意：py中是严格规定缩进的！！！
+以下这种写法是错误的！！！
+
+    def add(x,y):
+    z = x + y //这里应该有一个tab缩进
+    return z
+    res = add(3,5)
+    print res    
+
+#### 局部变量和全局变量
+
+1. 定义在函数体里面的变量是局部变量，如果全局也有同名变量，那么在函数体内使用的是局部变量，函数体外部（全局）使用的是全局变量
+
+        def p_num():
+            num = 4
+            print num
+        num = 5
+        p_num()
+        print num
+        #结果 4 5
+
+**
+注意：
+python中的作用域与js中的作用域链不一样，
+也就是不能在函数体内直接打印一个尚未定义的变量，也就是没有词法分析的过程
+** 
+
+如果确实要使用或者修改全局的变量，可以使用global 全局变量的方式
+开发中尽量减少使用全局变量
+
+    def p_num():
+        global num
+        print num
+        num = 12 #修改全局的num，而不是重新定义一个局部变量！！！
+    num = 10
+    p_num()
+    print num
+
+> 注意按位取反和逻辑取非之间的区别
+>> 按位取反是将二进制数的每一位取反，
+>> 逻辑取非：非零的数为真，取非为假
+
+Python的特别的运算符：
+
+    ~a ：取反
+    a ** b : a的b次幂
+    a & b  : 按位与 
+    a | b  : 按位或
+    a ^ b  : 按位异或，也就是a、b对应位不相同才为真
+
+#### 分支语句if
+
+python中的if语句没有括号，以冒号结束，靠缩进表示函数体
+代码示例：
+
+    a = 10
+    b = 4
+    if a>b:
+        print 'a>b'
+    elif a<b:
+        print 'a<b'
+    else:
+        print 'a==b'    
+
+> 说明if里面也是可以嵌套if语句的！！！        
+
+#### 循环语句
+
+语法：
+    while 条件:
+        循环体
+
+#### for循环语句，类似PHP中的foreach语句，只是位置相反
+
+语法：
+
+    for value in array:
+        print value
+
+    #coding=utf-8
+    for x in 'python':
+        print x
+        #python中的数组也是用[]来定义的！！！
+        
+    for x in ['apple','orange','watermalan']:
+        print x
+
+**
+在Python中for和while的后面都可以接else：，表示执行成循环功后执行
+如果循环是通过break的方式出来的，则else：部分不会执行
+**
+
+    for value in array:
+        print value
+    else:
+        print '成功！'  
+
+    var = 4
+    while var > 1
+        name = raw_input('please input your name:')
+        print 'your name is:',name #这里与PHP类似，相当于执行了两次print语句
+        var--
+        if var == 1:
+            print 'Good bye'
+    else:
+        print '循环成功'
+
+> 在控制台出现乱码的原因是：控制台客户端的编码 是GBK，
+文件的编码是utf-8，utf-8字符集包含了gbk的所有字符，
+所以可以正常存储用户输入的gbk字符，但是控制台并不能解释utf8文件原来的汉字！！！
+
+> 打个比方：utf-8和gbk分别代表两个容器，utf-8较大
+这两种编码格式里面的内容就相当于容器里面的水，
+大容器容得下小容器的水，而小容器装不下大容器的水！！！          
+
+Python中的列表就是其他编程语言的索引数组
+
+    1. 可以通过list[0]来取值   
+
+    2. 删除列表元素：del list[0]
+
+    3. 支持栈操作：list.pop()弹出最后一个
+
+    4. list.append(20)数组最后插入20
+
+    5. 列表中还可以嵌套新的列表
+
+    6. 列表的拼接：list1 + list2 相当于PHP中的
+    array_merge()函数
+
+    7. 判断某个元素是否在数组，返回bool,2 in list
+
+
+    8. 截断列表 list[2:5]表示取下标2到<5的所有元素
+
+
+		>list
+		[1, 2, 3, 4, 5, 6]
+		list[1:3]
+		[ 2, 3]
+		list[1:4]
+		[2, 3, 4]
+
+	    >>>list = [1,2,3]
+	    >>> list.append([4,5,6]) #引用添加
+	    >>>list
+	    [1, 2, 3, [4, 5, 6]]
+
+	    len(list) #查看列表长度 4
+	    len(list[3]) # 3
+
+	    list+[7,8,0] #仅仅是在内存中添加
+	    [1, 2, 12, [4, 5, 6], 7, 8, 0]
+
+####  列表中一些常用的方法
+
+序号  函数
+1.  cmp(list1,list2) 比较两个列表是否相等
+
+2.  max(list) 返回列表最大元素
+
+3.  min(list)
+
+4.  list(seq)
+
+5.  list.count(a) 计算a元素出现的次数
+
+6.  list.reverse() 反转数组 改变原列表
+
+7.  list.sort() 排序 改变原列表
+
+8.  list.remove(a) 移除a元素
+
+9.  list.insert(index,value) 
+插入value到第index位，原来的数据依次往后移
+
+10. list.index(a) 找出a第一次出现的下标
+
+> python中的列表可以存放任意的数据类型    
+
+#### 元组Tuple，只读列表,不允许修改
+
+格式：
+    tuple = (1,2,3)
+
+元组和数组可以相互转换，元组的方法和数组几乎一样
+
+#### 多维元组的访问
+
+    定义：tuple = [(1,2,3),(4,5,6)]
+    访问：tuple[0][0]
+
+#### 字典类型
+
+> 与json很像！！！是键值对的形式
+
+定义字典:dict = {'a':'123','b':'456'}
+访问字典:dict['a'] #123
+修改字典元素：dict['a'] = 456
+删除字典元素：del dict['a']
+字典中的键不能重复，只能有一个
+
+
+循环取字典元素：
+    
+    for key in dict:
+        print dict[key]
+
+#### 字典常用的方法
+
+1. cmp(dict1,dict2) 比较两个字典元素是否相等
+2. len(dict1)
+3. str(dict) 转字符串的形式，临时的 "{'a': '1', 'c': '3', 'b': '2'}"
+4. type(var) 返回变量类型
+
+#### 字典的内置函数
+
+    dict = {'a': '1', 'c': '3', 'b': '2'}
+    >>> dict
+    {'a': '1', 'c': '3', 'b': '2'}
+
+1. dict.clear() 删除字典所有元素
+
+2. dict.get(key) 根据key获取value
+
+3. dict.items() 字典转元组 临时的 [('key','val'),('key','val')]形式
+
+   for key,value in dict.items():
+      print(key,'---',value)
+
+    a --- 1
+    c --- 3
+    b --- 2
+
+4. dict.keys() 以列表返回字典所有键 ['a', 'c', 'b']
+
+5. dict.values() 返回字典的所有值 ['a', 'c', 'b']
+
+6. 打印字典：print dict
+
+7. print dict.keys()
+
+8. print dict.values()
+
+##### 字符串操作
+
+> 在 ipython 下，可以通过输入 对象.+tab 列出这个对象的所有方法！！！
+
+    In [1]: str = 'hello china hello world hello zmh'
+
+    1. str.find('needle',start[,end])
+    查找字符串 needle ，返回找到的第一个位置
+
+    2. str.index('needle',start[,end])
+    作用和find() 一样
+    区别：find() 找不到时，返回 -1；index()直接抛出异常 
+
+        In [14]: str.find('xxx')
+        Out[14]: -1
+
+        In [15]: str.index('xxx')
+        ValueError 
+        ValueError: substring not found
+
+    3. 统计字串出现的次数 str.count()
+
+        In [17]: str.count('hello')
+        Out[17]: 3
+
+    4. str.decode() 解码 
+    
+        In [20]: str2 = str.decode(encoding='utf-8')
+
+        In [21]: str2
+        Out[21]: u'hello china hello world hello zmh'
+
+        In [22]: type(str2)
+        Out[22]: unicode   
+
+    5. 原样输出 r'hello\n\n'
+
+        In [23]: print(r'hello\n\n')
+        hello\n\n
+        In [24]: print('hello \n\n')
+        hello
+
+
+    6. str.replace('old','new',count) 
+        第三个参数为指定要替换的次数
+
+    7. list.sort() 将列表 list 按照字母表排序
+
+    8. str.center(50) 字符串居中，宽为50，左右两边用空格填充
+
+        In [42]: str.center(50)
+        Out[42]: '        hello china hello world hello zmh         '        
+
+    9. str.endswith('zmh') 判断字符串是否以 指定参数 结尾，返回 True 或者 False
+
+        In [44]: str.endswith('zmh')
+        Out[44]: True    
+
+    10. str.startswith('hello') 判断是否以 xxx 开头
+    
+    11. str.isalnum() 判断字符串是否为数字、字母，如果是，返回 True
+
+        In [46]: s = '12334'
+
+        # 有数字，返回 true
+        In [47]: s.isalnum()
+        Out[47]: True
+
+        In [61]: s7 = '123hello456'
+
+        In [62]: s7.isalnum()
+        Out[62]: True
+
+        -----------------------------------
+
+        In [48]: s.isalpha()
+        Out[48]: False
+
+        In [49]: s1 = 'hello'
+
+        # 全部是字母，返回true
+        In [50]: s1.isalpha()
+        Out[50]: True
+
+        -----------------------------------
+
+        In [51]: s1.islower()
+        Out[51]: True
+
+        In [52]: s3 = 'Hello'
+
+        #必须是全部小写，才返回true，数字也是属于小写的！！！
+        In [53]: s3.islower()
+        Out[53]: False
+
+        -----------------------------------
+
+        In [54]: s3.isupper()
+        Out[54]: False
+
+        In [55]: s4 = "HELLO"
+
+        # 必须是全部大写才返回true
+        In [56]: s4.isupper()
+        Out[56]: True
+
+        -----------------------------------
+
+        In [57]: s5 = 'hello world'
+
+        In [58]: s5.isspace()
+        Out[58]: False
+
+        In [59]: s6 = ' '
+
+        # 全部是 空格 才返回 true
+        In [60]: s6.isspace()
+        Out[60]: True
+
+        -----------------------------------
+
+        In [63]: s
+        Out[63]: '12334'
+        # 是否是 十进制数
+        In [64]: s.isdigit()
+        Out[64]: True
+
+        -----------------------------------
+
+        # 字符串的左右对齐 参数为字符串的总宽度
+        In [84]: s5.ljust(20)
+        Out[84]: 'hello world         '
+
+        In [85]: s5.rjust(20)
+        Out[85]: '         hello world'
+
+        -----------------------------------
+
+        # 去除字符串的空格
+
+        In [86]: ss ='    hello world !    '
+
+        In [87]: ss
+        Out[87]: '    hello world !    '
+
+        In [88]: ss.lstrip()
+        Out[88]: 'hello world !    '
+
+        In [89]: ss.rstrip()
+        Out[89]: '    hello world !'
+
+        In [90]: ss.strip()
+        Out[90]: 'hello world !'
+
+        -----------------------------------
+
+        # 根据指定的字符串分割
+        S.partition(sep) -> (head, sep, tail)
+
+        In [93]: sss = 'begin middle end'
+
+        In [94]: sss.partition('middle')
+        Out[94]: ('begin ', 'middle', ' end')
+
+        # 字符串函数中很多方法如果前面有 r 
+        一般表示 反方向 操作
+        sss.rpartiton('middle')
+
+        In [95]: ssss = 'begin m1 m1 end'
+
+        In [96]: ssss.rpartition('m1')
+        Out[96]: ('begin m1 ', 'm1', ' end')
+
+        In [97]: ssss.partition(
+            ...: 'm1')
+        Out[97]: ('begin ', 'm1', ' m1 end')
+
+        -----------------------------------
+
+        S.splitlines(keepends=False) -> list of strings
+        # 将一篇文章按 行 分割，返回列表
+        In [102]: art = '''
+             ...: introduce:
+             ...: name:zmh
+             ...: age:22
+             ...: height:175cm
+             ...: '''
+
+        In [103]: art.splitlines()
+        Out[103]: ['', 'introduce:', 'name:zmh', 'age:22', 'height:175cm']
+
+        -----------------------------------
+
+        # 左边用 0 填充，参数为整个字符串的宽度
+        In [112]: s
+        Out[112]: '12334'
+
+        In [113]: s.zfill(7)
+        Out[113]: '0012334'
+
+        -----------------------------------
+
+##### 函数高级
+
+    In [114]: def printname(str):#直接书写函数的注释
+     ...:     'print your name by string'
+     ...:     print(str)
+     ...:
+
+    In [115]: help(printname)
+    Help on function printname in module __main__:
+
+    printname(str)
+        print your name by string
+
+#### 面向对象
+
+> 类 和 方法 也是可以加注释说明的，用法和函数一样！！！
+> 引入类模块后，可以通过 help(类名) 查看这个类的所有属性和方法，同样也可以通过 help(对象) 查看这个对象的类 的相关信息
+
+各个类型所具有的方法：
+
+    In [4]: list.
+          list.append  list.index   list.remove
+          list.count   list.insert  list.reverse
+          list.extend  list.pop     list.sort
+
+    --------------------------------------------
+
+    In [5]: dict.
+        dict.clear      dict.items      dict.pop        dict.viewitems
+        dict.copy       dict.iteritems  dict.popitem    dict.viewkeys
+        dict.fromkeys   dict.iterkeys   dict.setdefault dict.viewvalues
+        dict.get        dict.itervalues dict.update
+        dict.has_key    dict.keys       dict.values
+
+    --------------------------------------------
+
+    In [6]: str.
+         str.capitalize str.endswith   str.isalnum    str.istitle    str.lstrip
+         str.center     str.expandtabs str.isalpha    str.isupper    str.partition
+         str.count      str.find       str.isdigit    str.join       str.replace    
+         str.decode     str.format     str.islower    str.ljust      str.rfind
+         str.encode     str.index      str.isspace    str.lower      str.rindex    
+
+    --------------------------------------------
+
+注意：
+    所有的类里面的方法都有参数 self 表示该类的实例化对象，相当于java中的this
+
+        In [1]: print('hello','china')
+        hello china
+    
+#### 类的声明
+
+    In [15]: class Employee:
+    ...:     '''this is a test class '''
+    ...:     classattr = 'test class'
+    ...:     def __init__(self,name,price):
+    ...:         'initial function'
+    ...:         self.name = name
+    ...:         self.price = price
+    ...:     def hello(self):
+    ...:         'say hello to everybody'
+    ...:         print 'hello i am',self.name
+    ...:
+
+    In [16]: help(Employee)
+
+    # __main__ 表示本模块，也就是直接调用的而不是通过import引入进来的
+    Help on class Employee in module __main__:
+
+    class Employee
+     |  this is a test class --> 类的注释/说明
+     |
+     |  Methods defined here:
+     |
+     |  __init__(self, name, price)
+     |      initial function --> 函数的注释/说明
+     |
+     |  hello(self)
+     |      say hello to everybody
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here: --> 类的其他属性
+     |
+     |  classattr = 'test class'
+
+
+    In [17]: me = Employee('zmh',5000)
+
+    In [18]: me
+    # 说明 me 是本模块下 Employee 的一个实例对象
+    Out[18]: <__main__.Employee instance at 0x04B155F8>
+
+    In [19]: me.name
+    Out[19]: 'zmh'
+
+    In [20]: me.price
+    Out[20]: 5000
+
+    In [21]: me.hello()
+    hello i am zmh
+
+#### 针对 对象 的一些方法
+
+    1. getattr(obj,name) 获取对象的属性
+
+        In [25]: getattr(me,'classattr')
+        Out[25]: 'test class'
+
+    2. hasattr(obj,name) 判断 obj 有没有 属性 返回 True / False
+
+        In [26]: hasattr(me,'sss')
+        Out[26]: False
+
+        In [27]: hasattr(me,'classattr')
+        Out[27]: True
+
+    3. setattr(obj,name,value) 设置/修改 对象的属性的值
+
+        In [32]: setattr(me,'age',23)
+
+        In [33]: me.age
+        Out[33]: 23
+
+    4. delattr(obj,name) 删除对象的属性
+
+        In [35]: delattr(me,'age')
+        In [36]: me.age
+
+        AttributeError: Employee instance has no attribute 'age'
+
+#### 对象的内置属性
+
+    1. __dict__
+
+        # 对于对象，__dict__ 只列出对象的所有属性的键值对
+        In [37]: me.__dict__
+        Out[37]: {'name': 'zmh', 'price': 5000}
+
+        # 对于类，__dict__ 列出类的所有属性和方法的全部键值对
+        In [38]: Employee.__dict__
+        Out[38]:
+        {'__doc__': 'this is a test class ',
+         '__init__': <function __main__.__init__>,
+         '__module__': '__main__',
+         'classattr': 'test class',
+         'hello': <function __main__.hello>}
+
+    2. __doc__
+
+    3. __name__ 类名
+
+        In [45]: Employee.__name__
+        Out[45]: 'Employee'
+
+    4. __module__
+
+    5. __bases__ 类的所有父类构成元素
+
+#### python 中的继承 
+
+python 支持多继承
+
+如果要调用父类中的构造方法，必须在子类中用类名 显式的调用
+
+代码案例：
+    
+    #conding = utf-8
+    class Parent:
+        parentattr = 100
+        def __init__(self):
+            print '父类的构造方法'
+
+        def parentMethod(self):
+            print '调用父类的方法'    
+
+        def setAttr(self,attr):
+            Parent.parentattr = attr 
+            #可以用 类名.属性 ，也可以 self.属性
+
+        def getAttr(self):
+            print '父类属性',self.parentattr
+
+        def sayhello(self):
+            print 'hello nice to meet you !'     
+
+    class Child(Parent):
+        def __init__(self):
+            Parent() # 调用父类的构造方法
+            print '子类构造方法'            
+
+        def childMethod(self):
+            print '子类方法'
+
+        #开启注释即为 重写     
+        #def sayhello(self):
+            #print 'hello good to see you '                 
+
+把 以上代码保存到 demo.py 
+在 命令行 中 from demo import Parent,Child
+
+    In [1]: from demo import Parent,Child
+
+    In [2]: p2 = Child()
+    父类的构造方法
+    子类构造方法
+
+    In [3]: p2.parentattr
+    Out[3]: 100
+
+    In [4]: p2.getAttr()
+    父类属性 100
+
+    In [5]: p2.setAttr(200)
+
+    In [6]: p2.getAttr()
+    父类属性 200
+
+    In [7]: p2.childMethod()
+    子类方法
+
+
+子类具有父类的所有可见的方法和属性！！！
+
+#### 子类重写父类的方法
+
+如果子类中的方法与父类的方法 同名，那么，子类的方法就会覆盖掉父类的方法，这就是重写
+
+    重写之前：
+    In [5]: p2.sayhello()
+    hello nice to meet you !
+
+    重写之后：
+    In [3]: p2.sayhello()
+    hello good to see you
+
+> 可以使用 dir(obj) 查看这个对象的所有属性名和方法名
+
+#### 类的私有属性 __privateattr
+
+    In [10]: class Person:
+    ...:     __sex = 'male'
+    ...:
+
+    In [11]: men = Person()
+
+    In [12]: men.__sex
+    AttributeError: Person instance has no attribute '__sex'
+
+    In [13]: dir(men)
+    Out[13]: ['_Person__sex', '__doc__', '__module__']
+
+    In [14]: men._Person__sex
+    Out[14]: 'male'
+
+**案例是最好的说明书**
+
+#### 模块
+
+导入模块下的所有：
+from 模块 import * 
+
+#### 发布包与安装导入包
+
+
+#### 文件和目录操作
+
+input('please input your name:')
+
+fp = open('hello.txt','w')
+注意：在 ipython 中，即是 fp.close() 这个 fp 句柄还是存在的！！！
+    
+    # 已经关闭 文件句柄 
+    In [3]: fp.close()
+
+    In [4]: fp
+    Out[4]: <closed file 'hello.txt', mode 'r' at 0x04A7D390>
+
+    In [4]: fp.
+           fp.close      fp.flush      fp.next       fp.seek       fp.writelines
+           fp.closed     fp.isatty     fp.read       fp.softspace  fp.xreadlines
+           fp.encoding   fp.mode       fp.readinto   fp.tell
+           fp.errors     fp.name       fp.readline   fp.truncate
+           fp.fileno     fp.newlines   fp.readlines  fp.write
+
+--------------------------------------------------------
+
+    In [9]: fp
+    Out[9]: <open file 'hello.txt', mode 'r' at 0x04B49DE0>
+
+    # 查看打开模式
+    In [10]: fp.mode
+    Out[10]: 'r'
+
+    # 文件名
+    In [11]: fp.name
+    Out[11]: 'hello.txt'
+
+    # 判断文件是否打开
+    In [12]: fp.closed
+    Out[12]: False
+
+    In [13]: fp.close()
+    In [14]: fp.closed
+    Out[14]: True
+
+    # fp.tell() 返回当前指针的位置
+    In [18]: fp.tell()
+    Out[18]: 0L
+
+    In [19]: fp.next()
+    Out[19]: 'hello world'
+
+    In [20]: fp.tell()
+    Out[20]: 11L
+
+    fp.flush() 
+    将缓冲区的内容写入磁盘，这样做的好处是:可以减少对磁盘的I/O 操作。
+
+#### python 应用案例
+
+> 安装python的包/模块
+pip install + 模块/包名 ，注意中间要有空格。然后回车。
+
+案例1：往图片写入文字：
+
+    # 引包
+    In [1]: from PIL import Image,ImageFont,ImageDraw
+
+    # 打开图片
+    In [2]: im = Image.open('01.jpg')
+
+    # 引入字体库 ttf 文件
+    In [3]: font = ImageFont.truetype('ALGER.TTF')
+
+    # 生成 画笔 
+    In [4]: draw = ImageDraw.Draw(im)
+
+    # 设置字体大小 im.size 返回一个元组 (x,y) 图片的分辨率
+    In [5]: fontsize = min(im.size)/4
+
+    # 写入文字，参数分别表示： 位置 内容 字体 填充颜色RGB
+    In [6]: draw.text((im.size[0]-fontsize,0),'8',font=font,fill=(255,0,0))
+
+    #  保存修改 参数：名字 ，类型
+    In [7]: im.save('b.jpg','jpeg')
+
+    In [8]: exit
+
+案例2：生成随机数 
+
+应用场景：生成注册码
+
+字符串函数 s.join(iterable) 
+作用：在每个迭代变量 iterable 之间插入字符串 s
+注意：是迭代变量，也就是在每个**字符**之间插入s
+
+    In [6]: s = 'a'
+
+    In [7]: s.join('123456789')
+    Out[7]: '1a2a3a4a5a6a7a8a9'
+
+    --------------------------------------------
+
+    In [12]: string.letters
+    Out[12]: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+    In [13]: string.digits
+    Out[13]: '0123456789'
+
+    In [14]: string.digits+string.letters
+    Out[14]: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+    # 根据给定字符串随机生成 n 个字符，返回一个列表 
+    In [18]: random.sample(string.letters,4)
+    Out[18]: ['G', 'D', 'Z', 'H']
+
+    # 将列表拼接成字符串
+    In [20]: ''.join(random.sample(string.letters,6))
+    Out[20]: 'ROQuaM'
+
+    注意：使用 ''.join(list) 时，列表的每一个单元必须是字符串！！！ 
+
+    # 列表中的循环，循环生成 n 个指定的列表单元
+    In [31]: ['a' for i in range(3)]
+    Out[31]: ['a', 'a', 'a']
+
+    # 拼接列表单元
+    In [29]: x='-'.join(['a' for i in range(5)])
+
+    In [30]: x
+    Out[30]: 'a-a-a-a-a'
+
+生成激活码：
+
+    #conding = utf-8 
+    import string,random
+
+    field = string.ascii.letters + string.digits
+
+    def getRandom():
+        return ''.join(random.sample(field,5))    
+
+    def concatenate(group):
+        return '-'.join([getRandom() for i in range(group)])
+
+    def generate(n):
+        return [concatenate(6) for i in range(n)]
+
+    if　__name__ == '__main__':
+        n = input('how many would you want to genernate?')
+        print generate(int(n))
+    运行结果：
+    
+    D:\pythontest>python jihuoma.py
+    how many would you want to genernate?10
+    ['REAg8-sg2w8-5qIuY-ck6GR-8snx4-xFVXY', 'AiNYk-w7eqV-HT09k-Sbo0n-UXTmL-kTWw6', '07XUn-3IdGa-5vF1A-TKfRG-GFbd4-LETdY', 'aRrDp-avp6q-krGJw-DuETY-0zspV-mAStO', 'rIqvW-P0jA7-TUfbS-aVETr-tFvS4-ZHLkw', '5gQ49-3oNbZ-mrH0h-Ev6cl-AL7If-JzKvT', '2FNPW-xoY1z-tQD59-pcMuZ-aWUbq-JcQUt', 'PLxM6-7JWDO-zPUIT-zSgMI-uev8L-QkdJh', 'MBI8d-ipONR-U6fqt-tns1p-UZ9ts-myftS', 'Ui3CT-vEkd3-PXNxe-Yp7Rn-f2nbM-qCNL6']    
+
+
+#### requests 模块
+
+安装：有easy_install或pip的朋友可以直接使用：easy_install requests或者pip install requests来安装。
+
+    >>> import requests
+    >>> r = requests.get('https://www.python.org')
+    >>> r.status_code
+    200
+
+    r.text
+    r.content
+    r.headers
+    r.encoding
+
+    --------------------------------------------
+
+    In [2]: requests.
+      requests.adapters          requests.compat            requests.DependencyWarning
+      requests.api               requests.ConnectionError   requests.exceptions
+      requests.auth              requests.ConnectTimeout    requests.FileModeWarning   >
+      requests.certs             requests.cookies           requests.get
+      requests.codes             requests.delete            requests.head
+
+      ---------------------------------------------------
+
+    In [2]: r =requests.get('http://www.baidu.com')
+
+    In [3]: r.status_code
+    Out[3]: 200
+
+    In [4]: r.encoding
+    Out[4]: 'ISO-8859-1'
+
+    In [5]: r.
+       r.apparent_encoding     r.encoding              r.iter_lines            r.reason
+       r.close                 r.headers               r.json                  r.request
+       r.connection            r.history               r.links                 r.status_code
+       r.content               r.is_permanent_redirect r.ok                    r.text
+       r.cookies               r.is_redirect           r.raise_for_status      r.url
+       r.elapsed               r.iter_content          r.raw
+
+
+#### 大战控制台乱码
+
+    #  coding=GBK
+    # coding:gbk
+    #coding:gbk
+    #coding:utf-8
+    #coding:UTF-8
+    #中间的　- 不能少　
+    #shift + 空格 全角半角切换
+    #简繁切换 ctrl+shift+f
+    #编码部分大写、小写都可以
+    # #和coding之间可以有空格，但是后面的 ： = 两边不能有空格
+    # 第一句声明编码的作用是：告诉python解释器这个文本的编码，如果不声明解释时就会报错 SyntaxError：Non-ASCII
+    # 如果文件编码时gbk，第一句声明为 utf-8 也是可以的，因为utf-8 包含所有的gbk，也就是utf-8编码有一部分是与gbk完全重合的，同样可以正确解释gbk
+    # 但是，如果文件编码是utf-8，第一行就不能设置为gbk了！！！
+    # 综上：无论文件编码是什么，我们在首行统一设置为 utf-8！！！
+    # 设置文件编码 就是 这个文件的编码，当用其他软件或者控制台输出时会根据文件编码解释，然后输出
+    # 由于windows控制台的输入和输出都是gbk，所以在windows下，文件编码最好设置为gbk，这样就不会控制台输出乱码！！！
+    #插入模式编码：也就是输入字符时的编码，如果是gbk，转为utf-8，可以。但如果插入模式是utf-8，转为gbk保存的话，是不可以的。gbk装不下！！！
+
+    这样是可以的
+    ## hello 
+    #encoding=utf-8
+    print '我爱你'
+
+    但是这样不可以
+    ## hello 你好
+    #encoding=utf-8
+    print '我爱你'
+
+    总结：设置编码一定要在中文输出之前！！！ 
+
+    sublime中的设置文件编码：就是指设置插入模式的字符编码
+
+    文件默认的保存编码是utf-8
+
+    重新将一个文件用其他编码打开很可能出现乱码！！！
+
+    如果用其他编码打开文件，然后 保存 了，数据乱码，无法恢复！！！
+        这是因为：保存后，编码已经发生了改变，转为了utf8，
+        而utf8是无法转为比他范围小的字符编码，于是就无法恢复！！！
+
+    特别注意：用其他编码重新打开后，绝对不能在设置文件编码或者刷新编码，否则，会进行编码转换，有转换就会有丢失，以后再也找不回原来的数据了！！！
+
+    转码错误提示：
+    [Window Title]
+    Sublime Text
+
+    [Main Instruction]
+    Errors occurred while converting ha.txt with GB18030 encoding.转换时发生错误
+
+    WARNING: Continue to load this file using GB18030, malformed data will be ignored.如果继续转化，畸形数据会被忽略，也就是出现数据丢失
+
+    Press "Cancel" to choose another encoding manually.
+
+    [OK] [取消]
+
+    刷新文件编码的作用是什么呢？
+    刷新编码会对原来的编码进行转换，会丢失数据，慎用！！！
+
+    所以：只要是 大范围的字符编码 转 小范围的字符编码 都会出现数据丢失，而且是不可恢复的！！！
+
+    如果要在控制台正常输出中文，必须确保 文件编码为gbk，也就是插入模式为gbk！！！
+
+    否则，就算解决了 Non-ASCII,还是会显示乱码的！！！
+
+#### 使用requests模块采集网页信息
+
+    In [1]: import requests
+
+    In [2]: r = requests.get('http://www.baidu.com')
+
+    In [3]: r.status_code
+    Out[3]: 200
+
+    #直接 r.content 会在控制台显示很多不认识的字符，为unicode码
+    In [4]: r.content
+
+    #可以将页面保存到文件查看
+
+    In [5]: f = open('bd.html','w')
+
+    In [6]: f.write(r.content)
+
+    In [7]: f.close()
+
+    # 通过 print() 函数打印网页，一切正常！！！
+    In [8]: print r.content
+
+get()传参：
+
+    In [39]: rr = requests.get('http://localhost/pytest/test.php',params={'name':'zmh'})    
+
+post()传参：
+    requests.post('url',data=dict/json)
+    requests 模块使用post发送数据可以发送 字典或者json格式的数据
+
+    import json
+    import requests
+    mydict = {'name':'zmh','age':22}
+
+    requests.post('url',data = json.dumps(mydict))
+
+json 对象的一些方法
+
+    In [2]: import json
+
+    In [3]: json.
+      json.decoder     json.encoder     json.load
+      json.dump        json.JSONDecoder json.loads
+      json.dumps       json.JSONEncoder json.scanner
+
+    # 将字典格式成json格式的字符串
+    In [5]: json.dumps(d)
+    Out[5]: '{"age": 22, "name": "zmh"}'
+
+    In [6]: d
+    Out[6]: {'age': 22, 'name': 'zmh'}
+
+
+上传文件：
+    
+    # rb 表示以 二进制形式 打开
+    files = {'file':open('01.jpg','rb')}
+
+    r = requests.post(url,files=files)
+
+    print r.text
+
+    In [65]: print r1.content
+    Array
+    (
+        [files] => Array
+            (
+                [name] => 01.jpg
+                [type] =>
+                [tmp_name] => C:\Windows\php23F3.tmp
+                [error] => 0
+                [size] => 258367
+            )
+
+    )
+    上传成功
+
+
+    #后台部分
+
+    <?php 
+
+        print_r($_FILES);
+
+        if ($_FILES['files']['error'] == 0) {
+            move_uploaded_file($_FILES['files']['tmp_name'],'02.jpg');
+            echo '上传成功';
+        }
+    
+    ?>
+
+> ip:port 可以确定网络上的唯一进程！！！
+
+错误：
+
+    File "D:\pythontest\socket.py", line 8, in <module>
+    s = socket.socket(socket.INET,socket.SOCK_STREAM)
+    AttributeError: 'module' object has no attribute 'INET'   
+原来是文件名和python的模块名冲突！！！
+
+#### socket 编程 
+
+1.server 1 原生的socket编程
+
+代码展示：
+
+    #coding:utf-8
+
+    #导入socket模块    from socket import *
+
+    # 生成一个socket句柄，参数1：ip类型
+    #参数2：tcp协议
+    s = socket(AF_INET,SOCK_STREAM)
+
+    # 绑定ip和端口，端口可以是1024-65535之间的任何，但不要使用一些已经被其他软件占用的端口，比如3306
+    # 注意：这里是一个元组！！！
+    s.bind(('127.0.0.1',8888))
+
+    #监听客户端
+    s.listen(10)
+
+    #s.accept()返回一个元组，也就是 socket对象 和 ip地址+端口的元组，
+    #注意：这个函数只有在有客户端连接才会返回句柄，程序才会继续往下执行！！！
+
+    print '正在等待客户端连接......'
+
+    conn,addr = s.accept()
+
+    print '已连接客户端ip为:',addr[0]
+
+    #使用这个连接向客户端发送数据
+    conn.send('hello,I am server\n')
+
+
+    while True:
+
+
+        #获取客户端信息,每次获取1024字节
+        strinfo = conn.recv(1024)
+
+        conn.send( 'server echo:'+ strinfo )
+
+        print '客户端输入：',strinfo
+
+2.server 2 单线程服务器，同一时刻只允许有一个客户端与服务器通信
+
+    #coding:utf-8
+
+    from SocketServer import TCPServer,BaseRequestHandler
+
+    # 出错处理
+    import traceback
+
+    class MyBaseRequestHandler(BaseRequestHandler):
+
+        def handle(self):
+                
+                while True:
+                        
+                        try:
+                                # 接收客户端信息，去空格
+                                data = self.request.recv(1024).strip()
+
+                                # 服务器打印客户端 ip 和 data
+                                print 'receive from %r : %r' % (self.client_address[0],data)
+
+                                # 把收到的数据转大写然后返回给客户端
+                                self.request.sendall(data.upper()+'\n')
+
+                        # 捕获异常  
+                        except:
+                                traceback.print_exc()
+                                break
+        
+    if __name__ == '__main__':              
+
+        host = ''
+        port = 8080
+        addr = (host,port)
+
+        server = TCPServer(addr,MyBaseRequestHandler)
+
+
+        server.serve_forever()
+
+
+3.server 3 多线程服务器，同一时刻可以允许多个客户端与服务器通信，每个客户端会有不同的端口号
+
+    #coding:utf-8
+
+    # 多线程并发服务器，与单线程的流程相似
+
+    #coding:utf-8
+    #
+    from SocketServer import ThreadingTCPServer,StreamRequestHandler
+
+    # 出错处理
+    import traceback
+
+    class MyStreamRequestHandler(StreamRequestHandler):
+
+        def handle(self):
+                
+                while True:
+                        
+                        try:
+                                # 接收客户端信息，去空格
+                                data = self.rfile.readline().strip()
+
+                                # 服务器打印客户端 ip 和 data
+                                print 'receive from %r : %r' % (self.client_address,data)
+
+                                # 把收到的数据转大写然后返回给客户端
+                                self.wfile.write(data.upper()+'\n')
+
+                        # 捕获异常  
+                        except:
+                                traceback.print_exc()
+                                break
+        
+    if __name__ == '__main__':              
+
+        host = ''
+        port = 8080
+        addr = (host,port)
+
+        server = ThreadingTCPServer(addr,MyStreamRequestHandler)
+
+
+        server.serve_forever()
+
+
+        运行结果：
+
+        receive from ('127.0.0.1', 24729) : 'hi'
+        receive from ('127.0.0.1', 24743) : 'hello'
+
+
+#### python 调用C/C++
+
+python图形化界面开发
+
+掌握了源码就掌握了第一手资料
+
+tkinter图形库的学习 
+
+导入： import tkinter 
+测试： tkinter._test()
+
+
+
+
+
+
+
+
+
+
+学习进度：13分钟
+
+
+
+
+
+

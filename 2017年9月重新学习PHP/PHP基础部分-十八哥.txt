@@ -1,0 +1,696 @@
+﻿燕十八PHP基础
+
+变量以 $ 符号开头，不能以数字开头
+变量名严格区分大小写。
+也可以用中文来定义变量，但是不推荐
+
+echo $a,$b; 表示分别打印a b两个变量的值
+
+PHP中可以任意修改变量的类型与值，是弱类型的语言。
+
+echo $var,"<br />"
+
+变量的类型：
+字符串变量：PHP中单双引号定义的字符串是不一样的。
+
+直接 echo 布尔型变量时，布尔型变量的值被转换为了1和空字符串。
+
+echo 输出变量，适宜输出 整型、浮点型，字符串型，这种标量型
+print_r 适合打印数组，对象
+var_dump()功能最强，可以打印出数据和数据类型
+
+NULL型：只有一个值 NULL 表示 空
+是不存在！
+
+一个变量什么时候为NULL？
+1.给一个变量直接赋值为 NULL
+2.某个变量被 unset掉 ，unset() 用于销毁一个变量,腾出内存空间
+3.变量只声明，不赋值
+NULL可以用var_dump()打印！！！
+
+动态变量：
+也就是变量名还可以是一个变量
+$$var:其中，$var作为整个变量的变量名
+
+变量的检测：
+变量是否声明：isset($var)
+
+变量的类型检测：
+is_int()
+is_float()
+is_null()
+is_bool()
+is_string()
+
+获取变量类型：
+gettype($var)
+
+变量的两种赋值方式：
+1.传值赋值
+2.引用赋值
+
+1.传值赋值
+$a = 3
+$b = 5
+$a = $b（是b的一个副本）
+过程：先读出$b的值，然后重新赋给$a(把原来的值删掉，然后填入新的值)
+此时，$a=5,$b=5
+a b两个变量互不影响。
+
+2.引用赋值
+$a = 3
+$b = 5
+$a = &$b
+过程：$a 的箭头指向$b的空间
+
+unset($b)
+echo $a //5
+
+说明：只要还有变量指向这个地址，那么这个地址中的数据就不会被清理，所以即使unset掉了b，这个a还是有数据的！！！
+
+为什么0.3 - 0.2 != 0.1？
+因为浮点数存在精确度的问题
+比如数学上的 1/3 * 3 = 1
+但是，在计算机中只能存储 0.333 ，0.333 * 3 = 0.9999 ，自然不等于1，所以为false
+
+include('01.php')
+引入其他文件，就相当于把01.PHP这个文件塞到当前位置。
+
+常量的特点：
+1.一旦定义，值不能被修改，也就是不能被重新赋值
+2.不能重新定义
+3.全局有效性，也就是页面的任意一处都能被访问到，也就是可以在函数内访问到常量
+常量的穿透性更强！
+
+函数内的变量是属于局部变量，只能在函数内部使用。
+
+define('NAME',值)
+
+echo CONSTANT
+如果这是一个未曾定义的常量，那么，会把CONSTANT当做字符串打印出来。
+
+常量的值的类型：
+5中标量，整型，浮点型，字符串，NULL，布尔型，其他3中array、obj、resource型都不能赋给变量。
+
+常量的检测：
+defined('CONSTANT',CONSTANT2)
+
+想要使用动态常量，必须使用constant()函数，constant(常量名) 返回常量的值
+
+取模运算：结果的符号只取决于被除数的符号！！！
+
+-5 % 3    结果：-2
+-5 % -3   结果：-2
+不同的只是商，余数是相同的。
+
+=== 全等于，不仅值相等，变量的类型也相等
+!== 不全等于
+
+3 == '3Q' 结果：true
+整型与字符串比较，会自动将字符串前部分的数字转为整型，然后比较，== 只比较值，而不比较类型。
+
+3 === '3Q' 结果：false
+3Q转为3，再比较
+
+5 == true 结果：true
+5转为true，再比较
+
+false转为空字符串
+
+空字符串、'0'转为false
+'0.0'为true
+
+赋值表达式
+
+所有的运算符都有返回值，赋值运算符的返回值是=右边的值。
+
+逻辑运算的短路性，一旦从逻辑上能分析出结果后，后面的表达式就不再运行！！！
+
+逻辑运算时的优先级：在有 && 和 || 时，先运算&&，在运算||
+但是在开发时，应该用括号括起来！！！
+
+异或运算：就是两个条件必须 “一真一假” 结果才是真  xor
+
+三元运算符： 条件?返回值1:返回值2
+
+位运算符：二进制+逻辑运算
+& ：先转化成二进制，把两个二进制值对齐，每个位都进行 并且 运算
+按位与：&
+0000 1100 12
+0000 0101  5 
+结果：100  4
+
+按位或：|
+0000 1100
+0000 0101
+0000 1101 13
+
+按位异或：^
+0000 1100
+0000 0101
+0000 1001 9
+
+移位运算：
+左移：<< 相当于*2
+右移：>> 相当于/2
+
+循环结构：
+
+对于判断3的倍数，5的倍数，15的倍数，
+首先判断交集部分15的倍数，然后单独判断3、5的倍数。
+
+while(++$i < 100)
+{
+	代码部分
+}
+
+for循环：
+for(初始条件;判断条件;改变条件){
+	代码
+}
+
+百钱买白鸡问题：
+方法一：三层for循环
+方法二：两层for循环
+方法三：利用边界条件，算出公鸡、母鸡的最多个数。
+
+break与continue
+
+break:跳出整个循环过程
+continue：只是跳出当次循环，还会继续执行下面的循环
+
+函数：
+如果实参少于形参，会出现一个警告，但是程序还是会往下执行。
+如果实参多于形参，多出的会被省略掉，没有任何副作用。
+
+参数的默认值：直接在形参里面写，如果有实参传过来，则使用实参的值，如果没有传实参过来，那么使用默认值。
+其实就是一个替换的过程！
+
+注意：在给函数的参数设置默认值时，需要把有默认值放在最右边的参数！！！
+
+变量的作用域：
+函数体内的变量与外界的变量无关，是独立的。函数执行完，变量马上被释放。
+函数每次执行都会重新初始化。
+
+但是，在js中有作用域链的概念，会一直往外层找。
+
+函数的执行权与交回：
+1.函数执行完后，执行权就交回
+2.函数碰到 return 语句后也会交回执行权
+
+函数的返回值：
+如果一个函数没有return语句或者(return;)，那么他的返回值就是NULL
+
+函数最多只能有一个返回值
+不能有多个返回值！！！
+
+动态函数：
+函数名是一个变量，是可变的，动态的
+直接通过$name()这样的方式来调用函数。
+
+引用传参：
+1.赋值传值
+function t($num){
+	$num += 5;
+}
+$age = 19;
+t($age);//这里只是把$age的值赋给$num,$age并没有改变
+echo $age;//19
+
+2.引用传值
+function foo(&$num){//有&,就是表示引用传参，也就是$num指向$age所在的地址
+	$num += 5;
+}
+$age = 19;
+foo($age);
+echo $age;//24
+
+超级全局变量：注意全部大写
+
+$_GET	//地址栏的参数
+$_POST	//表达的post提交过来的数据
+$_COOKIE
+$_REQUEST	//就是，$_GET $_POST $_COOKIE三者的并集
+$_SERVER	//服务器、访客的信息
+$_SESSION
+$_GLOBALS	//所有变量的一个注册表
+$_FILES		//文件上传
+$_ENV
+
+超全局变量就是在深层次的函数内也是能够被访问到的！！！
+
+可以通过$_GLOBALS访问其他的超全局变量
+在函数内通过$_GLOBAL['$var']++方式改变$var值时，全局的$var已经发生改变！！！
+
+global关键字用在变量前表示这个变量是全局的！！！
+所以，global也会影响到全局的变量。
+
+总结：函数内部访问函数外的几种方式：
+1.通过引用传参
+2.使用global的方式在函数内是可以访问到全局的变量的。
+3.使用$_GLOBALS['$var']这个超级全局变量
+
+字符串：
+
+单、双引号的区别：
+1.双引号里面的变量会被正常解释
+如果不希望被转义，可以使用 \$ 
+
+2.在单引号里面，$是不会被转义的！！！
+
+3.双引号里面 \n \r \t 都是会转义的，单引号则不会转义这些
+
+4.单引号只会做简单的转义，比如 \' \\
+
+所以，单引号的效率会更高些，因为不需要进行更多的转义和变量解释。
+
+结论：一般使用单引号，但是在拼凑SQL语句时，需要夹杂变量的，最好使用双引号！！！
+
+字符串定界符：
+
+1.heredoc，他和双引号比较相似，会解释 \n \r \t $var
+
+<<<title
+	可以写任意的字符串
+title;///标志结束部分的开头不能有任何字符，必须独占一行
+
+2.nowdoc和heredoc一样，唯独在标识符两边用单引号包起来
+
+<<<'nowdoc'
+	字符串
+nowdoc;
+
+字符串系统函数：
+
+strlen() 可以计算字符串的字节长度
+strlen('abc') //3
+stelen('中国') //6
+因为我们的.php文件是utf-8编码的，这样一个中文就占3个字节。但是如果使用gbk编码，一个汉字则是2个字节。
+
+字符长度：
+mb_strlen($str,[encoding])
+也就是会根据第二个参数指定字符编码，这样才好计算字符长度。
+所以在指定编码时，一定要制定正确！！！
+mb_strlen()是根据字节长度以及字符集，计算出字符串的长度
+
+strpos($str,$subStr)
+在$str中查找$subStr的位置，返回位置。
+注意：如果第二个参数写的是整型，那么会理解成ASCII编码对应的字符。
+
+strpos($str,$substr,$offset)
+第三个参数表示偏移量。
+
+注意：如果没找到，返回的是false，如果找到的位置是在最开始的位置【0】，此时，用 if(strpos($str,$substr)){}else{} 就会执行else部分
+所以，为了区分0位置和真正的没有找到【false】，此处应该用 strpos($str,$substr) ==== false
+用的是 ===
+
+这就是典型的 == 为真， === 为假
+
+例子：结合 strpos() 函数和 for循环可以实现 父串中子串出现的次数！！！
+实现代码：
+	function findSubstr($str,$substr){
+		$strlen = strlen($str);
+		$substrlen = strlen($substr);
+		for($offset=0,$num=0;($offset=strpos($str,$substr,$offset))!==false;)
+			$offset += $substrlen;
+			$num++;
+	}
+
+
+同时，还可以通过 substr_count($str,$substr)这个函数来实现。
+
+str_replace($search,$replace,$str,$num)
+参数说明：查找、替换、字符串、替换的次数，返回替换后的字符串。
+
+其中，$search,$replace 可以是一个数组，可以实现批量替换
+注意：如果是数组形式的话，替换是有先后顺序的，先完成一次才能进行下一次！！！
+
+比如：$search('hi','hello')
+	  $replace('hello','hi')
+执行过程：
+	1.hi -->  hello
+	2.hello --> hi
+	结果：所有的 hi 以及 hello 都变成 hi
+如果真要实现真正的批量替换，可以使用 strtr($str,array $replace_pairs)
+
+普通应用：strtr($str,$search,$replace)
+特别注意：$search 和 $replace 是按照字符顺序进行替换的！！！
+比如：$search='abc'
+      $replace='ABC'
+替换结果：a-->A;b-->B;c-->C
+
+可以使用strtr($str,array('a'=>'A','b'=>'B'))
+
+string strtr  ( string $str  , string $from  , string $to  )
+
+string strtr  ( string $str  , array $replace_pairs  )
+
+参数 replace_pairs 可以用来取代 to 和 from 参数，因为它是以 array('from' => 'to', ...) 格式出现的数组。 
+
+string substr  ( string $string  , int $start  [, int $length  ] )
+
+截取子字符串：substr($str,$start,$length)
+注意：如果$length是负数，则表示结束位置，但又不包括这个位置的字符！！！
+所以，如果想取中间的子字符的话，可以使用负数的$length!!!
+注意：这里的$length指的是字节的长度，而不是字符的个数，所以如果是中文时，一定要注意文档的编码格式，算好多少个字节再进行截取！！！
+
+strstr($str,$needle)
+1.从$str中找到$needle第一次出现的位置，一直截取到末尾
+2.如果想截取之前的部分，可以添加第三个参数，true。strstr($str,$needle,true)
+3.截取最后一个位置
+string strrchr  ( string $haystack  , mixed  $needle  )
+该函数返回 haystack 字符串中的一部分，这部分以 needle 的最后出现位置开始，直到 haystack 末尾。 
+应用：计算文件的后缀
+
+字符串分割，返回数组
+str_split($str) //按字母，一个一个拆成数组
+str_split($str,2) //指定两个为一组进行切割
+
+array explode('.',$str)
+根据指定的分割符拆成数组
+
+string implode('~',$arr)
+将数组拼成字符串
+
+implode($arr) //直接将数组拼接起来
+
+chunk_split($str,3,',')
+每隔三个长度加一个 ','
+默认是 回车、换行
+
+将字符串的单引号进行转义：
+addslashes($str)
+
+将 \' 转回 '
+stripslashes($str)
+
+转实体：特殊符号转成HTML实体
+htmlspecialchars($str)
+
+实体转符号：
+htmlspecialchars_decode($str)
+
+大小写转换：
+strtolower()
+strtouper()
+
+首字母大写：
+ucfirst()
+
+只有首字母大写，其余小写：
+ucfirst(strtolower($str))
+
+
+数组：
+就是键值对的集合
+
+删掉数组的一个单元，键的增长不受影响
+
+如果数组的索引相同，后面的会覆盖前面的！！！
+
+如果没有指定索引，则从 0 开始递增
+
+数组的循环：
+
+foreach($arr as $k=>$v)
+
+foreach($arr as $v)
+
+数组下标的效率探讨：
+
+error_reporting(E_ALL)
+
+如果数组的下标没有加引号，则会找这个常量！！！
+
+注意for循环的效率，尽量不要在每一次循环中都调用函数，比如 $i<count($arr)
+
+常用的数组函数：
+
+1.count($arr,true)	
+如果有第二个参数true，表示递归计算数组的所有元素的个数。
+
+2.array_key_exist($key)
+判断数组是否存在$key键
+它和isset()的区别：
+isset($var)是根据值来判断的，如果被赋予了非 NULL 值，返回真，如果不赋值或者赋 NULL ，返回false
+isset()是语法结构，运行效率更高，因为array_key_exist()是函数，调用函数的效率是比较低的。
+
+3.array_flip()交换数组的键、值
+
+4、in_array($v)判断$v是否在这个数组中
+
+5、range(1,10)
+生成一个指定范围的数组
+
+6、array_sum()
+计算数组内所有单元的值
+
+7、shuffle($arr)
+把数组打乱,返回 bool ，原数组已经改变
+
+8、array_unique($arr)
+去除数组中重复的单元
+
+9、array_reverse($arr,[true])
+反转数组,对于索引数组，默认值调换值的顺序，对于关联数组，默认是 键和值 整体调换。
+
+10、
+
+
+
+
+
+
+mysql_connect('ip','user','pwd')
+返回一个资源，只要参数是一致的，返回的资源就是同一个。链接数据库是很耗费服务器资源的！！！
+默认端口是3306，改变端口 ip:3305
+mysql_connect()函数是面向过程的写法，此外还有PDO,无论什么数据库，用PDO的写法都是一致的。PDO是面向对象的写法。
+
+mysql_query($sql)
+
+mysql_fetch_row($res)
+取出结果集中的一行，索引 0、1、2、、、n
+
+mysql_fetch_assoc($res)
+每次取出结果集中的一行，以键值对的形式取出
+
+mysql_fetch_array($res)
+是前面两种形式的并集
+
+mysql调试技巧：
+
+使用mysql_query()语句执行delete/update语句，执行成功，返回真，但不一定有行受到影响！！！
+
+执行delete/update后，立即执行 mysql_affected_rows()，返回被影响的行数。
+
+mysql_num_rows($res)
+放在 select 语句之后，马上返回$res中的行数。
+
+可以使用 mysql_error()函数打印出错误信息。
+
+mysql的连接数是有限的，一般只有15个，所以在完成数据的操作后，应该及时关闭数据库的连接资源。
+
+对于PHP，在脚本运行结束后所有的资源都会被释放，如果是大网站，处理业务的时间很长，意味着占用数据库连接的资源更长时间！！！
+mysql_close()
+
+mysql_free_results()
+
+require()和include()的区别：
+include是包含的意思，找不到包含文件时，会报warning，然后试着往下运行。
+
+require是必须的意思，在找不到包含文件时会报fatal error，然后停止向下运行。
+
+include_once()和require_once()的区别：
+都表示只加载一次。
+加once后，在包含时，系统会先进行判断，如果已经包含，则不会再次包含。
+
+由于使用 _once 系统会进行判断，而判断的效率是非常低的，所以，尽量少用once
+
+require和include的取舍：
+在包含一些配置文件，少了，网站就无法运行的，用 require ，其他情况一般用include。
+
+递归转义：
+将数组里面的字符串递归转义：
+is_string()
+addslashes()
+可以使用系统提供好的一个函数对数组进行递归：array_walk_recursive()
+
+array_walk_recursive($_GET,'foo')
+会沿着数组单元走一遍，至于如何处理，需要自己写个函数foo，然后这个函数会带着这个函数foo走一遍，燃火对数组的每个单元进行处理。
+比如：array_walk_recursive($_GET,'addslashes')
+
+可以使用 ini_set('magic_quote_gpc','on')
+在PHP文件内设置PHP的配置文件。
+
+魔术引号开启时，$_GET,$_POST,$_COOKIE会被自动转义。
+
+判断魔术引号是否开启：
+get_magic_quotes_gpc()
+返回值为：bool（true、false）
+
+错误设置：
+1.可以在php.ini文件中修改error_reporting设置
+
+2.在PHP文件中 error_reporting()
+
+错误的值使用二进制掩码来计算的
+
+E_ERROR		0000 0001 	1
+E_WARNING	0000 0010 	2
+E_PARSE		0000 0100 	4
+E_NOTICE	0000 1000	8
+E_ALL		1111 1111	
+常量与值对应
+error_reporting(E_ALL & ~E_NOTICE)
+error_reporting(0) 表示不报任何错误
+
+
+
+
+------------------
+
+MySQL基础部分
+进入MySQL：mysql -uroot -p
+输入密码
+
+显示所有库：show databases;
+选库：use database;
+查看库中的所有表：show tables;
+创建数据库：create databases dbname charset utf8;
+删除数据库：drop database dbname;
+mysql中表、列可以改名，但是数据库不可以改名！！！
+
+所有的数据库都在 mysql目录下的data文件夹下，每个库对应一个文件夹。
+
+建表语句中 ...()engine myisam charset utf8;
+
+删除表：drop table tbname;
+
+改表名：rename table oldtbname to newtbname;但是并不常用
+
+插入语句中的每行数据分别用逗号（,）隔开
+
+清空表的数据:
+truncate tbname;
+就是相当删除原来的表，然后新建一张结构一样的空表。
+delete就是相当于用橡皮擦除原来的数据，新插入的数据的id会按照原来的顺序递增！！！ 
+
+mysql客户端显示乱码问题？
+答：表中的数据是utf8编码的，而mysql客户端是gbk编码，gbk不能完全显示utf8，所以会显示乱码。
+解决方法：在mysql客户端通过 set names gbk; 告诉mysql服务器其编码。
+
+如果是utf8编码的PHP文件呢？
+在PHP文件中执行 mysql_query('set names utf8')
+
+tee d:\biji.sql
+这句话把所有我们在控制台输入的编码保存到磁盘文件biji.sql
+
+插入语句中，如果没有声明字段，则按顺序将value插入到所有的列，id也是需要自己写的。
+
+对于id自增的，在插入数据时，可以不写字段和值！！！
+
+更新表：update tbname set 字段1=值1,字段2=值2 where 条件;
+
+删除表：delete from tbname where 条件;
+
+对于 更新和删除 必须加条件！！！
+
+where后面的是条件表达式，只要为真，每一行都会被执行！
+
+建表的原则：能够容纳放置的内容，但是又不浪费。
+
+存储相同的数据，不同的列类型 所占用的空间和效率是不一样的！！！
+
+*int 默认是有符号的！！！
+
+zerofill就必须是unsigned的！！！
+
+float(M,D) 有精度损失
+decimal(M,D) 准确 是一个变长类型，存放的数据越大，占用的空间就越大！
+其中M表示总位数，D表示小数部分。
+
+字符串型列：
+char()和varchar()
+分别表示定长和变长字符串
+char的效率比varchar快，计算机可以很方便的计算出来。
+
+对于char，不论够不够长度，都会占用指定的长度。对于长度不够的，会以空格填充！！！
+
+varchar(32)这里的32是字符的个数，转换为长度（字节）就是根据字符集的对应关系。
+对于varchar，他是如何知道读到哪里开始，哪里停止呢？
+答：其实是，varchar类型的前面有1个字节专门用来存取后面字符的长度，也就是varchar有一个前缀。
+
+定长的字符char可以达到空间利用的100%，但是varchar永远小于100%，因为它始终有1-2字节是额外用来记录前缀的！！！
+
+对于char，读取的时候，连同空格一起读取，取出的时候会去除右边的空格！！！
+也就是说，用char，及时存了空格，在取出的时候，也是没有空格的。
+
+blob：二进制0-255都有可能出现
+blob可以防止字符集的问题导致信息丢失。
+
+timestamp:时间戳 他的显示效果是和datatime是一样的。
+默认：CURRENT_TIMESTAMP表示当前的时间。
+
+建表的优化意识：
+
+修改表的列：
+把新列加在最前面，可以使用first
+alter table tbname add pid int not null default 0 first;
+
+删除列：
+alter table drop 列名;
+
+修改列：
+alter table 表明 列名 列属性;
+
+修改列名与列属性：
+alter table 表明 change 旧列名 新列名 新列属性;
+
+一定要把数据库提到相当重要的层面上来！！！
+
+如果列类型改变了，导致数据存不下了，怎么办？
+答：如果不匹配数据将会丢失，如果在mysql的strict模式下，修改不了！！
+
+查询表达式详解：
+案例表：test.goods
+
+1. id in(4,11)
+
+2. price between 100 and 400;
+
+3. 一定要把列看成是变量，是可以用来进行运算的！！！
+
+exists型子查询
+is null ; is not null
+
+
+
+
+
+
+
+
+
+
+学习进度：mysql：86
+
+面向对象部分
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：123
+

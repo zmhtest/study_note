@@ -1,0 +1,131 @@
+移动端测试appium
+
+netstat -ano | findstr "5037" # 查看某个服务是否开启
+
+adb devices 查看链接的设备，如果没有开启，则会尝试开启！！!
+
+手动开启服务： adb start-server
+
+停止服务： adb kill-server
+
+出现 does'nt match 的解决办法： 复制sdk的adb.exe,重命名 nox_adb.exe然后复制替换nox/bin目录下的同名文件。
+
+adb push 本地文件 远程目录
+
+adb pull 远程文件 本地路径
+
+adb shell 进入shell界面 exit 退出当前shell
+
+# 查看apk包的详细信息
+D:\Appautotest>aapt dump badging zuoyebang.apk | findstr "launchable-activity"
+
+launchable-activity: name='com.baidu.homework.activity.init.InitActivity'  label='' icon=''
+
+查看某个软件的包名和启动名：
+首先打开该软件，然后命令行运行
+
+adb shell dumpsys window windows | findstr "mFocusedApp"
+ mFocusedApp=AppWindowToken{5b2534b token=Token{197b5c1a ActivityRecord{278dac5 u0 com.baidu.homework/.activity.index.IndexActivity t14}}}
+
+字符的转换：
+解码的最终格式为 Unicode ，方法 decode()
+所以是不需要指定的，只需要写原来的编码即可
+
+由 Unicode 到 其他编码是 编码 encode 
+
+str('ccc','utf8') 将 utf8格式的ccc转成字符串
+
+安卓手机只认识 base64 编码 
+
+driver.page_source 当前页面其实就是一个xml文档
+
+# driver.find_element_by_id('com.android.settings:id/search').click() # 只找第一个id的
+
+time.sleep(3)
+
+# driver.find_element_by_class_name('android.widget.ImageButton').click()
+
+driver.find_element_by_xpath('')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+如果是我，我肯定会 愤怒，自责，消沉，绝望
+
+
+
+
+
+
+
+
+
+
+
+
+

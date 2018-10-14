@@ -1,0 +1,223 @@
+燕十八传世经典系列
+
+第一部：
+
+html和css部分
+
+重点知识回顾练习
+
+margin实现水平居中,margin:0px auto;这两个参数分别表示竖直方向和水平方向，auto表示可以按照父元素来进行自动适应居中，所以在开发的时候通常设置一个大的container来包裹各个div，设置container的style:'margin:0 auto' 即可实现全部元素的居中
+
+	#container{
+			width: 1000px;/*水平部分的宽度必须要设置的，而且要等于网页设计的最大宽度
+			margin: 0 auto;
+	}
+
+对于存在父子关系的两个div，如果只设置了width、height的其中一个属性，那么，父div的大小由子div决定，子div如果没有设置相关属性，就会按照父div的属性
+
+需要特别注意的是：width height是指可以存放内容的空间，而不是整个盒子的空间，padding和border是在width height之上额外加上去的，在设置背景时，背景是会覆盖到padding
+
+什么时候用清除浮动：当普通div被浮动的div遮住时，就要在普通div设置clear:both来清除浮动，使这个普通div能够在浮动div的之后显示出来
+清除浮动的应用：创建一个清除浮动的div类 .cls 
+.cls{
+	width:0;
+	heith:0;
+	clear:both;
+}	
+这样在需要清浮动的地方一如这样一个div即可，清浮动的div相当于一个挡板，使新的普通div不能越过这个挡板
+
+需要记住的是：宽度是可以不写的，默认就是浏览器窗口的宽度，但是height是必须要有的！！！第三级以下的div的width和height都是要具体定义的！！！
+
+同级普通的div无论多小他都是独占一行的，除非声明浮动！！！
+
+浮动必须指明宽和高，否则无法实现并排
+
+只要是涉及一行多个的都必须用浮动才能实现
+
+第二十讲 margin重叠现象
+
+上下相邻的普通元素,也就是没有浮动的元素，上下边距margin并非简单的相加，而是取其中较大的边距值
+
+对于浮动元素是可以相加的！！！
+
+父子div也会发生margin重叠
+
+父子div，子div会覆盖父div
+
+问题：如何让一个div在另一个div中居中显示
+
+内联元素或行内元素：
+div是块元素，很霸道，只能用来布局，	用内联元素来精修
+对行内元素设置宽高，竖直方向margin，padding是没有意义的，因为他受到行高的限制
+
+块状元素，独占一行，可以设置宽高，margin，padding
+
+搜索块状和内联元素还有哪些？
+
+内联和块状的转化：
+
+转为块状：display:block;
+转为内联：display:inline; 
+隐藏：    display:none;
+
+字体的设置font：是个复合属性，书写值时必须严格按照顺序，也就是font:style weight size line-height family;这五项是要按照顺序的
+
+文本控制：
+
+text-decoration : none || underline || blink || overline || line-through 
+可以设置下划线，删除线
+
+段落缩进：text-indent : length 
+文本位置：text-align : left | right | center | justify 
+字间距：letter-spacing : normal | length 
+词间距：word-spacing : normal | length 
+设置字体颜色：color : color 
+
+第二十五课字体设置技巧
+
+黑体、微软雅黑 sans-serif无衬线，一般用于标题 宋体、新宋体serif有衬线，一般用于正文部分
+你设置的字体客户机上未必有，所以一般要设置多个字体，而且要把常用的字体放在最后，独特的字体放最前面。new times 一种西方字体
+
+总的来说就是选择一个安全的字体放在后面，在选一个大类放在最后(sans-serif serif)
+
+font-family:'微软雅黑','黑体',sans-serif;
+name : 字体名称。按优先顺序排列。以逗号隔开。如果字体名称包含空格，则应使用引号括起第二种声明方式使用所列出的字体序列名称。
+
+	sans-serif是一类无衬线字体，浏览器会根据这个选一个无衬线类型的字体进行显示
+
+第二十六课设置背景图片
+
+background:复合属性
+background : background-color || background-image || background-repeat || background-attachment || background-position 
+如果同时设置了背景色和背景图片，那么显示的是图片。为什么有的网站同时设置背景图和背景图片呢？
+	当背景图足够大时，只显示背景图，如果背景图较小，背景图覆盖不到的部分会显示背景色
+
+ background-image :url(图片地址，无需加引号,加引号也可以)
+ 在css中只有: ; 空格
+设置在不同方向上重复，也就是显示多张图片,默认是repeat的
+ background-repeat:repeat-x;
+ background-repeat:repeat-y;
+ 只显示一张图片
+ background-repeat:no-repeat;
+
+ 作用是将一副图片固定住，不随滚动条移动
+ background-attachment:fixed;
+
+ 设置背景图片位置：
+ background-position:position;
+ background-position:position position;
+position  :　 top | center | bottom | left | center | right 
+这里的position可以是以上任意一个或者两个的组合，可以表示九种方位
+
+如何把一张大图放在一个小的div中呢？
+	默认情况下是图片和div的左上角对齐的，
+在计算机中，左上角为原点，向下和向右分别表示y轴和x轴的正方向
+
+可以通过移动图片的位置来实现在div中显示部分图片内容 所以我们可以通过制作一张包含很多小图标的大图作为不同div的背景图，通过background-position属性，让不同的div显示不同的图片内容，从而减少图片的数量，有利于网络传播
+
+background-position:30px 50px;
+
+第三十一课css的初始化
+
+原因：同样的代码在不同的浏览器显示的效果可能不一样，不同的浏览器对margin border font-size的解释不一样，所以我们需要设置初始的css来强制浏览器显示一样的效果
+
+a标签是行内元素，转为块元素之后可以设置宽高，当行高等于父元素块的高度时就是文字竖直方向居中，color是设置字体颜色
+
+具体多宽一定要用尺子量一下
+
+#nav a{
+		display: block;
+		width: 90px;
+		height: 50px;
+		font-size: 15px;
+		line-height: 50px;
+		color:white;
+		text-align: center;
+		
+	}
+
+要根据背景图片大小来设置div大小
+
+	img{
+		display: inline;//图片转为行内元素，只在图片大小范围有效
+		width: 281px;//这里是图片的真实高度
+		height:82;
+	}
+
+图片到底是块状还是行内元素呢？
+	img的特点：默认可以设置宽高，一个图片的时候独占一行，多张图片在一行显示
+所以图片是特殊的内联元素，叫替换元素，他是用图片的实际大小带代替这个img的大小：有margin值，但是不可以设置，可以设置宽和高，转为block即可去掉margin，border
+
+	一般情况下，行内元素不换行，块状元素换行
+
+	两个块状元素上下是紧紧贴在一起的	
+	#test,#test1{//这是复合选择器
+			width: 100px;
+			height: 100px;
+			border: 1px solid red;
+	}
+	<div id="test"></div>
+	<div id="test1"></div>
+
+无论img的display为block还是inline都是可以设置宽高的，转换之后必须要设置相应的宽高，否则布局被打乱
+
+特别注意：背景是可以padding部分的，所以可以用padding来设置“白边” 
+
+给列表前面添加背景小图标
+.four li{
+		background: url(./images/service_intro_bg.gif) no-repeat ;/*no-repeat说明只有一张图片，只能是在最开头了！！！如果看不到小黑点，说明position没有调好*/
+		padding-left:10px;/*使用padding来挤文字，同时背景有可以铺到padding处*/
+
+}
+
+a是行内元素，要想设置a的width height必须用display：block;进行转化
+
+但是ul li 都是块元素，可以直接设置宽高
+
+对于浮动div如果里面有内容，可以不设置高height，让内容将其撑开
+
+块状元素，不说宽度，默认占满父元素宽度100%
+
+字体大小：用px来表示的是绝对大小，用em表示的是相对大小，是父元素的几倍
+
+相对定位和绝对定位：
+
+position:relative | absolute;
+left:xxpx;top:xxpx;
+
+相对定位是指：相对于正常位置偏移的距离,正常位置就是：没有任何申明position时的位置
+
+
+p标签是块元素，默认有margin和padd，需要初始化
+
+		position: relative;
+		left: 20px;
+		top:30px;
+		往下往右为正
+
+绝对定位是指：相对于父元素的top、right、bottom、left来定位，相当于直升飞机飞到父元素的各个不同位置上,他并不会占用父元素本身的位置
+z-index:3;决定显示那个div,显示z-index 值大的div
+
+使用绝对定位要求父元素必须要有position属性 position:relative;即可
+
+相对定位是不影响其他元素位置的！！！
+
+溢出overflow:hidden auto scroll 三种属性值，其中用的较多的是auto
+分别表示溢出部分隐藏，自动适应，加滚动条，注意这个属性是加在父元素中的
+
+建议在clear : both的div中添加 overflow:hidden;可以防止老式浏览区不兼容
+
+框架集：就是一个网页中放多个网页，其中这些网页就是放在框架中的，多用于cms内容管理系统，结合超链接的target属性  target:框架名，要选择合适的dtd
+
+在html5中已经启用框架，因为搜索引擎对他支持不好
+
+伪类：就是元素的某个状态，比如超链接的四个状态，link visited hover active
+一定要按照lvha的顺序来写
+
+锚点：就是设置一个快速链接到本页面指定模块的方式，使用a标签来实现，先订一个桩<a name='maodian'></a> 在需要导航部分的连接 href='http://xxx.com#maodian',也可以在地址栏直接输入来访问打了锚点的部分
+
+
+
+
+
+

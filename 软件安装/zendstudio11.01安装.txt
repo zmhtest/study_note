@@ -1,0 +1,44 @@
+zend stadio 11 和破解文件 下载地址：
+
+http://pan.baidu.com/s/1gdfGMKN
+
+第一步：安装 ZendStudio-11.0.2-win32.win32.x86.xdowns.com.msi
+
+第二步：把ZendStudio-11.0.2破解文件 com.zend.verifier_11.0.2.v20140926-0202.jar
+复制到你安装ZendStudio-11.0.2的plugins目录下，覆盖同名文件。
+
+第三步：启动Zend Studio,复制如下注册码License key,粘贴(粘贴快捷键是ctrl+v)到注册框中复制注册码：
+
+32bf7df8becad7e1a9a4635999bcdeb01f70a53e57e57f0111d3d57004d439b8197a87258021495ba85003bf633b099f7e6de979d513e5f77e3b5f1683c3804c55564544525a553a465453494349573b30302f30302f303030303b31312e303b3030303b313b30
+提示：如果第二步部替换了破解文件第三步验证码还是不正确时，关闭zend stadio重新打开
+
+
+步骤1 2 同上
+zendstudio12.51注册码：
+2E5F7AD2F086FEE37A6C39EB34EAD09C7F1865CF79112EBF0C634A8035D1067C06874A3DB68973BDCAF33878DA816554F3B84E210CFFC4A92A23B82A0D90B9B4333837316163666131325445414D414D504544623336653564333B30302F30302F303030303B31322E303B3030303B333B30
+
+汉化：
+点击“Add...”，再随便填写一个“Name”,并将网址“http://download.eclipse.org/technology/babel/update-site/R0.13.0/luna”复制到“locatior”一栏中，最后点击“OK”。
+此时正在加载插件，需要等待几分钟，等加载完并出现语言包后，找到“Babel Language Packs in Chinese(Simplified)”一栏打勾。(Simplified)是简体中文，(Traditional)是繁体中文。然后一路点击 “next”。
+
+可以在help的welcome页面方便搜索到你想要的应用插件
+比如主体 theme-color
+
+如果安装插件不成功，可能是缺少响应的依赖插件，或者插件版本与zendstudio的版本不兼容
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,356 @@
+全栈实践-es6、angular、nodejs、koa
+
+AngularJS1.x
+
+angular的三要素：
+1.一切都是数据
+2.数据从哪里来
+3.数据要绑定到哪里去
+
+	<div ng-app>
+		<input type="text" ng-model='a'>
+		<div >结果是：{{a*b}}</div>
+		<div ng-bind="a"></div> //弃用！
+	</div
+
+上述代码即可实现数据的双向绑定。
+
+ng-app 规定angular的管理范围
+
+ng-model 绑定数据源
+
+ng-bind 将事件源绑定到此处，但是他有一个缺点：会替换掉标签内原来的所有内容！！！
+
+解决的方法是：标签内使用模板：{{a*b}}
+
+--------------------------------------------
+
+如果用原生的方法来实现，需要做很多的重复劳动：
+获取元素、添加事件、赋值
+
+	<div >
+		<input type="text" id="text1">
+		<div id="content"></div>
+	</div>
+
+	<script>
+		var input = document.querySelector('#text1');
+		var content = document.querySelector('#content');
+
+		input.oninput = ()=>{
+			content.innerHTML = input.value;
+		}
+	</script>
+注意：oninput是html5提供的一个方法。
+
+--------------------------------------------
+
+angular和原生js不互通！
+
+	<div >
+		<input type="text" ng-model='a'>
+		<input type="button" ng-click='a=11' value="按钮">
+	</div>
+	点击按钮，将a=11，也就是输入框显示11
+
+--------------------------------------------
+
+	<div >
+		<input type="button" ng-click='show=!show' value="button">
+		<div style="width:100px;height: 100px;background: green" ng-show="show"></div>
+	</div>
+
+	ng-show true时显示，false隐藏
+
+--------------------------------------------
+
+框架和库的区别：
+
+库：人用库
+方便程序员
+
+框架：框架在用人
+限制程序员，使所有的程序员都遵循一定的标准规范
+
+--------------------------------------------
+
+设置初始值：解决出现NaN
+	<div ng-init='a=0;b=0'> //这里一定是用分号隔开
+		<input type="text" ng-model='a'>
+		<input type="text" ng-model='b'>
+		<div>{{a*b}}</div>
+	</div>
+
+--------------------------------------------
+
+循环遍历
+
+	<div ng-init='arr=[11,22,33]'>
+		<ul>
+			<li ng-repeat="item in arr">{{item}}</li>
+		</ul>
+	</div>
+------------------------
+	<div ng-init='arr=[11,22,33]'> //数组里面如果哦是一个数组呢？
+		<input type="text" ng-model='num'>
+		<input type="button" value="button" ng-click='arr.push(num)'>
+		<ul>
+			<li ng-repeat="item in arr">{{item}}</li>
+		</ul>
+	</div>
+	点击按钮，往数组添加文本框输入的内容，只要将数据添加到数组，angular将会自动呈现在列表中！
+
+--------------------------------------------
+
+angular如何做数据交互呢？
+
+所有的数据机交互都要放在服务器环境里面！！
+
+控制器：专门处理业务逻辑
+
+使用控制器可以实现angular和原生js之间的数据交互。
+
+ng-app 的核心作用是引入angular模块。
+
+创建模块：
+	var module = angular.module('main_mod',[引入其他模块]);
+
+	参数1：模块名
+	参数2：模块依赖
+
+	<script>
+		var mod = angular.module('main_mod',[]);
+
+		//定义一个控制器，参数分别是：控制器名字，处理函数。
+		mod.controller('contr1',($scope)=>{
+
+		//angular中所有的数据都绑定在$scope上
+			$scope.a = 12;
+			$scope.b = 10;
+
+			//要想在angular中使用原生的函数，就是把原生的函数绑在$scope上。
+			$scope.parseInt = str=>{
+				return parseInt(str);
+			}
+		});
+	</script>
+
+<!-- ng-controlelr定义控制器的接管范围 -->
+<body ng-controller='contr1'>
+	<div ng-init='arr=[11,22,33]'>
+		<input type="text" ng-model='a'>
+		<input type="text" ng-model='b'>
+		<div>
+			结果是：{{parseInt(a)+parseInt(b)}}
+		</div>
+	</div>
+</body>	
+
+------------------------
+
+	<script>
+		var mod = angular.module('main_mod',[]);
+
+		//定义一个控制器，参数分别是：控制器名字，处理函数。
+		mod.controller('contr1',($scope)=>{
+	
+			$scope.alert = str=>{
+				window.alert(str);
+			}
+		});
+	</script>
+</head>
+<body ng-controller='contr1'>
+	<div'>
+		<input type="text" ng-model='a'>
+		<input type="button" value="按钮" ng-click='alert(a)'>
+	</div>
+</body>
+
+--------------------------------------------
+
+数据的双向绑定：
+
+	<div>
+		<input type="text" ng-model='a'>
+		<input type="text" ng-model='a'>
+	</div>
+
+双向：可进可出
+输入框：既可以输入，也可以输出
+
+所有的数据都是双向的： 数据<>UI
+
+通过控制器改变数据，UI上显示变化；
+在UI上的输入框改变数据，$scop上的数据也会发生变化。
+
+--------------------------------------------
+
+依赖注入：
+
+	函数的参数其实是由调用者决定的，传多少个实参进去就是多少个。而不是由函数的形参决定的。
+
+依赖反转：就是函数的参数由函数本身来决定，不再是由调用者决定。
+
+验证方法：alert(arguments.length);
+	
+	angular中函数要什么参数，就有什么参数。
+	
+	<script>
+		var mod = angular.module('test_mod',[]);
+
+		mod.controller('ctrl',function($scope,$http){
+			alert(arguments.length);
+		});
+	</script>
+
+	注意：箭头函数没有arguments属性。
+
+--------------------------------------------
+
+使用ajax异步请求数据：
+
+	<script>
+		var mod = angular.module('test_mod',[]);
+
+		mod.controller('ctrl',($scope,$http)=>{
+			$http.get('user.txt').success(res=> {
+				$scope.arr = res;
+			}).error(err=>{
+				console.log('错误');
+			});
+		});
+	</script>
+</head>
+<body ng-controller='ctrl'>
+	<div>
+		<ul>
+			<li ng-repeat="item in arr">姓名：{{item.name}} 年龄：{{item.age}}</li>
+		</ul>
+	</div>
+</body>
+
+--------------------------------------------
+
+依赖注入实现原理：
+
+<script>
+
+	var $scope = {a:11,b:22,c:33,q:12,w:23,d:55};
+
+	function test(a,  b) {
+		console.log(arguments);
+	}
+
+	//1.分析函数需要什么参数
+	var str = test.toString();
+	//结果是：这个函数的字符串形式，然后通过字符串操作，知道需要哪几个参数即可。
+
+	str = str.split('{')[0].match(/\(.*\)/)[0].replace(/\s+/g,'');
+
+	str = str.substring(1,str.length-1).split(',');
+
+	//2.在 $scope中找到需要的参数的值
+	var args = [];
+	for(let i in str){
+
+		args[i] = $scope[str[i]];
+
+	}
+
+	程序由上往下执行，函数在没有被调用时不会执行，
+	1.通过 test.toStriing() 拿到整个函数的字符串形式，
+	2.通过一系列的字符串、数组操作，分析出函数声明的形参
+	3.循环遍历形参数组，从 $scope 里面取出实参的值。这里是否可以用解构呢？
+
+
+	//3、调用函数
+	test.call(null,args);
+
+</script>
+
+--------------------------------------------
+
+数据双向绑定实现原理：
+
+1. UI-->模型
+
+<script>
+
+	window.onload = ()=>{	
+		var input = document.querySelector('#input');
+		var a ;
+		input.oninput = ()=>{
+
+			a = input.value;
+			console.log(a);
+		}
+	}
+
+</script>
+<body>
+	<input type="text" id="input">
+</body>
+ 
+------------------------
+	
+2. model --> ui
+	
+	难点：如何知道数据发生了变化呢？
+	又是如何确定要将变化的数据添加到那个UI中去呢？
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

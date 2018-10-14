@@ -1,0 +1,407 @@
+目前属于web2.0时代nosql产品异常火热
+nosql产品的特点：
+一般不使用严格的表结构
+数据的查询不适用sql语句
+
+redis底层是用c语言写的，是key/value存储结构，数据是从内存中获取的，同时周期性把数据存储到硬盘，以保护数据。互联网时代数据是无价的！！！
+
+redis既可以存储也可以缓存
+
+卸载系统服务：sc delete 服务名称
+
+在windows平台安装redis，参考https://blog.csdn.net/baidu_15060875/article/details/54970663
+
+现在官网以及没有下载地址，只能在github上下载，https://github.com/MSOpenTech/redis/tags
+
+	1.解压、设置环境变量
+	2.安装到系统服务：
+	redis-server --service-install redis.windows-service.conf --loglevel verbose
+	3.连接：redis-cli
+	
+常用的redis服务命令。
+
+	卸载服务：redis-server --service-uninstall
+
+	开启服务：redis-server --service-start
+
+	停止服务：redis-server --service-stop
+
+使用命令行的方式启动系统服务：net stop/start 服务名
+
+	PS C:\WINDOWS\system32> net start redis
+	请求的服务已经启动。
+
+	请键入 NET HELPMSG 2182 以获得更多的帮助。
+
+	PS C:\WINDOWS\system32> redis-cli
+	127.0.0.1:6379>
+	PS C:\WINDOWS\system32> net stop redis
+	Redis 服务已成功停止。
+	
+燕十八Redis教程
+
+Redis和memcached相比：
+1.Redis可以用作存储storge，而memcached只能用作缓存cache
+2.丰富的数据结构，有字符串，链表，哈希结构，集合，而memcached只有字符串一种类型。
+
+安装文件说明：
+redis-benchmark 性能测试工具
+redis-check-aof 检查aof日志工具
+
+
+Redis的安装
+
+解压、进入到解压目录，运行make
+
+进入src目录，将 Redis-server redis-cli redis.conf 复制到 /usr/local/redis目录下
+
+修改 redis.conf 中的 daemonize yes
+
+redis-cli 的基本使用：
+
+set key value
+
+get key
+
+*匹配所有
+keys *
+
+？一个占位符
+keys na?e
+
+[]中的任意一个
+keys nam[eadf]
+
+随机的键：randomkey
+
+判断数据类型：type key
+
+ 判断键是否存在：exists key
+返回 0 或 1
+
+删除键：del key  
+
+改键名：rename oldkey newkey
+renamenx site search 只有键名新键名不存在时才改！！！
+
+database 16 默认开启16个数据库 默认在0号数据库
+选库：select index
+
+设置缓存有效期: expire key value 
+expire key seconds
+pexpire key 毫秒数，设置生命周期
+pttl key 以毫秒数返回生命周期
+
+查询数据的有效期：ttl key 
+-1表示永久有效
+-2表示过期了
+
+persist key 把key置为永久有效
+
+清空数据库：flushdb
+
+字符串的操作：
+
+set name zmh px 10000 毫秒
+set name zmh ex 10 		秒
+
+nx表示只有key不存在时才设置
+set name zyx nx
+
+一次设置多个键值对
+ mset a aman b bold c controller d demo
+
+ 获取多个键值对：
+ mget key1 key2 key3 
+
+往a的值的末尾添加hello 
+append a hello
+
+偏移下标，并替换
+setrange offset key 2 ?
+
+127.0.0.1:6379> setrange hello 2 ?
+(integer) 5
+127.0.0.1:6379> get hello
+"he?lo"
+
+获取字符串的部分长度：
+127.0.0.1:6379> getrange hello 0 3
+"he?l"
+字符串的索引从后往前 -1 开始
+
+getset status 1
+返回上一次的值，并设置新值
+
+适合做秒杀功能：
+set age 100
+incr age
+decr age
+
+设置自定义步长
+incrby age 2
+decrby age 3
+
+incrbyfloat age 0.5
+decrbyfloat age 0.5
+
+setbit char 2 1 转小写
+setbit char 2 0 转大写
+
+list的操作：
+
+lpush key value 左边添加一个
+rpush key value 右边添加一个
+
+可以一次push多个值
+
+lpop key 从左弹出一个
+rpop key 从右弹出一个
+
+取出列表的一个范围的值：下标从0开始，后面从-1开始
+lrange list index
+lrange list 0 -1
+
+删除列表元素：
+lrem list count value
+count 为删除的元素个数，count>0为从到右
+count<0为从右到左
+
+列表的剪切：
+ltrim list 0 3 从0开始截取到3，共截取4个
+
+lindex list index 取出下标为index的元素
+
+llen list 查看列表的长度
+
+从pivot的前面或者后面插入value
+linsert list before|after pivot value 
+如果没找到pivot则不会插入成功
+
+如果列表中有多个pivot，则会在最先找到的pivot处插入value
+
+rpoplpush list1 list2
+将从list1中pop出一个元素，并插入list2左边
+
+等待输入，直到有用户输入，然后弹出
+brpop seconds
+blpop seconds
+
+位图法统计活跃用户
+
+集合set
+
+添加元素：
+sadd key value1 value2
+
+查看所有元素：
+smembers key 
+
+查看随机一个元素：
+srandmember key
+
+删除元素：
+srem key value1 value2
+返回删除元素的个数
+
+随机弹出一个元素：
+spop key 
+
+判断元素是否在集合中：
+sismember key value
+
+查看集合有几个元素
+scard key
+
+将gender集合中的male移动到jihe
+smove gender jihe male
+
+求两个集合的交集
+sinter gender jihe
+
+保存交集到newjihe
+SINTERSTORE newjihe gender jihe
+
+差集
+A-B表示 A减去A、B的交集，也就是A中有而B中没有的元素
+SDIFF gender jihe
+
+求并集：
+SUNION gender jihe
+
+有序集合
+
+添加元素：
+ zadd age 8 zxz 6 zyx 23 zmh 28 zmq
+
+根据排名取4个
+zrange age 0 3
+
+根据分数取：
+zrangebyscore age 8 30
+
+偏移1个，取两个
+zrangebyscore age 5 25 limit 1 2
+
+同时取出分数：
+zrange age 0 2 withscores
+
+同时取出分数：
+ZRANGEBYSCORE age 10 30 withscores
+
+查出有序列表的所有元素
+zrange age 0 -1 
+
+返回zxz的排名
+zrank age zxz
+
+降序排列
+zrevrank age zxz
+
+根据分数删除
+zremrangebyscore age 5 10
+
+根据排名来删除
+zremrangebyrank age 0 1
+
+直接删除指定元素
+zrem age zyx
+
+统计集合元素个数
+zcard age
+
+统计score范围内的元素个数：
+zcount age 8 24
+
+--------------------------------
+
+127.0.0.1:6379> zadd zmh 2 cat 3 dog 5 pig
+(integer) 3
+127.0.0.1:6379> zadd zxz 3 cat 6 dog 12 pig
+(integer) 3
+
+zinterstore new 2 zmh zxz weights 1 2 aggregate sum
+
+127.0.0.1:6379> zrange new 0 -1 withscores
+1) "cat"
+2) "8"
+3) "dog"
+4) "15"
+5) "pig"
+6) "29
+
+hash数据类型：
+
+127.0.0.1:6379> hset user1 name zmh
+(integer) 1
+127.0.0.1:6379> hset user1 age 23
+(integer) 1
+127.0.0.1:6379> hset user1 height 174
+(integer) 1
+127.0.0.1:6379> hget user1 name
+"zmh"
+127.0.0.1:6379> hgetall user1
+1) "name"
+2) "zmh"
+3) "age"
+4) "23"
+5) "height"
+6) "174"
+
+一次设置多个：
+127.0.0.1:6379> hmset user2 name zyx age 6 sex male weight 37 height 100
+127.0.0.1:6379> hgetall user2
+ 1) "name"
+ 2) "zyx"
+ 3) "age"
+ 4) "6"
+ 5) "sex"
+ 6) "male"
+ 7) "weight"
+ 8) "37"
+ 9) "height"
+10) "100
+
+127.0.0.1:6379> hmget user2 name weight
+1) "zyx"
+2) "37"
+
+删除一个值：
+127.0.0.1:6379> hdel user2 name
+(integer) 1
+
+查看有几个域
+127.0.0.1:6379> hlen user2
+(integer) 4
+
+判断是否有某个key
+127.0.0.1:6379> hexists user2 height
+(integer) 1
+
+增加键值：
+127.0.0.1:6379> hincrby user2 age 1
+(integer) 7
+
+获取所有键
+127.0.0.1:6379> hkeys user2
+1) "age"
+2) "sex"
+3) "weight"
+4) "height"
+
+获取所有值
+127.0.0.1:6379> hvals user2
+1) "10"
+2) "male"
+3) "37"
+4) "100"
+
+redis中的事务：
+127.0.0.1:6379> multi
+OK
+127.0.0.1:6379> incrby zxz 1000
+QUEUED
+127.0.0.1:6379> decrby zmh 100
+QUEUED
+127.0.0.1:6379> exec
+1) (integer) 1300
+2) (integer) 400
+中间有任何一步出错都会取消所有操作
+
+但是如果语法没错，适用对象有错，则会跳过该语句，并不会全部取消，所以需要我们自己来回滚（discard)
+
+持久化：
+
+save 900 1
+save 300 10
+save 60 10000
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：第10节

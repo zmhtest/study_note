@@ -1,0 +1,7 @@
+一.备份和恢复数据库
+1.使用PHPMyAdmin工具
+2.使用命令行中的mysqldum命令
+备份
+mysqldump --user=root --password="" bitnami_wordpress > bitnami_wordpress.sql
+恢复
+mysql --user=root --password="" --database=myblog < bitnami_wordpress.sql

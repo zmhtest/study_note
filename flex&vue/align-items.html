@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>align-items</title>
+	<style>
+
+		/*初始化代码*/
+		*{
+			margin:0;
+			padding: 0;
+			list-style:none;
+		}
+		.container{
+			display: flex;
+
+			/*设置主轴方向 换行*/
+			flex-flow:row wrap;
+
+			/*设置项目在交叉轴上的排列方式*/
+			/*align-items: flex-start;*/
+			/*align-items: flex-end;*/
+			/*align-items: center;*/
+			align-items: baseline;
+			
+			/*设置项目在主轴方向上的排列*/
+			/*justify-content: center;*/
+			/*justify-content: space-around;*/
+			/*justify-content: space-between;*/
+			
+			width: 300px;
+			height: 500px;
+			border: 1px solid red;
+			background: gray;
+			margin: 20px auto;
+		}
+
+		
+		.item{
+			width: 50px;
+			flex:0 1 auto;
+			/*height: 50px;*/
+			background: #ccc;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="item" >1</div>
+		<div class="item" >2</div>
+		<div class="item" >3</div>
+	
+	</div>
+</body>
+</html>

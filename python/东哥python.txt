@@ -1,0 +1,558 @@
+笔记
+
+python2和Python3共存时使用pip:
+	python3 -m  pip  install  aiohttp
+
+拆包
+def test(a,b,c=33,*args,**kwargs):#在定义的时候 *,**用来表示后面的变量有特殊功能
+    print(a)
+    print(b)
+    print(c)
+    print(args)
+    print(kwargs)
+
+
+#test(11,22,33,44,55,66,77,task=99,done=89)
+
+A = (44,55,66)
+B = {"name":"laowang","age":18}
+
+test(11,22,33,*A,**B)#在实参中*,**表示对元祖/字典进行拆包
+
+不可变类型数据：
+	数字 字符串 元祖 
+	在Python中所有的变量存的都是引用，当给一个变量重新赋值，本质上是将这个变量标签指向一个新的数据。
+
+	In [124]: a=10
+
+	In [125]: b=a
+
+	In [126]: id(a)
+	Out[126]: 1953322048
+
+	In [129]: id(b)
+	Out[129]: 1953322048
+
+	In [130]: c=10
+	In [131]: id(c)
+	Out[131]: 1953322048
+	由此可见，只要值（或者说数据）是一致的，那么这些变量都指向这个数据。
+
+	字符串是不可变的：
+		In [137]: str1="zmh"
+		In [138]: str1[0]="Z"
+		报错：TypeError: 'str' object does not support item assignment
+
+	元祖不可变：
+		TypeError: 'tuple' object does not support item assignment
+
+	能不能改变，往往是通过看能够通过下标的方式进行改值。
+		
+可变数据类型：
+	列表 字典 只有这两种！！！
+	可以根据下标进行改值
+
+像 字符串 数字 元祖 这些不可变类型都是可以当做字典的 key 而不会报错
+
+	In [143]: dict = {"name":'zmh',111:111,(1,2):"1 2"}
+
+递归 ：其实是两个过程 递的过程和归的过程 
+	当其中的一个函数调用结束，程序回到调用处，层层往上跳，最终结束函数的执行
+
+	def jiecheng(num):
+    if num > 1:
+        return num * jiecheng(num-1)
+    else:
+        return num # num=1的时候
+
+	print(jiecheng(4))
+
+	函数是如何知道调用结束后回到函数调用处的呢？
+	答：每次函数调用，都会往内存里存放一些数据，标记这个函数，所以，如果是无限调用函数，内存会爆炸！！！
+
+	递归陷阱：一定要有函数退出的条件，否则进入函数的无限调用
+
+通过 return 元祖
+或者 return 列表 
+可以实现一个函数返回多个值 
+	def jisuan(a, b):
+	    he = a + b
+	    ji = a * b
+	    # return he, ji # 返回元祖 有无括号都可以
+	    return [he, ji] # 返回列表
+	print(jisuan(2,3)) 
+
+匿名函数：
+	使用匿名函数实现字典列表的排序
+
+	infos = [{"name":"xiaoming","age":20}, {"name":"minghao","age":23}, {"name":"lulu","age":24}]
+
+	infos.sort(key=lambda x:x["age"])
+	print(infos)
+
+	x 表示参数      这里表示列表中的一个元素（字典）
+	：后的是返回值 
+	key 根据key进行排序，而key又是这个匿名函数的返回值
+
+匿名函数当做实参：
+	def count(a,b,func):
+		result = func(a,b)
+		return result
+
+	print(count(10,20,lambda x,y:x*y))
+
+理解Python是一门动态语言：
+	程序写完后并不知道具体要实现什么功能，只有在运行的时候才知道
+
+Python3中input() 函数的返回结果是字符串，如果想转为表达式，需要用 eval() 函数进行处理
+
+	def fun1(a,b,func):
+    return func(a, b)
+
+	fun2 = eval(input("请输入一个匿名函数："))
+	print(fun1(2,3,fun2))
+
+文本文件和二进制文件的区别：
+	在磁盘中，两者存放的都是二进制，但在读取时，文本文件有个转换的过程，转换成我们认识的文字，如果是图片，视频等二进制则不经过转换，直接读取！！！
+
+文件操作：
+	f = open("a.txt",'r')
+	f.read() # 读取文件的所有内容
+	f.read(n) # 从文件当前指针位置读取n个字符，指针下移
+
+	f.close() # 有时候写入数据的时候,数据可能还在内存并没有写到磁盘中,当调用了该函数,一定会写入到磁盘
+
+大文件读取:
+	f1 = open("oldfile.txt", "r")
+	f2 = open("newfile.txt", 'w')
+
+	# print(f.readlines()) # 返回一个列表 列表的元素为每一行
+	# print(f.readline()) # 一次读取一行 指针下移一行
+	# print(f.readline())
+
+	while 1:
+	    content = f1.read(10)
+
+	    if len(content) == 0:
+	        break # 一直循环读取,每次读取1024字节,当读到最后返回空,长度为0,退出循环
+	    
+	    f2.write(content)
+
+	f1.close()
+	f2.close()
+
+文件的定位读写:
+
+	seek(offset, from)有2个参数
+
+	offset:偏移量
+	from:方向
+	0:表示文件开头
+	1:表示当前位置
+	2:表示文件末尾
+
+	f.seek(0,0) 将指针放回文本开头
+
+	f.tell() # 返回当前指针的位置
+
+	把位置设置为：离文件末尾，3字节处
+	 f.seek(-3,2) 负数表示往前偏移 Python3不支持负数
+
+文件操作:重命名文件  删除文件 
+
+	import os
+
+    os.rename("毕业论文.txt", "毕业论文-最终版.txt")
+
+    os.remove("毕业论文.txt")
+
+    os.mkdir("张三")
+
+    os.getcwd() # 获取当前目录
+
+    os.chdir("../") # 切换目录
+
+    os.listdir("./") # 获取目录列表
+
+    os.rmdir("张三") # 删除目录
+
+案例: 实现批量修改文件名
+	思路:根据目录名读取目录下的所有文件,
+		循环遍历每一个文件,进行重命名
+
+面向对象:
+	烤地瓜案例
+
+# 需求 烤地瓜 根据烤的时间判断生熟程度
+# 有个 烤 的方法,还有 def __str__(self): 方法 打印对象的具体信息
+
+class Digua():
+    def __init__(self):
+        self.cookstr = "生的"
+        self.cooklevel = 0
+        self.zuoliao = [] # 如果是存放多个数据的,往往定义一个列表
+
+    def __str__(self):
+        # 注意这里是return 并且需要是一个字符串
+        return self.cookstr+str(self.cooklevel)+str(self.zuoliao)
+
+    def kao(self, cooktime):
+    	# 把每次烤的时间累加到对象的一个属性中
+        self.cooklevel += cooktime
+
+        if self.cooklevel > 0 and self.cooklevel < 5:
+            self.cookstr = "生的"
+        elif self.cooklevel >= 5 and self.cooklevel < 8:
+            self.cookstr = "半生不熟的"
+        elif self.cooklevel >= 8 and self.cooklevel < 10:
+            self.cookstr = "熟了的"
+        else:
+            self.cookstr = "糊了"
+
+    def addzuoliao(self, zuoliao):
+
+    	#追加佐料到地瓜对象中
+        self.zuoliao.append(zuoliao)
+
+digua = Digua()
+print(digua)
+
+digua.kao(1)
+digua.addzuoliao("盐")
+print(digua)
+
+digua.kao(6)
+digua.addzuoliao("酱油")
+print(digua)
+
+digua.kao(2)
+digua.addzuoliao("孜然")
+print(digua)
+
+digua.kao(2)
+print(digua)	
+
+--------------------------
+
+# 需求 盖一栋房子,往房子里存放家具
+
+class Home:
+    def __init__(self,new_area,new_info,new_addr):
+        self.area = new_area
+        self.info = new_info
+        self.addr = new_addr
+        self.left_area = new_area
+        self.furniture = []
+
+    def __str__(self):
+        return "房子总面积:"+str(self.area)+"\n房子信息:"+self.info+"\n地址:"+self.addr+"\n房子可用面积:"+str(self.left_area)+"\n房子中所有的家具:"+str(self.furniture)
+
+    def add_items(self,item):
+        self.left_area -= item.area
+        self.furniture.append(item.name)
+
+class Bed:
+    def __init__(self,new_name, new_area):
+        self.name = new_name
+        self.area = new_area
+
+    def __str__(self):
+        return self.name+self.area
+
+jia = Home(150,"五室一厅","广州市 天河区")
+
+chuang = Bed("富安娜",4)
+chuang2 = Bed("席梦思",3.6)
+
+jia.add_items(chuang)
+jia.add_items(chuang2)
+
+print(jia)
+
+-----------------
+
+可以通过自定义的方法来设置属性,然后在方法内部对属性属性的值进行处理,过滤掉不合法的数据.
+
+私有方法的应用:
+	把一些重要的方法(比如涉及金钱交易的)定义成私有的,然后再定义一个公有的方法(这个方法往往需要传参),根据传参的结果判断是否调用私有的方法.
+
+函数的引用计算:
+	import sys 
+	sys.getrefcount(obj) # 得出的结果比实际的多1
+
+
+
+安装:
+	python3:
+		pip install pymysql
+	python2:
+		pip install python-mysqldb
+
+python操作数据库：
+	import pymysql
+
+	# 打开数据库连接
+	db = pymysql.connect("localhost", "root", "root", "lll")
+
+	# 使用 cursor() 方法创建一个游标对象 cursor
+	cursor = db.cursor()
+
+	# 使用 execute()  方法执行 SQL 查询
+	# cursor.execute("SELECT VERSION()")
+	cursor.execute("SELECT * from teacher")
+
+	# 使用 fetchone() 方法获取单条数据.
+	data = cursor.fetchone()
+
+	print("%s " % str(data))
+
+	# 关闭数据库连接
+	db.close()
+
+传智就业班 Python操作MySQL数据库
+
+封装一个MySQL工具类
+#coding=utf-8
+import MySQLdb
+
+class MysqlHelper:
+    def __init__(self,host='localhost',port=3306,db='test2',user='root',passwd='mysql',charset='utf8'):
+        self.conn=MySQLdb.connect(host=host,port=port,db=db,user=user,passwd=passwd,charset=charset)
+
+    def insert(self,sql,params):
+        return self.__cud(sql,params)
+
+    def update(self,sql,params):
+        return self.__cud(sql,params)
+
+    def delete(self,sql,params):
+        return self.__cud(sql,params)
+
+    def __cud(self,sql,params=[]):
+        try:
+            cs1 = self.conn.cursor()
+            rows=cs1.execute(sql, params)
+            self.conn.commit()
+            cs1.close()
+            self.conn.close()
+            return rows
+        except Exception,e:
+            print e
+            self.conn.rollback()
+
+    def fetchone(self,sql,params=[]):
+        try:
+            cs1=self.conn.cursor()
+            cs1.execute(sql,params)
+            row=cs1.fetchone()
+            cs1.close()
+            self.conn.close()
+            return row
+        except Exception,e:
+            print e
+
+    def fetchall(self,sql,params):
+        try:
+            cs1=self.conn.cursor()
+            cs1.execute(sql,params)
+            rows=cs1.fetchall()
+            cs1.close()
+            self.conn.close()
+
+            return rows
+        except Exception,e:
+            print e
+
+-----------------------------
+
+私有化:	
+	class Test(object):
+    def __init__(self):
+       self.__num = 100
+
+    def setNum(self, newNum):
+        self.__num = newNum
+
+    def getNum(self):
+        return self.__num
+
+
+	t = Test()
+	#print(t.__num) #无法访问
+	#t.__num = 200 # 创建一个新的属性
+
+	print(t.getNum())
+	t.setNum(50)
+	print(t.getNum())
+
+--------------------------
+
+可以通过 dir(对象) 的方法打印这个对象的 所有属性 !!!
+
+_xx = 10
+__xxx = 100 
+像这种定义在模块中的变量,是不可以通过 from 模块 import * 这种方法是不能导入的
+
+但是可以通过 import 模块 的方法进行导入,这种方法实际上是导入了整个模块
+
+对象的私有属性之所以访问不到,是因为Python对其进行了名字重整 变成: _类名__私有属性
+	通过 对象._类名__私有属性 还是可以访问到的
+
+----------------
+
+property属性:
+	# 就是将原来需要通过调方法才能设置或者获取私有属性 改成 只需要直接设置或者获取即可自动调用设置或者获取私有属性的方法
+
+class Test(object):
+    def __init__(self):
+       self.__num = 100
+
+    def setNum(self, newNum):
+        print("setNum被調用了")
+        self.__num = newNum
+
+    def getNum(self):
+    	print("getNum被调用了")
+        return self.__num
+
+    # 注意:這個變量名,一定要和前面設置的私有屬性名相同,否則將不會調用這兩個方法!!!
+    num = property(getNum,setNum)
+
+
+t = Test()
+t.num = 200
+print(t.num)
+
+-----------------------
+class Test(object):
+    def __init__(self):
+       self.__num = 100
+
+    @property # 相当于get方法
+    def num(self):
+        print("----getter----")
+        return self.__num
+
+    @num.setter # 相当于set方法  注意:这个名字要和上面的函数名一致!!!保险起见,四个都设置成一样的名字
+    def num(self, newNum):
+        print("----setter----")
+        self.__num = newNum
+
+t = Test()
+
+t.num = 200 #相当于调用了 t.setNum(200)
+
+print(t.num) #相当于调用了 t.getNum()
+
+-----------------------
+
+
+-------------------------------
+
+Python高级部分:
+ 列表推导式:
+ 	In [1]: a = [ x for x in range(10)]
+
+	In [2]: a
+	Out[2]: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+	# 定义一个生成器
+	In [3]: b = ( x for x in range(10))
+
+	In [4]: b
+	Out[4]: <generator object <genexpr> at 0x0000029554C8BFC0>
+
+	In [5]: for temp in b:
+	   ...:     print(temp)
+
+生成器:
+	a = [x*2 for x in range(100000000)]
+	内存会崩掉 !!!
+
+	# 生成器的第一种方式
+	In [7]: b = ( x for x in range(10))
+
+	In [8]: next(b)
+	Out[8]: 0
+
+	In [9]: next(b) 如果超出范围 会报错 StopIteration
+	Out[9]: 1
+------------------
+
+def createNum():
+    a, b = 0, 1
+    for x in range(5):
+        print("--before--")
+        yield b
+        print("--after--")
+        a, b = b, a+b
+        
+# 导入模块的执行结果        
+# In [1]: from scq import *
+# 
+# In [2]: next(a)
+# --before--
+# Out[2]: 1
+# 
+# In [3]: next(a)
+# --after--
+# --before--
+# Out[3]: 1
+
+
+# 函数内部只要有yield就表示是一个生成器,不能够直接调用,需要把它放进 next() 方法的参数位置,每次取出一个!!! 先停止,然后再取值
+# a = createNum()
+
+# print(next(a))
+# print(next(a)) # 等价于 a.__next__()
+# print(next(a))
+
+
+# 利用for循环遍历生成器中的所有元素
+for x in createNum():
+    print(x)
+
+
+-------------------
+迭代对象:
+	from collection import Iterator
+
+	isinstance("abc",Iterator)
+
+生成器一定是迭代器,也就是可以被next()调用并不断返回下一个值的对象成为迭代器
+
+列表不是迭代对象,但是可以迭代,所以列表,元祖,字符串仅仅是可迭代对象,可以通过 iter() 函数进行转换
+
+闭包:
+	
+while True:
+	print("")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+进度： Python高级 迭代器

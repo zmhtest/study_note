@@ -1,0 +1,118 @@
+js高级
+
+面向对象部分：
+	
+	创建对象的三种方法：
+	1.直接创建json对象
+
+	2.通过系统的构造方法 new Object() ,然后添加相应的属性和方法
+
+	3.通过自定义的构造函数
+
+	所有的对象都是基于object对象的！！！
+
+	对象 instanceof 类 ：返回布尔值，判断这个对象是否由这个类创建的。
+	除此之外，还可以用 对象.constructor==类 根据返回值true false 判断
+
+代码：
+	<script>
+		//方法1 json对象
+		var per1 = {
+			name:"lll", //注意这里是 , 
+			age:23,
+			sex:"female",
+			sing(){
+				console.log("喵喵喵");
+			}
+		}
+		console.log(per1);
+		per1.sing();
+
+		// 方法2 调用系统的构造函数
+		var per2 = new Object(); //这里的Object首字母大写，类的首字母一般大写
+		per2.name = "zmh";
+		per2.age = 23;
+		per2.sing = function(){
+			console.log("汪汪汪");
+		}
+
+		console.log(per2);
+
+		// console.log(per1 instanceof Object);  前两种方法，并不能确定这个对象具体属于哪个类
+
+		//3.自定义构造函数 最常用的方法
+		function Person(name,age){
+			this.name = name;
+			this.age = age;
+			this.sing = function(){
+				console.log("就是爱你爱着你...");
+			}
+		}
+
+		var per3 = new Person("zmh",23);
+		console.log(per3);
+		per3.sing();
+
+		console.log(per3 instanceof Person);
+	</script>	
+
+工厂模式创建对象
+	<script>
+		function Person(name,age){
+			this.name = name;
+			this.age = age;
+			this.sing = function(){
+				console.log("就是爱你爱着你...");
+			}
+		}
+
+		/**
+		 *实例化一个对象的同时给属性赋值 
+		 *1.开辟内存空间
+		 *2.把this置为当前对象
+		 *3.设置属性和方法的值
+		 */
+		var per = new Person("zxz",8);
+
+		// 工厂模式创建对象
+		function createObject(name,age){
+			var obj = new Object();
+			obj.name = name;
+			obj.age = age;
+			obj.sing = function(){
+				console.log("我们是共产主义接班人");
+			}
+
+			/**
+			 * 因为是在函数中创建对象，所以，需要在函数运行结束后将对象
+			 * return 出去
+			 */
+			return obj; 
+		}
+
+		var per = createObject("lll",24);
+		console.log(per);
+		per.sing();
+	</script>
+	工厂模式有new，有返回值
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+进度：3

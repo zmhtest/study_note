@@ -1,0 +1,93 @@
+> 表示子标签
+
++ 表示同级标签
+
+$ 表示从1递增的数，常用来设置属性
+
+:attr 为标签添加属性
+
+* 表示标签个数
+
+.div 创建class='div'的div标签
+
+#id 创建id='id'的div标签
+
+[] 表示添加什么属性
+
+^：可以使该符号前的标签提升一行
+
+p.name 对应 <p class="name"></p>
+p[name] 	<p name=""></p>
+
+input:button 
+
+input:submit 
+
+input:reset 
+
+也就是input：type值
+
+link	<link rel="stylesheet" href="">
+
+script:src  <script src=""></script>
+
+总结：只有少部分标签可以直接使用:
+
+img		<img src="" alt="">
+
+video <video src=""></video>
+
+audio 	<audio src=""></audio>
+
+cc:ie	<!--[if IE]>
+		
+	<![endif]-->
+
+link:css 	<link rel="stylesheet" href="style.css">	
+
+link:touch 	<link rel="apple-touch-icon" href="favicon.png">
+
+link:favicon 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+
+meta:compat 	<meta http-equiv="X-UA-Compatible" content="IE=7">
+
+连续输入类和id，比如p.bar#foo
+
+中括号可以输入属性和值p[name=zmh ] <p name="zmh"></p>
+
+中括号中还可输入多个属性和值，中间只需要用空格隔开 p[name=zmh age=22] <p name="zmh" age="22"></p>
+
+还可以p[name=zmh age=22]{朱明浩}
+
+大括号可以输入标签里面的值p{hello} <p>hello</p>
+
+可以通过嵌套和括号来快速生成一些代码块，比如输入(.foo>h1)+(.bar>h2)   (.foo>h1+p+pre)+(.foo2>h2)
+
+隐式标签，就是.item在不同的环境中生成不同的标签，可以是div，span，option，li，td，tr，主要取决于它的父标签
+
+table[style=border:1px]>tr*3>.div2*3 三行三列
+
+ 定义多个带属性的元素  ul>li.item$*3
+
+css缩写：
+
+w100	width: 100px;
+
+w10p	width: 10%;
+
+@f+
+		@font-face {
+			font-family: 'FontName';
+			src: url('FileName.eot');
+			src: url('FileName.eot?#iefix') format('embedded-opentype'),
+				 url('FileName.woff') format('woff'),
+				 url('FileName.ttf') format('truetype'),
+				 url('FileName.svg#FontName') format('svg');
+			font-style: normal;
+			font-weight: normal;
+		}
+
+你还可以定制Emmet插件： 
+
+添加新缩写或更新现有缩写，可修改snippets.json文件
+	

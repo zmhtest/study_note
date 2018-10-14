@@ -1,0 +1,82 @@
+CodeIgniter框架
+
+访问方法：直接把codeIgniter源文件放在网站根目录，在浏览器访问codeIgniter这个文件夹即可访问我们的应用
+
+默认是访问index.php/welcome/index
+这是可以在routes.php文件中设置的$route['default_controller'] = 'welcome';
+
+所有的控制器都要继承 CI_Controller
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+这句话的作用是防止用户直接访问
+
+还可以在URL中直接传参 localhost/codeIgniter/index.php/Hello/sayhello/朱明浩
+是可以传递多个参数的
+
+控制器中调用视图：$this->load->view('视图文件名')
+如果是PHP文件，可以不要扩展名；如果是其他文件，必须写上完整的名称，包括扩展名
+
+可以通过数组的方式将controller中的动态数据传到view中
+
+在view中只需<?php echo $数组索引 ;?>即可输出内容
+
+  $name='朱明浩';
+  $count=2;
+  $data=array('name'=>$name,
+	        'count'=>$count
+	    );
+	$this->load->view('hello',$data);
+
+创建一个动态读取访问人数的功能
+
+@可以屏蔽单行错误，异常
+ @ $count=file_get_contents('./num.txt');
+
+ //三元运算符：如果读取到内容，把他放到$count;如果没有读取到，创建num.txt 并把他置为0
+
+	    $count=$count?$count:0;
+	    $count++;
+	    //把$count 存到本地文件中
+	    
+	    $res=fopen('./num.txt', 'w');
+	    fwrite($res, $count);
+	    fclose($res);
+
+模型的创建
+模型是一个数据库类，一个模型针对一张表
+
+连接数据库的步骤
+1.在配置文件database.php文件中设置好数据库信息
+2.创建一个表模型，function __construct(){
+	parent::__construct;
+	$this->load->database();//完成对数据库的连接
+}
+创建新的方法 调用操作数据库的函数，如$this->db->insert('表名',$arr);
+$this->db->update('表名',$arr);
+
+在控制其中，先载入表模型，然后利用表模型调用其中的方法:
+$this->load->model('模型名');
+$this->模型->模型中的方法();
+
+更新表的记录
+
+ function update_data($id,$arr) {
+    $this->db->where('id',$id);//字段名，字段值
+    $this->db->update('user',$arr);//表名，修改值的数组,这个数组可以是多个字段的数据，也就是可以部分改变记录
+        }
+删除表的记录
+      function del_data($id) {
+            $this->db->where('id',$id);
+            $this->db->delete('user');
+        }
+
+
+<IfModule authz_core_module>
+    Require all denied
+</IfModule>
+<IfModule !authz_core_module>
+    Deny from all
+</IfModule>
+
+
+学习进度3、4

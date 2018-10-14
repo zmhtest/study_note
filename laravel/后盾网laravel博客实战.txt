@@ -1,0 +1,272 @@
+laravel博客实战
+
+安装：
+	composer create-project laravel/laravel=5.2.23 blog --prefer-dist
+
+配置默认首页：
+
+	将根目录的serve.php 改名为 index.php ,把 .htaccess 拷贝到根目录
+
+安装postman的方法，下载 post.cxv文件，重命名为post.zip,解压开，打开谷歌，加载已解压的插件。
+
+这个工具可以模拟发送各种请求。
+
+laravel支持的请求类型：
+Route::post('/test',function () {
+    return 'post';
+}, '/test');
+Route::get('/test',function () {
+    return 'get';
+}, '/test');
+Route::delete('/test', function () {
+    return 'delete';
+});
+Route::patch('/test', function () {
+    return 'patch';
+});
+Route::options('/test', function () {
+    return 'options';
+});
+Route::put('/test', function () {
+    return 'put';
+});
+
+//可以接受[]内指定的路由
+Route::match(['get','post','put'],'/match', function () {
+    return 'match';
+});
+
+//laravel支持的5种路由，除了options
+Route::any('/any', function () {
+    return 'any';
+});
+
+路由参数：用{}进行包裹
+
+可选参数 {id?} 
+
+可以有多个参数，如果是多个参数，前面的参数最好是必选的，最后一个参数时可选的！！！
+
+闭包函数要适当设置默认值！！！
+
+命名路由：
+Route::get('user/profile', ['as' => 'profile', function () {
+    //
+}]);
+等价于
+Route::get('user/profile',function () {}])->name('profile');
+
+控制器路由
+Route::get('user/profile', [
+    'as' => 'profile', 'uses' => 'UserController@showProfile'
+]);
+
+路由后面可以跟 ->where(['id','[0-9]+'') 对路由的参数进行限制。
+
+//admin重复
+/*Route::any('admin/index','Admin\IndexController@index');
+Route::any('admin/login','Admin\IndexController@login');*/
+
+//路由分组前缀
+Route::group(['prefix'=>'admin'],function(){
+
+    Route::any('index','Admin\IndexController@index');
+    Route::any('login','Admin\IndexController@login');
+
+});
+
+Route::group(['prefix'=>'admin','namespace'=>'Admin'],function(){
+
+    Route::any('index','IndexController@index');
+    Route::any('login','IndexController@login');
+
+});
+
+资源路由：
+后台路由雏形：
+Route::group(['prefix'=>'admin','namespace'=>'Admin'],function(){
+
+    Route::any('index','IndexController@index');
+    Route::any('login','IndexController@login');
+    
+    Route::resource('article','ArticleController');
+
+});
+
+案例：
+测试方法：使用postman用不同的请求方式访问。体会结果！
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use Illuminate\Http\Request;
+
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
+
+class ArticleController extends Controller
+{
+    public function index(){
+        echo 'index';
+    }
+    public function store(){
+        echo 'store';
+    }
+    public function create(){
+        echo 'create';
+    }
+    public function destroy($id){
+        echo 'destroy',$id;
+    }
+    public function update(){
+        echo 'update';
+    }
+    public function show($id){
+        echo 'show',$id;
+    }
+    public function edit($id){
+        echo 'edit',$id;
+    }
+}
+
+
+
+
+
+中间件：
+session只有设置在中间件才有效
+Route::group(['middleware' => ['web']], function () {
+    Route::get('/', function () {
+
+        session(['name'=>'朱明浩']);
+        return view('welcome');
+    });
+    Route::get('/test', function () {
+
+        echo session('name');
+        return 'test';
+    });
+
+});
+
+中间件就是在请求路由之前在中间挡了一层，可以提供过滤作用
+
+创建自己的中间件：
+1.在kernel文件中：依样写一份
+
+    protected $routeMiddleware = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+
+        //我们的
+        'admin.login' => \App\Http\Middleware\AdminLogin::class,
+    ];
+
+2.使用 php artisan make:middleware AdminLogin
+生成，文件在Middleware目录下
+
+    public function handle($request, Closure $next)
+    {   
+
+//        session(['name'=>null]);
+        if(!session('name')){
+            return redirect()->route('login');
+        }
+
+        return $next($request);
+    }
+
+模板
+
+控制器中：
+    public function index(){
+        
+        $name = '朱明浩';
+        $age = 25;
+        return view('my_laravel')->with('name',$name)->with('age',$age);
+    }
+
+	 $data = ['name'=>'朱杏梓','age'=>'8'];
+
+        return view('my_laravel',$data);
+
+视图中：{{$name}}
+		{{$age}}
+不用理会数组的名字 $data !!!
+
+使用compact()打包数据，如果是数组，在模板中应该用数组的方式访问 $data['name']
+
+        $data = ['name'=>'朱杏梓','age'=>'8'];
+        
+        $title = "好好学习，天天向上！";
+
+        return view('my_laravel',compact('data','title'));
+
+模板变量的默认是：{{$name?:'朱杏梓'}}
+    return view('my_laravel',['name'=>$name]);
+
+    ??的使用范围更广，如果$name不存在也不会报错，而使用 ?: 时，如果$name 不存在时，会报错！！！
+	{{$name??'朱杏梓'}}正在学习
+    {{$script}}
+    {!! $script !!}}
+
+    不使用 compact()，直接传一个数组作为第二个参数。
+	return view('my_laravel',['script'=>$script,'name'=>$name]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：18
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

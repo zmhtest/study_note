@@ -1,0 +1,99 @@
+selenium笔记
+
+from selenium import webdriver  
+from selenium.webdriver.common.keys import Keys  
+  
+driver = webdriver.Firefox()  
+driver.get("http://www.python.org")  
+assert "Python" in driver.title  
+elem = driver.find_element_by_name("q")  
+elem.clear()  
+elem.send_keys("pycon")  
+elem.send_keys(Keys.RETURN)  
+assert "No results found." not in driver.page_source  
+driver.close()  
+
+
+
+我们可以通过find_element_by_*()系列的方法获取到这个标签：
+
+例如：
+
+
+element = driver.find_element_by_id("passwd-id")
+element = driver.find_element_by_name("passwd")
+element = driver.find_element_by_xpath("//input[@id='passwd-id']")
+
+
+
+driver.find_elements_by_class_name(name)  
+  
+driver.find_element_by_css_selector(selector)    匹配CSS selector的元素  
+driver.find_elements_by_css_selector(selector)  
+  
+driver.find_element_by_id(id)       匹配id属性值的元素  
+driver.find_elements_by_id(id)  
+  
+driver.find_element_by_link_text(text)      完全匹配提供的text的<a>元素  
+driver.find_elements_by_link_text(text)  
+  
+driver.find_element_by_partial_link_text(text)    包含提供的text的元素  
+driver.find_elements_by_partial_link_text(text)  
+  
+driver.find_element_by_tag_name(name)       匹配标签name的元素（不区分大小写<a>匹配'a'和'A'）  
+driver.find_elements_by_tag_name(name)
+
+find_element_*()方法返回一个WebElement对象，包含页面中匹配查询道德第一个元素。
+
+
+
+WebElement的属性和方法：
+
+属性或方法
+描述
+tag_name
+标签名，例如'a'代表<a>元素
+get_attribute(name)
+该元素name属性的值
+text
+该元素内的文本，例如<span>hello</span>中的hello
+clear()
+清除其中输入的文本
+is_displayed()
+如果该元素可见返回True
+is_enabled(）
+对于输入元素，如果该元素启用，返回True
+is_selected()
+对于复选框或单选框元素，如果被选中返回True
+location
+一个字典，包含键'x'和'y'，表示该元素在页面上的位置
+
+
+
+class Teacher(object):
+
+	def __init(self,name):
+		self.name = name
+		self.__age = '保密'
+
+	def __str__(self):
+		return "My beloved teacher,my friend %s,take care of us all the time and help us out when we are in need" % self.name
+
+	@property
+	def age(self):
+		return self.__age
+
+	@age.setter
+	def age(self,age)
+		self.__age = age
+
+mingge = Teacher('Mingge')
+print(mingge)
+
+
+
+
+
+
+
+

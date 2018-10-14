@@ -1,0 +1,114 @@
+github:
+1. zmh19941223 zmh641303
+2. zmhtest zmh1223
+
+码云：zmh_mm
+pawd：zmh1223
+
+开源中国：15218401303 foreverprogram
+passwd：zmh1223
+
+加密：
+
+
+小米root  315899e6
+
+
+默认密码
+192.168.1.1
+admin/admin
+
+
+pandava的安装：
+固件下载地址：
+http://opt.cn2qq.com/padavan/
+https://eyun.baidu.com/s/3pLMbUqR
+
+默认配置
+旧固件网关：192.168.1.1
+新固件网关：192.168.123.1
+管理页面：http://my.router/
+管理账号：admin/admin
+wifi:1234567890
+刷机不恢复默认值
+
+刷机流程：https://blog.csdn.net/xhhjin/article/details/53458633
+
+1.进入 http://www1.miwifi.com/miwifi_download.html 下载开发版的rom。
+
+2.进入 http://www1.miwifi.com/miwifi_open.html 开启ssh工具 
+
+3.
+	3.1请将下载的工具包bin文件复制到U盘（FAT/FAT32格式）的根目录下，保证文件名为miwifi_ssh.bin；
+
+	3.2断开小米路由器的电源，将U盘插入USB接口；
+
+	3.3按住reset按钮之后重新接入电源，指示灯变为黄色闪烁状态即可松开reset键；
+
+4.下载不死breed,并拷贝到 /tmp目录，
+	https://breed.hackpascal.net/
+
+5.安装breed	
+	cd /tmp
+	mtd -r write breed-mt7620-xiaomi-mini.bin Bootloader
+
+
+可以通过ssh 192.168.123.1:22 连接到路由器，不需要设置防火墙
+账号和密码就是登陆页面的：admin/admin
+
+-------------
+刷入潘多拉固件
+可以使用breed刷入潘多拉固件，方法和刷pandava一样。
+管理界面：http://192.168.1.1/
+用户名为：root
+密码：admin
+体验：不好用
+
+--------------------------
+刷tomato 不死鸟（通用刷其他路由系统）
+1.下载固件：http://dl.tomato.org.cn/mt7620/
+固件默认登录用户名:root 密码:tomato.org.cn
+ssh登录：admin admin 
+
+----------------------------
+
+如何才能刷回小米官方固件呢？又没有备份BootLoader.bin
+
+[RT-AC54U /tmp]# cat /proc/mtd 
+dev:    size   erasesize  name
+mtd0: 00030000 00010000 "Bootloader"
+mtd1: 00010000 00010000 "Config"
+mtd2: 00010000 00010000 "Factory"
+mtd3: 00136770 00010000 "Kernel"
+mtd4: 00d79890 00010000 "RootFS"
+mtd5: 00100000 00010000 "Storage"
+mtd6: 00eb0000 00010000 "Firmware_Stub"
+
+
+升级pandava固件：
+mtd_write -r write /tmp/RT-AC54U-GPIO-1-PSG1208-64M_3.4.3.9-099.trx Firmware_Stub
+
+
+---------------------------------------
+
+安装华硕固件
+
+管理界面：http://192.168.2.1/
+RT-AC1200HP 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

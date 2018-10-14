@@ -1,0 +1,1006 @@
+北风网GO教程
+
+面向对象：
+go中的面向对象就是，通过struct、method、interface的方式实现。  
+  
+  我们可以把struct看做类，方法method中的接收者看做this。
+  
+  struct中的匿名嵌套struct就相当于继承。
+  多态可以通过接口来实现，凡是实现了接口所定义的方法的struct，都可以赋给接口类型，然后通过接口即可调用这个struct的所有方法，由于实现接口的struct可以多种多样，所以就是多态！！！
+  
+实例化对象就是初始化一个结构体：
+    1.s := new(Struct)
+    2.s := structName{}
+    3.var s StructName
+      s.Attr = "value"
+  
+如果希望通过method改变对象原来的值，可以用指针的方式声明接收者的类型，也就是指针。
+
+GO中的是非侵入式接口：也就是无需显式声明一个类实现接口，而是当一个类实现了接口里定义的所有方法，这个类自动就是实现了该接口。
+当然，这个类还可以有其他的方法！！！
+所以，一切类型的对象都实现了空接口，如果函数的参数是空接口，那么就可以传递任意类型的参数。然后在函数内部，通过switch type 对参数的类型进行判断，进行相应的处理。
+
+对于接口类型间的赋值，也就是将一个接口赋给另外一个接口，必须是将包含方法多的接口赋给方法少的接口。 interfaceLess = interfaceMore
+
+接口的类型查询： func A (v interface{}){
+                    t := v.(type) //会自动判断v的类型
+                 }
+                
+OK pattern
+    
+    v := 5.23
+    v1,ok := v.(float64);ok{
+    //如果类型符合，ok返回true，执行到此处
+        fmt.Println(v1,ok)
+    }
+  
+GO并发编程：
+学习要点：
+    1、无缓冲channel和有缓冲channel的区别
+    答：无缓冲channel的读和写都是io阻塞的，阻塞就是程序运行到此处，交出执行权，直到下面的代码中读（写）这个channel，程序才会从阻塞之处往下执行。如果channel有缓冲区大小为3，写 <= 3 个channel代码是不会阻塞的，当超过缓冲区大小，又开始阻塞。。。
+        
+    2、使用channel来实现协程之间的通信
+    3、使用无缓冲channel读写阻塞的特性实现同步，而不是使用time.Sleep(time.Second)
+  
+    4、select 
+
+案例：
+go并发编程
+    var ch chan int
+
+    func Read() {
+        fmt.Println("read")
+
+    }
+
+    func Write() {
+        fmt.Println("write")
+    }
+
+    func main() {
+
+        ch = make(chan int)
+        go Read()
+        go Write()
+
+        time.Sleep(1) //这里必须sleep，不然主协程一下子跑完了，所有的协程也就结束了。
+        fmt.Println("end of code")
+    }
+    // 结果：程序按照goroutine的顺序执行  read、write、end of code
+
+    // 无缓冲channel读写挂起机制
+    var ch chan int
+
+    func Read() {
+        <-ch // 阻塞，挂起
+        fmt.Println("read")
+
+    }
+
+    func Write() {
+        fmt.Println("write")
+        ch <- 1 //写入channel，从上面挂起处执行
+    }
+
+    func main() {
+
+        ch = make(chan int)
+        go Read()
+        go Write()
+
+        time.Sleep(1) //这里必须sleep，不然主协程一下子跑完了，所有的协程也就结束了。
+        fmt.Println("end of code")
+    }
+    // write 、read、 end of code
+
+    // 不使用sleep也能实现协程同步
+    var ch chan int //全局channel，所有函数都可以访问
+
+    func Read(ch1 chan int) {
+        <-ch // 阻塞，挂起
+        fmt.Println("read")
+        ch1 <- 1
+    }
+
+    func Write(ch2 chan int) {
+        fmt.Println("write")
+        ch <- 1 //写入channel，从上面挂起处执行
+        ch2 <- 1
+    }
+
+    func main() {
+
+        ch = make(chan int)
+        ch1 := make(chan int)
+        ch2 := make(chan int)
+        go Read(ch1)
+        go Write(ch2)
+
+        // 通过读取channel，使程序挂起，直到协程中有写入channel，代码才往下执行
+        <-ch1
+        <-ch2
+        fmt.Println("end of code")
+    }
+
+    // 每个协程一般要有一个单独的channel控制！
+    // 使用切片存放多个channel实现多协程同步
+    func test(i int, ch chan int) {
+        fmt.Println(i)
+        ch <- 1
+    }
+    func main() {
+
+        chs := make([]chan int, 5)
+
+        for i := 0; i < 5; i++ {
+            chs[i] = make(chan int)
+            go test(i, chs[i])
+        }
+
+        // 程序运行到此处，阻塞挂起，等待channel写入，然后再继续下一个协程。
+        for _, ch := range chs {
+            <-ch
+        }
+        fmt.Println("end") //结果：每次执行结果都不一样，因为是多核CPU，不同的协程随机分配到不同的CPU上运行！！！
+    }
+
+有缓冲channel
+    func test(ch chan int) {
+        ch <- 1 //不阻塞
+        ch <- 1 //不阻塞
+        ch <- 1 //阻塞了
+        fmt.Println("end of test")
+    }
+
+    func main() {
+        ch := make(chan int, 2)
+        go test(ch)
+        <-ch //开锁 如果不开锁，结果为：end of main，如果开锁，都会输出
+
+        time.Sleep(1)
+        fmt.Println("end of main")
+    }  
+  
+select 处理多协程
+    func main() {
+        ch := make(chan int)
+        go func() {
+            fmt.Println("up")
+            ch <- 1
+            fmt.Println("down")
+        }()
+
+        time.Sleep(2) //如果睡的时间过短，来不及执行go func协程，下面的select就走default部分！！！
+        // select一定要放在下面，因为阻塞，下面的代码将不会被执行！！！
+        // 每次只能执行select case中的一个
+        select {
+        case <-ch:
+            time.Sleep(1) //如果不让主协程睡一会，程序马上往下执行，来不及输出down，main已经退出！！！
+            fmt.Println("reach ch")
+        default: //如果以上的channel就执行default
+            fmt.Println("reach default")
+        }
+    }  
+ 
+超时 
+    func main() {
+        timeOut := make(chan int, 1)
+
+        go func() {
+            time.Sleep(time.Second)
+            timeOut <- 1
+        }()
+
+        select {
+        
+        //另一种经典的超时控制
+        /*	case <-time.After(time.Second):
+            fmt.Println("timeout after")*/ 
+
+        case <-timeOut:
+            fmt.Println("timeout")
+        }
+        fmt.Println("end")
+    }
+      
+封装一个md5函数
+    func Md5(s string) interface{} {
+        m := md5.New()
+        m.Write([]byte(s))                           //byte是uint8的别名
+        return hex.EncodeToString(m.Sum([]byte(""))) //转16进制
+
+    }
+
+    func main() {
+        name := Md5("123")
+        fmt.Println(name)
+    }
+  
+ json编码与解码 
+    type Person struct {
+        // 设置json格式化时显示的字段
+        Name string `json:"student_name"` //如果是小写，无法导出
+        Age  int
+    }
+
+    func main() {
+
+        // 对数组的json编码
+        arr := [5]int{1, 2, 3, 4, 5}
+        as, err := json.Marshal(arr)
+        if err != nil {
+            panic(err)
+        }
+
+        fmt.Println(string(as)) //[1,2,3,4,5]
+
+        // 对map的json编码
+        m := map[string]string{"name": "朱明浩", "age": "23"}
+        ms, err2 := json.Marshal(m)
+        if err2 != nil {
+            panic(err2)
+        }
+        fmt.Println(string(ms)) //{"age":"23","name":"朱明浩"}
+
+        // 对结构体的json编码
+        p := Person{
+            "朱杏梓",
+            8,
+        }
+        // p := Person{"朱杏梓",8}//需要注意：如果不是同一行，每行的后面都要 ,
+        ps, err3 := json.Marshal(p)
+        if err3 != nil {
+            panic(err3)
+        }
+
+        fmt.Println(string(ps)) //{"Name":"朱杏梓","Age":8}
+
+        // 对ps进行解码
+        var ss interface{}
+        json.Unmarshal(ps, &ss) //这里一定要传地址
+        fmt.Printf("%v", ss)
+
+    } 
+  
+http模块：
+    // http部分
+
+    func main() {
+
+        // 路由
+        http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+            w.Write([]byte("hello world")) //这个函数的类型必须是 []byte
+        })
+
+        // 监听端口
+        http.ListenAndServe("localhost:80", nil) //这里必须写 参数2，如果为nil，会调用系统默认的处理方法，而这个方法又会自动调用路由处理函数。
+    }    
+  
+ // 访问别人的网站
+    将错误处理封装成一个函数
+    func Err(err interface{}) {
+        if err != nil {
+            panic(err)
+        }
+    }
+
+    get方式
+    func main() {
+        // 打开一个资源
+        resp, err := http.Get("http://www.baidu.com")
+        Err(err)
+
+        defer resp.Body.Close() //最后关闭连接资源
+        // 通过ioutil.ReadAll()方法，读取资源的内容到content
+        content, err := ioutil.ReadAll(resp.Body)
+        Err(err)
+
+        fmt.Println(string(content))
+    }
+
+     post方式
+    func main() {
+        // 打开一个资源
+        // 参数3，相当于表单里填写的数据
+        resp, err := http.Post("https://www.baidu.com", "application/x-www-form-urlencoded", strings.NewReader("id=10"))
+        Err(err)
+
+        defer resp.Body.Close() //最后关闭连接资源
+        // 通过ioutil.ReadAll()方法，读取资源的内容到content
+        content, err := ioutil.ReadAll(resp.Body)
+        Err(err)
+
+        fmt.Println(string(content))
+    } 
+  
+ 正则中可以用括号改变优先级等，另外，对于加括号的部分，会从左到右分配递增的分配一个编号，在后面可以用编号引用这一部分匹配到的文本。在JS replace里，替换的部分可以用$1之类的引用这一部分的匹配。
+ 
+比如(a)\1会匹配两个连续的a，([A-Z])\1匹配两个连续相同的大小字母，(A-Z)\1([a-z])\2匹配两个连续的大小字母，后面跟两个连续的小写字母（大小写字母可以不同）。
+
+有时候，我们只想改变优先级，不想分配编号(很少用到)，就用(?:)
+比如(a)(?：b)(c)\1\2 匹配abcac，但是(a)(b)(c)\1\2匹配abcab. 
+  
+// 正则表达式
+    func main() {
+        // isok, _ := regexp.Match("[a-z]{3}", []byte("ss1l"))
+        // isok, _ := regexp.MatchString("\\d{3}", "ab1c")
+
+        // 返回匹配到的字符
+        // reg := regexp.MustCompile("\\w{3}\\d") //将正则编译成正则对象
+        reg := regexp.MustCompile(`([a-z]{1})1\w+?\d`) //``定义的正则表达式会自动转义
+        // 在量词+ * 后面加 ? 表示费贪婪模式
+
+        // res := reg.FindAllString("adb1dls2lsf3", 3) //参数2控制返回多少个子串到数组[adb1 dls2 lsf3]
+
+        res := reg.FindAllStringSubmatch("aab1dds2llf3", -1) //[[adb1 a] [dls2 d] [lsf3 l]]捕获括号的 -1表示返回所有匹配结果
+
+        fmt.Printf("%v", res) //[]string{"adb1", "dls2", "lsf3"}
+    }  
+  
+操作mysql：https://www.cnblogs.com/zhja/p/5604553.html
+
+invalid identifier character U+3000  
+说明有中文全角空格！！！
+
+    func main() {
+
+        db, _ := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/test?charset=utf8")
+
+        // 直接插入数据
+        // result, _ := db.Exec("INSERT INTO user (name, password, age) VALUES (?, ?, ?)", "lily", 123, 12)
+
+        // PDO的方法
+        stmt, err := db.Prepare("INSERT user  SET name=?,password=?,age=?")
+
+            res, err := stmt.Exec("zhangsan", "12356", "20")
+            id, err := res.LastInsertId()
+            if err != nil {
+                panic(err)
+            }
+            fmt.Println(id)
+
+    }  
+  
+go 操作redis
+// go 操作redis
+
+    func main() {
+        client := goredis.Client{Addr: "localhost:6379"}
+
+        // string操作
+        // err := client.Set("name", []byte("朱明浩"))
+        // Err(err)
+        // res, _ := client.Get("name")
+
+        // hash操作
+        // isok, _ := client.Hset("user1", "name", []byte("zxz"))
+        // hres, _ := client.Hget("user1", "name")
+        // user2 := map[string]interface{}{"name": "朱宇轩", "age": 9, "sex": "male"}
+        // err := client.Hmset("user2", user2)
+        // fmt.Println(string(hres))
+
+        // zadd操作
+        // ok, _ := client.Zadd("zadd", []byte("zxz"), 10)
+        // fmt.Println(ok)
+
+        res, _ := client.Zrange("zadd", 0, -1)
+        fmt.Println(string(res[0])) //zxz
+        /*	for _, v := range res {
+            fmt.Print(string(v))
+        }*/
+    }  
+  
+
+window下杀进程的方法：
+netstat -ano |findstr 80
+查看进程的pid
+
+taskkill /pid 10616
+taskkill /pid 8104 /F 强制终止
+
+go版的聊天室：
+
+version1
+chatroom_server
+// chatrom server
+package main
+
+import (
+	"fmt"
+	"net"
+)
+
+func CheckError(err error) {
+	if err != nil {
+		fmt.Println("error:", err.Error())
+		panic(err) //一般退出码0表示成功，非零表示失败
+	}
+}
+
+func ProcessInfo(conn net.Conn) {
+	buf := make([]byte, 1024) //缓冲区
+	defer conn.Close()
+
+	// 开始读数据
+	for {
+		_, err := conn.Read(buf)
+		if err != nil {
+			break
+		}
+
+		// 打印出读取到的数据
+		fmt.Println("has received this message:", string(buf))
+	}
+}
+
+func main() {
+
+	listen_socket, err := net.Listen("tcp", "localhost:80")
+	CheckError(err)
+	defer listen_socket.Close()
+	fmt.Println("服务器成功启动...")
+
+	for {
+		conn, err := listen_socket.Accept() //一直等待用户请求，如果有用户请求则往下执行
+		CheckError(err)
+		go ProcessInfo(conn) //为防止阻塞，开一个协程处理用户请求
+	}
+}
+
+version1
+chatrom_client
+package main //这里必须是main包，否则程序无法启动！！！
+
+import (
+	"fmt"
+	"net"
+)
+
+func main() {
+	// 连接服务器
+	conn, err := net.Dial("tcp", "localhost:80")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer conn.Close()
+	conn.Write([]byte("hello 我是朱明浩"))
+	fmt.Println("发送消息成功！")
+}
+
+完整版聊天室
+
+服务器端
+// chatrom server
+package main
+
+import (
+	"fmt"
+	"log"
+	"net"
+	"os"
+	"strings"
+)
+
+func CheckError(err error) {
+	if err != nil {
+		panic(err) //一般退出码0表示成功，非零表示失败
+	}
+}
+
+var onlineConns = make(map[string]net.Conn)
+var messageQueue = make(chan string, 1000)
+var quitchan = make(chan bool)
+var logfile *os.File
+var loger *log.Logger
+
+const (
+	LOG_DIRECTORY = "./test.log"
+)
+
+func ProcessInfo(conn net.Conn) {
+	buf := make([]byte, 1024) //缓冲区
+	defer func(conn net.Conn) {
+		addr := fmt.Sprintf("%s", conn.RemoteAddr())
+		delete(onlineConns, addr) //删除onlineconns中的addr字段
+		conn.Close()
+
+		for i := range onlineConns {
+			fmt.Println(i)
+		}
+	}(conn)
+
+	// 开始读数据
+	for {
+		length, err := conn.Read(buf)
+		if err != nil {
+
+			break
+		}
+		if length != 0 {
+
+			// 保存接收到的消息
+			message := string(buf[0:length])
+			messageQueue <- message //将收到的消息放到队列
+		}
+	}
+}
+
+func doProcessMessage(message string) {
+	contents := strings.Split(message, "#")
+	if len(contents) > 1 {
+		addr := contents[0]
+		sendMessage := strings.Join(contents[1:], "#") //重新连接起来
+		addr = strings.Trim(addr, " ")
+
+		// 根据addr到映射表读取数据，如果读取成功...。，写入数据。
+		if conn, ok := onlineConns[addr]; ok {
+			_, err := conn.Write([]byte(sendMessage))
+			if err != nil {
+				fmt.Println("online conn send failure")
+			}
+		}
+	} else { //显示有哪些连接
+		contents := strings.Split(message, "*")
+		var ips string
+		if strings.ToLower(contents[1]) == "list" {
+			for i := range onlineConns {
+				ips = ips + "|" + i
+			}
+		}
+		if conn, ok := onlineConns[contents[0]]; ok {
+			_, err := conn.Write([]byte(ips))
+			if err != nil {
+				fmt.Println("显示列表失败！")
+			}
+		}
+	}
+}
+
+func consumeMessage() {
+	for {
+		select {
+		case message := <-messageQueue:
+			// 对消息进行解释
+			doProcessMessage(message)
+		case <-quitchan:
+			break
+
+		}
+	}
+}
+
+func main() {
+
+	// 写日志
+	logfile, err := os.OpenFile(LOG_DIRECTORY, os.O_RDWR|os.O_CREATE, 0)
+	if err != nil {
+		fmt.Println("log file create failure!")
+		os.Exit(-1)
+	}
+
+	defer logfile.Close()
+
+	loger = log.New(logfile, "\r\n", log.Ldate|log.Ltime|log.Llongfile)
+
+	listenSocket, err := net.Listen("tcp", "localhost:80")
+	CheckError(err)
+	defer listenSocket.Close()
+	fmt.Println("服务器成功启动...")
+
+	loger.Println("I am writing the log")
+
+	go consumeMessage() //消费消息
+	for {
+		conn, err := listenSocket.Accept() //一直等待用户请求，如果有用户请求则往下执行
+		CheckError(err)
+
+		// 将conn存储到onlineConnns映射表中,根据IP就可以马上找到连接对象
+		addr := fmt.Sprintf("%s", conn.RemoteAddr()) //将结果输出到字符串
+		onlineConns[addr] = conn
+		for i := range onlineConns {
+			fmt.Println(i)
+		}
+		go ProcessInfo(conn) //为防止阻塞，开一个协程处理用户请求
+	}
+}
+
+
+
+客户端
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"net"
+	"os"
+	"strings"
+)
+
+func getMessage(conn net.Conn) {
+	var input string
+	for {
+		reader := bufio.NewReader(os.Stdin)
+		data, _, _ := reader.ReadLine()
+		input = string(data)
+
+		if strings.ToUpper(input) == "EXIT" {
+			conn.Close()
+			break
+		}
+
+		// 必须放在循环中！！
+		_, err := conn.Write([]byte(input))
+		if err != nil {
+			conn.Close()
+			fmt.Println("client 连接错误:", err.Error())
+		}
+	}
+
+}
+
+func main() {
+	// 连接服务器
+	conn, err := net.Dial("tcp", "localhost:80")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer conn.Close()
+	go getMessage(conn) //开一个协程，读取用户从终端输入的数据,并传给服务器
+
+	// 接收服务器的消息
+	buf := make([]byte, 1024)
+	for {
+		_, err := conn.Read(buf)
+		if err != nil {
+			fmt.Println("您已经退出，欢迎下次使用！")
+			os.Exit(0) //表示正常退出
+		}
+
+		fmt.Println("接收到服务器的信息：", string(buf))
+	}
+
+	fmt.Println("client program end")
+
+}
+
+beego入门：
+典型的MVC框架
+  目录结构
+    myproject
+    ├── conf
+    │   └── app.conf
+    ├── controllers
+    │   └── default.go
+    ├── main.go
+    ├── models
+    ├── routers
+    │   └── router.go
+    ├── static
+    │   ├── css
+    │   ├── img
+    │   └── js
+    ├── tests
+    │   └── default_test.go
+    └── views
+        └── index.tpl
+安装 bee 工具：    
+go get github.com/beego/bee
+
+注意该命令必须在 $GOPATH/src 下执行。最后会在 $GOPATH/src 相应目录下生成以上目录结构
+bee new myproject
+
+运行 bee run
+
+可以使用curl 测试post请求
+$ curl "http://localhost:8080/" -d "id=1"
+this is post!
+
+配置文件：可以给不同的运行模式设置不同的端口等信息
+appname = beegoproject
+runmode = prod
+
+[dev]
+httpport = 8081
+[test]
+httpport = 8082
+[prod]
+httpport = 8083
+
+main.go 文件 程序的主入口
+package main
+
+import (
+	_ "beegoproject/routers" //初始化路由的init方法
+	"github.com/astaxie/beego" //引入beego
+)
+
+func main() {
+	beego.Run() //开始执行程序
+}
+
+router.go文件
+
+package routers
+
+import (
+	"beegoproject/controllers" //引入控制器包，这个包下有很多的控制器
+
+	"github.com/astaxie/beego" //路由中同样要使用beego
+)
+
+func init() {
+//  路由中的初始化方法，当在main.go中引入时，自动注册路由和对应的控制器
+	beego.Router("/", &controllers.MainController{})
+    
+	beego.Router("/test", &controllers.TestController{}, "get:Get;post:Post")
+    //这种写法表示，用户通过get Method请求/test时，走该控制器下的Get方法；用户通过post Method访问/test 时，走该控制器的Post方法
+}
+
+控制器文件
+package controllers
+
+import (
+	"github.com/astaxie/beego" //入口、路由、控制器都需要beego
+)
+
+//定义一个控制器（结构体），必须继承beego.Controller，才能使用beego.Controller中定义好的属性和方法。
+type TestController struct {
+	beego.Controller
+}
+
+//定义一个接收表单数据结构体，相当于js中的结构
+type User struct {
+	Username string
+	Password string
+}
+
+
+func (this *TestController) Get() {
+
+//  往浏览器写数据
+	// this.Ctx.WriteString("hello")
+    
+//1.获取url地址的参数的值，
+	// id := this.GetString("id")
+	// this.Ctx.WriteString("<html>" + id + "<br>")
+
+//2.获取url地址的参数的值
+	// name := this.Input().Get("name")
+	// fmt.Println(name)
+	// this.Ctx.WriteString(name + "</html>")
+
+//给客户端返回一个表单
+	this.Ctx.WriteString(`
+		<html>
+			<form action="/test" method="post">
+				<input type="text" name="Username">
+				<input type="password" name="Password">
+				<input type="submit" value="提交">
+			</form>	
+		</html>`)
+
+}
+
+//处理post请求的数据
+func (this *TestController) Post() {
+
+	u := &User{}
+    
+    //将post过来的数据结构到结构体u中
+	if err := this.ParseForm(u); err != nil {
+		panic(err)
+	}
+    
+    //访问结构体的属性，就相当于读取表单post过来的数据
+	this.Ctx.WriteString("username:" + u.Username + "password:" + u.Password)
+}
+
+cookie部分
+路由：beego.Router("/test_login", &controllers.LoginController{}, "get:Login;post:Post")
+
+package controllers
+
+import (
+	"github.com/astaxie/beego"
+)
+
+type LoginController struct {
+	beego.Controller
+}
+
+type User1 struct {
+	Username string
+	Password string
+}
+
+func (this *LoginController) Login() {
+
+	//当访问登录页面时，直接从cookie中取数据
+	name := this.Ctx.GetCookie("Username")
+	pwd := this.Ctx.GetCookie("Password")
+
+	// 如果cookie中有数据，直接使用
+	if name != "" {
+
+		this.Ctx.WriteString("username" + name + "password:" + pwd)
+	} else {
+		// 如果cookie中没有数据，跳转到表单页面，让用户输入
+		this.Ctx.WriteString(`
+		<html>
+			<form action="/test_login" method="post">
+				<input type="text" name="Username">
+				<input type="password" name="Password">
+				<input type="submit" value="提交">
+			</form>	
+		</html>`)
+	}
+
+}
+
+// 处理表单的post请求
+func (this *LoginController) Post() {
+	u := &User1{}
+
+	if err := this.ParseForm(u); err != nil {
+		panic(err)
+	}
+
+	// 设置cookie
+	this.Ctx.SetCookie("Username", u.Username, 100, "/")
+	this.Ctx.SetCookie("Password", u.Password, 100, "/")
+	this.Ctx.WriteString("username" + u.Username + "password:" + u.Password)
+}
+
+
+session部分
+开启session：
+
+在 main函数中：beego.BConfig.WebConfig.Session.SessionOn = true
+
+login控制器
+package controllers
+
+import (
+	"github.com/astaxie/beego"
+)
+
+type LoginController struct {
+	beego.Controller
+}
+
+type User1 struct {
+	Username string
+	Password string
+}
+
+func (this *LoginController) Login() {
+
+	//当访问登录页面时，直接从session中取数据
+	name := this.GetSession("username")
+	password := this.GetSession("password")
+
+	// 如果session中有数据，直接使用,必须要转换啊
+	if _, ok := name.(string); ok && name != "" {
+		// 注意：GetSession()方法返回的是接口，需要转一下
+		this.Ctx.WriteString("username" + name.(string) + "password:" + password.(string))
+	} else {
+		// 如果cookie中没有数据，跳转到表单页面，让用户输入
+		this.Ctx.WriteString(`
+		<html>
+			<form action="/test_login" method="post">
+				<input type="text" name="Username">
+				<input type="password" name="Password">
+				<input type="submit" value="提交">
+			</form>	
+		</html>`)
+	}
+}
+
+// 处理表单的post请求
+func (this *LoginController) Post() {
+	u := &User1{}
+
+	if err := this.ParseForm(u); err != nil {
+		panic(err)
+	}
+
+	// 设置session
+	this.SetSession("username", u.Username)
+	this.SetSession("password", u.Password)
+
+	this.Ctx.WriteString("username" + u.Username + "password:" + u.Password)
+}
+
+test控制器
+package controllers
+
+import (
+	"github.com/astaxie/beego"
+)
+
+type TestController struct {
+	beego.Controller
+}
+
+type User struct {
+	Username string
+	Password string
+}
+
+func (this *TestController) Get() {
+
+	// 问题是：如果一上来就访问该页面是报错的，因为下面函数返回 nil，无法转
+	name := this.GetSession("username")
+	password := this.GetSession("password")
+
+	// 如果不能转换成功，OK为false，执行else语句
+	if _, ok := name.(string); ok && name != "" {
+		this.Ctx.WriteString("username:" + name.(string) + "password:" + password.(string))
+
+	} else {
+		this.Ctx.WriteString(`
+			<html>
+				<form action="/test" method="post">
+					<input type="text" name="Username">
+					<input type="password" name="Password">
+					<input type="submit" value="提交">
+				</form>	
+			</html>`)
+
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度26
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+  
+  
+  
+  
+学习进度：  23

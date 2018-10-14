@@ -1,0 +1,255 @@
+Android基础教程笔记
+
+100Mb/s    !=     100MB/s
+
+bit
+
+1 Byte  = 8bit
+
+100Mb/s  = 12.5MB/s
+
+虚拟机的区别:
+
+JVM: .java --> javac --> .class --> jar --> .jar 就是把多个.class 文件压缩在一个jar包里面
+架构: 堆栈
+
+DVM: .java --> javac --> .class --> dx.bat --> .dex 通过一个批处理程序 dx.bat 将.class 文件打包成.dex文件
+
+架构: 寄存器(cpu上一块高速的缓存) 只存放一些重要的信息
+
+安卓体系结构
+一共分为四层
+由上至下分别是：应用层->API层->libs层->linux内核层
+
+我们主要开发应用层，越往下开发 工资越高
+
+alpha版：内部测试版。α是希腊字母的第一个，表示最早的版本，一般用户不要下载这个版本，这个版本包含很多BUG，功能也不全，主要是给开发人员和 测试人员测试和找BUG用的。
+beta版：公开测试版。β是希腊字母的第二个，顾名思义，这个版本比alpha版发布得晚一些，主要是给“部落”用户和忠实用户测试用的，该版本任然存 在很多BUG，但是相对alpha版要稳定一些。这个阶段版本的软件还会不断增加新功能。如果你是发烧友，可以下载这个版本。
+rc版：全写：Release Candidate（候选版本），该版本又较beta版更进一步了，该版本功能不再增加，和最终发布版功能一样。这个版本有点像最终发行版之前的一个类似 预览版，这个的发布就标明离最终发行版不远了。作为普通用户，如果你很急着用这个软件的话，也可以下载这个版本。
+stable版：稳定版。在开源软件中，都有stable版，这个就是开源软件的最终发行版，用户可以放心大胆的用了。
+
+安装eclipse经验：eclipse是运行在java平台上的，如果没有jre是无法安装的，甚至如果64位eclipse必须要用64位jdk！！！
+在环境变量中添加了java的bin目录，依赖java的程序还是无法启动，很可能是这个程序用了前面的jre,因为程序是在path中按顺序查找java路径的，如果找到就不会再往下找，此时，只需要将java的bin路径移到path的靠前的位置即可
+注意：首先在用户的path中找，找不到再到系统的path找
+
+Gradle是一种构建工具,它可以帮你管理项目中的差异,依赖,编译,打包,部署......,你可以定义满足自己需要的构建逻辑,写入到build.gradle中供日后复用.
+
+Intel HAXM (Hardware Accelerated Execution Manager) 使用基于 Intel(R) Virtualization Technology (VT) 的硬件加速， 因此需要 CPU 支持 VT ， 而且仅限于 Intel CPU， 与 AMD CPU 无缘， 媲美真机
+
+可以 通过java -version 查看当前java的版本 
+注意：有的基于jdk的软件如果无法运行，很可能需要安装最新版的jdk了
+
+NDK是用来给安卓手机开发软件用的，但是和SDK不同的是它用的是C语言，而SDK用的是Java语言。
+NDK开发的软件在安卓的环境里是直接运行的，一般只能在特定的CPU指令集的机器上运行，而且C语言可以直接和硬件对话，因此一般用它开给手机开发驱动或底层应用；而SDK开发出的软件在安卓上靠Dalvik虚拟机来运行，所以如果没有特殊的需要或署专门针对某个硬件去开发，那就一般用SDK
+
+注意：只有下载好相应的安卓系统镜像才能成功创建虚拟机
+
+可用的镜像地址：
+大连东软信息学院镜像服务器地址:
+
+mirrors.neusoft.edu.cn 端口：80
+
+其实可以借鉴Android studio中的地址！！！
+
+intel x86 atom 64 system image
+intel x86 atom  system image
+google apis intel x86 atom 64 system image
+有什么区别？这仅仅是一个模拟器，而不是安卓版本
+
+
+Android Android SDK 实测有效
+配置步骤
+启动 Android SDK Manager ，打开主界面，依次选择「Tools」、「Options...」，弹出『Android SDK Manager - Settings』窗口；
+在『Android SDK Manager - Settings』窗口中，在「HTTP Proxy Server」和「HTTP Proxy Port」输入框内填入mirrors.neusoft.edu.cn和80，并且选中「Force https://... sources to be fetched using http://...」复选框。设置完成后单击「Close」按钮关闭『Android SDK Manager - Settings』窗口返回到主界面；
+依次选择「Packages」、「Reload」。
+
+
+腾讯镜像配置
+
+域名 : 8f0b4f025127.repository.bugly.qq.com
+端口 : 80
+
+mirrors.neusoft.edu.cn 这个代理可用
+
+SDK Platform-Tools
+
+这是 adb, fastboot 等工具包。把解压出来的 platform-tools 文件夹放在 android sdk 根目录下，并把 adb所在的目录添加到系统 PATH 路径里，即可在命令行里直接访问了 adb, fastboot 等工具。
+
+Build-Tools
+
+这是Android开发所需的Build-Tools，下载并解压后，将解压出的整个文件夹复制或者移动到 your sdk 路径/build-tools 文件夹即可。
+
+SDK
+
+这是Android开发所需的sdk，下载并解压后，将解压出的整个文件夹复制或者移动到 your sdk 路径/platforms文件夹，然后打开SDK Manager，打开 Tools(工具)菜单选择 Options(选项)菜单项打开Android SDK Manager Setting对话框，点击 Clear Cache(清除缓存)按钮，然后重启Eclipse(或Android Studio)和SDK Manager。
+
+SDK System images
+
+这是在创建模拟器时需要的system image，也就是在创建模拟器时 CPU/ABI项需要选择的，下载并解压后，将解压出的整个文件夹复制或者移动到 your sdk 路径/system-images文件夹下即可， 如果没有 system-images目录就先创建此文件夹，然后打开SDK Manager，打开 Tools(工具)菜单选择 Options(选项)菜单项打开Android SDK Manager Setting对话框，点击 Clear Cache(清除缓存)按钮，然后重启Eclipse(或Android Studio)和SDK Manager。
+
+离线安装adt的方法
+启动 Eclipse，选择 Help > Install New Software，在出现的对话框里，点击Add按钮，在对话框的name一栏输入“ADT”， 然后点击Archive...，浏览和选择已经下载的ADT插件压缩文件。
+
+点击 OK.。返回可用软件的视图，你会看到这个插件，然后选择Developer Tools (会选中下面的“Android Developer Tools”和 “Android Editors“)，点击 Next，最后重启 Eclipse。
+为什么会安装失败？？？原来是之前的包有问题，下一个其他的即可解决
+
+重点这里:因为我之间直接在goole官网下载的一个整的安装包,相信很多童鞋和我一样,到这里傻眼了
+　　       这里uninstall根本就是灰色不可点击的,
+自己实验了多次,发现只要是从goole下载的整个安装包(包含eclipse+adt+SDK)的,基本上adt都是无法卸载的,这个时候,就必须去下载一个任意版本的eclipse,
+
+解决步骤:1 百度一个原版eclipse,下载
+　　       2. 百度下载一个adt23.0.0离线安装包,安装进入之后,你就会发现,现在干啥子都行
+
+综上,解决步骤就是,直接用原版eclipse通过安装插件的方式,安装adt,这样,以后无论怎么升级,都不怕不能卸载的bug了,这,也是我们开发最重要的一点,
+
+安卓开发所需要的工具直接在这个网站http://www.androiddevtools.cn站内搜索即可得到
+
+32位的eclipse只能在32位的jdk上运行，在64位jdk上是无法运行32位的eclipse的
+
+安装好adt后要重新启动eclips才会在工具条中出现sdk manager 和 AVD图标
+
+Google那个是带谷歌地图等等的，Google APIS中包含了如google map 等一些android.jar中没有的东西。例如你想在android里做google map的应用，就需要引入google APIS了，因为android.jar中是没有的
+
+system image不是指开发机的架构，而是指运行机器的架构（手机、平板等）。
+大多数是ARM架构的，也有的是intel的。
+arm的在电脑上跑的慢
+x86跑的快
+是因为电脑也是x86的
+
+android调试桥: adb命令使用
+需要在系统环境变量中path中追加adb.exe的完整路径
+adb devices 列出所有的设备
+
+adb start-server 开启adb服务
+
+adb kill-server	关闭adb服务
+
+adb logcat	查看Log
+
+adb shell	挂载到Linux的空间 
+
+adb install <应用程序(加扩展名)> 	安装应用程序
+
+adb –s <模拟器名称>  install  <应用程序(加扩展名)>  安装应用到指定模拟器
+
+adb uninstall <程序包名>
+
+adb pull <remote> <local> 
+
+adb push <local> <remote>
+
+emulator –avd <模拟器名称>
+
+-Xmx512m	最大总堆内存，一般设置为物理内存的1/4
+-Xms512m	初始总堆内存，一般将它设置的和最大堆内存一样大，这样就不需要根据当前堆使用情况而调整堆的大小了
+-Xmn192m	年轻带堆内存，sun官方推荐为整个堆的3/8
+堆内存的组成	总堆内存 = 年轻带堆内存 + 年老带堆内存 + 持久带堆内存
+年轻带堆内存	对象刚创建出来时放在这里
+年老带堆内存	对象在被真正会回收之前会先放在这里
+持久带堆内存	class文件，元数据等放在这里
+
+当修改了配置文件导致eclipse找不到sdk时，可以切换到一个新的工作空间即可！！！
+配置文件在修改之前一定要先备份，否则后果很严重
+
+incompatible JVM不兼容的jvm
+
+-Dosgi.requiredJavaVersion=1.7 设置最低要求的jvm
+
+但是如何制定他加载的jvm呢？
+
+可以通过在命令行进入到eclipse的jre/bin输入java -version查看这个eclipse所搭配的jre版本
+
+ Java的虚拟机JVM之JVM-server、JVM-client区别
+当前64位只支持server模式
+Server VM启动比Client VM慢大概10%，运行比Client VM快至少有10倍；
+由于服务器的CPU、内存和硬盘都比客户端机器强大，所以程序部署后，都应该以server模式启动，获取较好的性能；
+JVM在client模式默认-Xms是1M，-Xmx是64M；JVM在Server模式默认-Xms是128M，-Xmx是1024M；
+server:启动慢，编译更完全，编译器是自适应编译器，效率高，针对服务端应用优化，在服务器环境中最大化程序执行速度而设计。
+client:快速启动，内存占用少，编译快，针对桌面应用程序优化，为在客户端环境中减少启动时间而优化；
+
+eclipse 中不能运行server版的jvm
+
+工程目录结构:
+src: 存放java代码
+gen: 存放自动生成文件的. R.java 存放res文件夹下对应资源的id
+project.properties: 指定当前工程采用的开发工具包的版本
+libs: 当前工程所依赖的jar包.
+assets: 放置一些程序所需要的媒体文件.
+bin: 工程的编译目录. 存放一些编译时产生的临时文件和当前工程的.apk文件.
+res(resources): 资源文件.
+	drawable: 存放程序所用的图片.
+	layout: 存放android的布局文件.
+	menu: 存放android的OptionsMenu菜单的布局.
+	values (应用程序所需要的数据. 会在R文件中生成id)
+		strings.xml 存放android字符串.
+		dimens.xml 存放屏幕适配所用到的尺寸.
+		style.xml 存放android下显示的样式.
+	values-sw600dp 7寸平板所对应的值
+	values-sw720dp-land 10寸平板所对应的值
+	values-v11 指定3.0版本以上的手机显示的样式.
+	values-v14 指定4.0版本以上的手机显示的样式.
+AndroidManifest.xml: android应用程序的入口文件. 声明了android里边的组件. 和相关配置信息.
+proguard-project.txt: 加密当前程序所使用.
+
+
+打包安装过程(Run as Android Application ) :
+	1. 生成apk文件.
+		1). 生成.dex文件.
+		2). 资源索引表的生成resources.arsc.
+		3). 准备未编译文件.
+		4). 清单文件AndroidMenifest.xml文件转换成二进制.
+		5). 使用debug.keystore对整个应用程序进行打包签名.
+
+	2. 加载apk文件到模拟器中.
+		把apk文件加载到/data/local/tmp/xxx.apk
+
+	3. 安装应用程序.
+		1). 把/data/local/tmp/xxx.apk文件, 剪切/data/app/包名-1.apk
+		2). 在/data/data/文件夹下以包名创建一个文件夹, 用于存储当前程序的数据.
+		3). 在packages.xml和packages.list文件中分别添加一条记录.
+
+
+
+显示文本的控件  TextView
+输入框控件  	EditText
+按钮控件 	Button
+
+
+java 堆与非堆 内存
+
+堆(Heap)和非堆(Non-heap)内存
+按照官方的说法：“Java 虚拟机具有一个堆，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。”“在JVM中堆之外的内存称为非堆内存(Non-heap memory)”。可以看出JVM主要管理两种类型的内存：堆和非堆。简单来说堆就是Java代码可及的内存，是留给开发人员使用的；非堆就是JVM留给自己用的，所以方法区、JVM内部处理或优化所需的内存(如JIT编译后的代码缓存)、每个类结构(如运行时常数池、字段和方法数据)以及方法和构造方法的代码都在非堆内存中。
+
+注意：选择了多大尺寸的屏幕就对应选择多大尺寸的皮肤
+
+新创建一个虚拟手机的时候，相当于给手机装一个系统，整个过程是很慢的
+
+虚拟设备用的是电脑的内存，配置高的电脑可以给虚拟设备设置大内存，这样虚拟机运行起来就会更流畅
+
+在启动虚拟设备时，尽量不要勾选 scale 这个是会影响屏幕的显示效果的
+
+VM Heap 堆内存，源码里面默认是16M，很多厂商把这个值改成了32M 或者其他数字
+
+经测试安卓4.2无法正常启动
+
+经测试谷歌的系统貌似不支持haxm加速！！！
+
+虚拟机的名字name不能含有分发字符 空格 .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

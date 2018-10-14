@@ -1,0 +1,73 @@
+nginx教程笔记
+
+京峰教育 Nginx教程部分
+
+高性能的 Web和 反向代理 服务器，也是一个 IMAP/POP3/SMTP 代理服务器。
+在高连接并发的情况下，Nginx是Apache服务器不错的替代品。
+
+cent os下安装Nginx的步骤：
+教程参考：https://www.linuxidc.com/Linux/2016-09/134907.htm
+
+1、cd /usr/local/src
+wget http://nginx.org/download/nginx-1.13.12.tar.gz
+解压：tar zxvf nginx
+
+2、./configure 前，安装依赖库
+yum install pcre-devel zlib
+
+3、make && make install
+
+基本使用：
+	cd /usr/local/nginx/sbin/
+	./nginx 
+	./nginx -s stop
+	./nginx -s quit
+	./nginx -s reload
+
+方法1：添加到环境变量：
+  export NGINX_HOME=/usr/local/nginx
+  export PATH=$PATH:IN$NGX_HOME/sbin
+
+方法2：直接设置别名 在 ~/.bashrc 文件末尾添加一下内容
+  alias nginx='/usr/local/nginx/sbin/nginx'
+
+方法3：直接将 nginx 这个可执行文件复制到 /usr/sbin 目录下
+
+方法4：创建nginx的软连接文件到 /usr/sbin 目录
+
+NGINX与PHP的结合
+  1.首先安装 php-fpm
+    yum install -y php-fpm
+
+  2.启动 php-fpm 
+    service php-fpm start
+
+  3.修改配置文件 ngin/conf/nginx.conf
+    location ~ \.php$ {
+      root           html;
+      fastcgi_pass   127.0.0.1:9000;
+      fastcgi_index  index.php;
+      fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+      include        fastcgi_params;
+    }
+
+  4.修改完成后：nginx -s reload 使配置生效 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+进度： 

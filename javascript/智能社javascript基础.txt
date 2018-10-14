@@ -1,0 +1,229 @@
+智能社JavaScript基础
+
+案例1：鼠标提示框
+
+不加一句js代码实现：
+
+	<span><input type="checkbox" onmouseover="div1.style.display='block'" onmouseout="div1.style.display='none'">两周免密码登录</span>
+	
+	<div id="div1">
+			的士速递双方带来了说多了都是泪发水利
+	</div>	
+
+-------------------
+
+使用js实现：
+
+	<script>
+		window.onload = ()=>{
+
+			var span = document.querySelector('span');
+			var div1 = document.querySelector('#div1');
+
+			span.onmouseenter = ()=>{
+				div1.style.display = 'block';
+			}
+			span.onmouseleave = ()=>{
+						div1.style.display = 'none';
+			}
+
+		}
+	</script>
+
+<body>
+	
+	<span><input type="checkbox">两周免密码登录</span>
+	
+	<div id="div1">
+			的士速递双方带来了说多了都是泪发水利
+	</div>
+
+-------------------
+
+	<script>
+		window.onload = ()=>{
+
+			var span = document.querySelector('span');
+			var div1 = document.querySelector('#div1');
+
+			span.addEventListener(
+				'mouseover',function(){
+					div1.style.display='block';
+			});			
+			span.addEventListener(
+				'mouseout',function(){
+					div1.style.display='none';
+			});
+		}
+	</script>
+
+	<span><input type="checkbox">两周免密码登录</span>
+	
+	<div id="div1">
+			的士速递双方带来了说多了都是泪发水利
+	</div>
+
+-------------------
+
+通过jQuery的 .on() 绑定多个事件实现：
+
+	<script src="jquery.js"></script>
+	<script>
+		$(function(){
+			var div1 = $('#div1')
+			$('span').on({
+
+				'mouseover':function(){
+					div1.css('display','block');
+				},
+
+				'mouseout':function(){
+					div1.css('display','none');
+				}
+
+			})
+		})
+	</script>
+
+---------------------------------------------
+
+换肤功能：实际上就是当点击按钮时，将link的href属性设置为相应的值，从而实现链接不同的样式表文件。
+
+---------------------------------------------
+
+使用原生的方法实现：单击按钮 显示、隐藏
+
+	<script>
+		window.onload = function(){
+
+			var inp = document.querySelector('input');
+			var div1 = document.querySelector('#div1');
+
+			inp.onclick = ()=>{
+
+				if (div1.style.display=='block') {
+					div1.style.display='none';
+				} else {
+					
+					div1.style.display='block';
+				}
+			}
+		}
+	</script>
+
+使用jQuery实现：
+
+	<script src="jquery.js"></script>
+	<script>
+		$(function(){
+
+			let div1 = $('#div1');
+
+			$('input:first').click(function(){
+
+				if(div1.css('display')=='block'){
+
+					div1.css('display','none');
+
+				}else{
+
+					div1.css('display','block');
+
+				}	
+			});
+		})
+	</script>
+
+<a href="javascript:;">baidu</a>
+
+---------------------------------------------
+
+实现选项卡功能：
+	<script>
+		window.onload = function(){
+
+			var arr = [111,222,333,444];
+
+			var btns = document.querySelectorAll('button');
+
+			var div = document.querySelector('#content');
+
+			for(var i in btns) {
+
+				// btns[i].index = i;//在最开始就给每个按钮绑定一个属性
+
+				btns[i].onclick = function(){
+
+					for(var i in btns){
+
+						btns[i].className='';
+					}
+
+					this.className='active';
+					//原来是innerHTML!!!
+					div.innerHTML = arr[this.index];
+				}
+			}
+		}
+	</script>
+
+---------------------------------------------
+
+	<script src="jquery.js"></script>
+	<script>
+		$(function(){
+
+			var arr = [111,2222,333,4444];
+
+			var parent = $('div:first');
+
+			var btns = $('button');
+
+			// alert(btns);
+
+			var content = $('div:last');
+
+			//事件委托
+			parent.on('click','button',function(){
+
+				btns.each(function(index,item){
+
+					item.className = '';
+
+					item.index = index;//确实是添加了属性，但是添加在原生的DOM上，怎样通过jQuery对象获取呢？
+					// alert(item.index);
+				})
+
+				// console.log($(this).get(0).index);//jquery对象转原生DOM对象
+
+
+				content.html(arr[$(this).get(0).index]);
+
+				$(this).addClass('active');
+			
+
+			});
+	
+		})
+	</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

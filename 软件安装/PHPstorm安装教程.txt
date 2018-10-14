@@ -1,0 +1,22 @@
+如何解决评估到期问题？
+新版激活方法: 
+1.在线激活 
+菜单help >>>> Register 
+选择License Server 
+输入 
+http://idea.qinxi1992.cn/ 
+点击ok
+
+汉化方法：
+只需要将汉化包resources_en.jar放在lib目录下即可 比如：
+D:\Program Files (x86)\JetBrains\PhpStorm 2016.1\lib
+
+
+webstorm2016.1.3版本
+服务器注册方法：http://idea.iteblog.com/key.php
+
+
+
+
+
+

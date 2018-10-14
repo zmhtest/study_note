@@ -1,0 +1,52 @@
+计算机词汇积累 技巧：可以使用有道词典方便的将单词本的单词导出txt doc xml格式的本地文件！！！
+
+overall progress 整体进度
+
+node interpreter 节点解释器
+
+executable 可执行文件
+
+copy reference 复制文件名 
+
+add a bio 添加简历/介绍
+
+ privacy policy 隐私政策/协议
+
+ my profile 我的资料、简介
+
+contribution 投稿 贡献
+
+ spam folder 垃圾邮件文件夹
+
+Project showcases 项目展示
+
+Your dashboard 你的面板、主页
+
+Overview 概述 综述
+
+Release Notes 发行说明
+
+collaboration 合作、协同 
+
+seamless way to contribute to projects on GitHub
+天衣无缝的、向github投稿，也就是发送代码到github
+
+ workflow 工作了流程
+
+sidebar 侧边栏 侧边导航条
+
+drop down menu 下拉菜单
+
+
+
+
+
+
+
+
+
+
+
+
+
+

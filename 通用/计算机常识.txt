@@ -1,0 +1,21 @@
+# 常识：
+
+1. Blink是webkit的升级版本。
+
+2. Webkit：由Apple、Google、Adobe等公司推动的开源的排版引擎，代表浏览器有Apple Safari、Google Chrome    
+
+3. HTTPS（全称：Hypertext Transfer Protocol over Secure Socket Layer），是以安全为目标的HTTP通道，简单讲是HTTP的安全版。即HTTP下加入SSL层，HTTPS的安全基础是SSL，因此加密的详细内容就需要SSL。
+
+
+
+
+
+
+
+
+
+
+
+
+
+

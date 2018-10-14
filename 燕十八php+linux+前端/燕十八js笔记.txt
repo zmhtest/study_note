@@ -1,0 +1,933 @@
+##燕十八js视频笔记
+
+学习的最好方法就是：总结总结再总结
+***
+JavaScript和java除了名字有点像，他们之间没有半毛钱关系
+***
+浏览器在读取html文件时，从上到下读取，渲染HTML代码，遇到js代码就用v8引擎来运行，运行过后再向下渲染
+
+1. 为什么很多js代码放在网页文件最后呢？
+因为js代码主要是操作DOM对象，而且js是按照引入顺序逐段执行的，如果放在前面，就有可能，js所操作的DOM还没有被浏览器渲染出来，导致无法实现想要的操作。好在jQuery已经在一开始就为我们做了这一步工作，就是$(function(){}),这相当于$(document).ready(function(){});只需要dom结构加载完毕即可以执行js代码
+
+
+2. 引入外部js文件只需要<script src='xxx.js'></script>即可，xxx.js只需要写js代码本身而不用再写script标签
+
+3. 用 var 变量名 = xxx 来声明变量
+$也可以用来做变量名，但被jQuery占用了,在jQuery中$表示jQuery对象
+js中变量名严格区分大小写，所有的编程语言都是区分大小写的
+
+4. 使用console.log('');可以在控制台输出，进而提高调试效率
+
+5. 使用var和不使用var的区别？
+不加var会污染全局变量,var表示声明一个局部变量，不加var就表示仅仅是赋值，他会一直往上找，看能不能找到该变量，最终找到window下，污染的window下的全局变量！
+
+6. 变量类型：undefined null的区别
+js中有两类变量：原生变量和对象，对象就是由原生变量复合而成，原生变量没有赋值就为undefined，对象没赋值就为null
+
+7. js中的数组 var arr = [1,'zmh',true];数组的索引始终从0，1,2...n,即使是删除，删除后索引也是0，1，2...
+
+8. js中的对象{name:'zmh',age:22}就好比PHP中的关联数组array('name'=>'zmh','age'=>22)，是key/value 的形式
+
+>对象和数组其实是差不多的，都可以用[]来取出其中的值，只是对象还支持用 . 语法来取值
+`var arr = ['zmh',22,true];
+var me ={name:'zmh',age:22}
+console.log(me.name);
+console.log(me['name']);
+console.log(arr[1]);`
+
+9. 在js中逻辑运算很特别，他返回的不是true或者false，而是返回能确定运算结果的单元的值，可以用来做浏览器的兼容，比如var browser_type= window.xxx || window.yyy;这里的返回值是 true 所对应单元的值，由此可以判断是哪种浏览器
+
+10. js中数组和对象的遍历
+	对于数组，可以用传统的for循环遍历 for (var i = 0; i < Things.length; i++) {
+		Things[i]
+
+}
+
+对于对象：使用同样使用for，但是 
+	for(var key in obj){
+		console.log(key);//打印出键
+		console.log(obj[key]);//打印出值,注意这里不能用.来取值
+	}//此方法也适用于数组的遍历
+
+但是在PHP中，直接用foreach就可以遍历出数组的建和值
+foreach($arr as $key => $value ){
+	echo $key.'--'.$value ;
+}
+案例：
+`var arr =[1,2,5];
+var obj={name:'zmh',age:22,area:'mm'}
+/*for(var k in arr){
+	// console.log(k);
+	console.log(arr[k]);
+}*/
+
+//js特有的方法
+for(var k in obj){
+	// console.log(k);
+	console.log(obj[k]);
+}
+
+//原生的方法
+/*for (var i = 0; i < arr.length; i++) {
+	console.log(arr[i]);
+}*/`
+
+---
+
+###对象的操作：
+好好理解在js 中 一切皆对象，可以调用其中的属性，方法 很方便的操作对象
+
+比如：字符串与数组的相互转换
+
+// 将字符串用逗号拆分成数组
+var str = '春，夏，秋，冬';
+console.log(str.split('，'));
+
+// 将数组用-拼接成字符串，拼接符号可以随意指定
+var arr = ['春','夏','秋','冬'];
+console.log(arr.join('-'));
+
+// 截取字符串，str.substr(起始位置，截取长度)
+var srt  = 'hello world';
+console.log(srt.substr(2,3));
+
+//返回子串位置，没找到返回-1
+// console.log(str.indexOf('h'));
+alert(str.indexOf('heff')<0?'not find':'find');
+
+// 返回的是替换后的字符串本身 hi world
+console.log(str.replace('hello','hi'));
+
+####日期对象
+`var dt = new Date();
+console.log(dt.getFullYear());
+console.log(dt.getMonth()+1);//返回0-11
+console.log(dt.getDate());
+console.log(dt.getHours());
+console.log(dt.getMinutes());
+console.log(dt.getSeconds());
+
+console.log(dt.toString());//Thu Jan 12 2017 11:30:35 GMT+0800 (中国标准时间)
+console.log(dt.toDateString());//Thu Jan 12 2017
+console.log(dt.toTimeString());//11:20:31 GMT+0800 (中国标准时间)
+
+console.log(dt.toLocaleString());//2017/1/12 上午11:30:35
+console.log(dt.toLocaleDateString());//2017/1/12
+console.log(dt.toLocaleTimeString());//上午11:30:35`
+
+###window 对象 
+Navigator 对象包含有关浏览器的信息
+ `console.log(window.navigator);
+console.log(window.navigator.appName);
+console.log(window.navigator.appVersion);
+console.log(window.navigator.userAgent);
+console.log(window.navigator.cookieEnabled);
+console.log(window.navigator.language);
+console.log(window.navigator.platform);
+console.log(window.navigator.onLine);`
+
+###Location 对象包含有关当前 URL 的信息。
+最重要的是.href属性，修改它的值即可实现跳转
+ window.location.href='http://www.baidu.com';
+
+###history 对象
+window.history
+方法：.forward()  .back();
+`<!-- 	<input type="button" value="前进" onclick="javascript:window.history.forward()">
+<input type="button" value="后退" onclick="javascript:window.history.back()"> -->`
+
+var str = 'hello world';
+document.write(str.bold().big());
+js中方法可以连缀
+
+.concat()方法用于连接字符串，可以用+来替代
+var str = 'hello world';
+var str2 = '你好，世界';
+console.log(str.concat(str2));
+//hello world你好，世界
+
+可以用js设置字符串字体大小和颜色:
+document.write(str.fontcolor('red').fontsize(50));
+document.write(str.fontcolor('red').fontsize(50).italics().link('http://www.baidu.com'));
+//网址URL部分一定要加上http://
+
+.slice(start,end) 返回的是新的子串
+start 要抽取的片断的起始下标。如果是负数，则该参数规定的是从字符串的尾部开始算起的位置。也就是说，-1 指字符串的最后一个字符，-2 指倒数第二个字符，以此类推。 
+end 紧接着要抽取的片段的结尾的下标。若未指定此参数，则要提取的子串包括 start 到原字符串结尾的字符串。如果该参数是负数，那么它规定的是从字符串的尾部开始算起的位置。 
+
+所谓的特效就是利用js操作dom
+
+可以根据名字的不同实现切换
+
+找对象：
+
+按照id来找，返回的是唯一的对象
+document.getElementById('id');
+
+按照标签名来找，返回的是对象集合
+document.getElementsByTagName('p');
+document.getElementsByTagName('p').length;
+document.getElementsByTagName('p')[0];
+
+如果是表单可以按照name来找，返回的是对象集合
+
+document.getElementsByName('username');
+document.getElementsByName('username').length;
+document.getElementsByName('username')[1];
+
+可以按照类名来找，返回对象集合
+document.getElementsByClassName('clsss_name');
+查找某个标签的子标签,返回一个集合
+document.getElementById('id').children;
+document.getElementById('id').children.length;
+document.getElementById('id').children[1];//虽然不是官方标准，但个浏览器兼容好
+
+查找某个标签的父标签，上一级标签，只有一个
+先找到子元素，然后  .parentNode 这样就是父元素
+比如：document.getElementById('id').parentNode.style.background='red';
+我们很少用childNodes，因为他会把空白当做子节点一起返回，然而这并不是我们所想要的
+
+注意element和elements，只有通过id找的才是element，其他都是elements
+
+###操作对象：
+
+1. dom对象的属性一般和标签的属性是一致的，dom.attr.style.css。但是也有例外：比如类class，要通过.className属性来修改，还有如果是带有 - 的属性，要改写成驼峰式，也就是首字母大写的形式,否则js会理解成减号
+
+2. 
+	补充：var str= "300pxsssssddd";
+	alert(parseInt(str));//300 说明parseInt()函数会自动分析字符串中的数值，前提是字符串开头必须是数字的形式
+
+		<script>
+		//实现点击切换颜色，并且边框不断加粗的效果
+			function ch(){
+				var div=document.getElementsByTagName('div')[0];
+				if(div.className.indexOf('test1')>=0){
+					div.className='test2';
+				}else{
+					div.className='test1';
+				};
+				div.style.width=parseInt(div.style.width)+10+'px';
+				div.style.height=parseInt(div.style.height)+10+'px';
+				/使底边框逐渐变宽
+				div.style.borderBottomWidth=parseInt(div.style.borderBottomWidth)+1+'px';
+			}
+		</script>
+
+		<div class='test1' onclick="ch();" style="width: 300px;height: 300px;border-bottom: 1px solid black"></div>
+
+
+如何获取内存中的style，进而可以是用非内联样式表
+通过封装一个函数getStyle(),使用getCurrentStyle(obj)[attr],或者getComputedStyle(obj)[attr]
+具体方法如下：
+		alert(getstyle(div,'width'));
+		//传进去的属性必须是HTML中属性的形式，如果是border-bottom,则传的是border-bottom,而不是borderBottom!!
+		return;//return;相当于return false;表示不再往下执行，经常用于调试
+>获取内存中的样式，考虑到了兼容性，所有用三元运算符，getComputedStyle(obj,null)[]是现在的趋势，高版本浏览器都支持，null表示没有伪类，':hover' ':active'	
+	function getstyle(obj,attr){
+		return obj.getCurrentStyle?obj.getCurrentStyle[attr]:getComputedStyle(obj,null)[attr];
+	}	
+***
+注意：这里的 getComputedStyle(obj,null)[attr];只是获得了内存中的 **样式** 的值，要想改变他的值，还得通过div.style.width=parseInt(xxxx)+10+'px'
+
+###删除对象
+先找到它的父对象，通过parent.removeChild('')
+
+>js中函数放在开头的head中可以不会出错，是因为函数只有在被调用的时候才执行，在他执行的时候，所有的dom已经加载完毕
+	
+	方法一：
+	function del(){
+		//思路分析：要删除某个节点，先获取到这个节点，然后通过.parentNode属性获得他的父节点，通过父节点的.removeChild(子节点)来执行删除
+		var lis= document.getElementsByTagName('li');
+		var lastli = lis[lis.length-1];
+		lastli.parentNode.removeChild(lastli);
+	}
+
+	方法二：
+		function del(){
+		//思路分析：要删除某个节点，先获取到这个节点，然后通过.parentNode属性获得他的父节点，通过父节点的.removeChild(子节点)来执行删除
+		var parent = document.getElementsByTagName('ul')[0];
+		var lastli = document.getElementsByTagName('li')[document.getElementsByTagName('li').length-1];
+		parent.removeChild(lastli);
+	}
+
+###创建节点
+1. 创建节点对象
+2. 找到父对象
+3. 调用父对象的.appendChild(new_child);方法
+	
+		function add(){
+		//创建一个对象
+		var li = document.createElement('li');
+		//为新建的对象添加内容，内容就是属于文本节点
+		var tex = document.createTextNode('dong');
+		li.appendChild(tex);
+		
+		//将对象添加到父元素
+		document.getElementsByTagName('ul')[0].appendChild(li);
+		}
+>好好理解js中一切皆对象，包括标签内的文本，标签属性，就连标签之间的空白部分也是节点
+
+创建节点最笨的方法就是：由内往外，依次创建标签节点，如果有属性，还要创建属性节点，把里面的节点塞到外面节点（parentobj.appendChild()）
+
+暴力操作节点：innerHTML()，既可以读取某个标签内的HTML代码，也可以修改这个标签内的html
+
+我先定义两个函数供自己使用
+
+	<script>
+
+		function $(id){
+		return document.getElementById(id);
+		}
+
+		function $s(tagname){
+		return document.getElementsByTagName(tagname);
+		}
+
+	$s('ul')[1].innerHTML='<li>朱明浩</li><li>白彩红</li>';	
+	</script>
+	注：以上写法如果放在head是会报错的，因为ul节点还没有加载，  
+	可以把它放在一个函数内，或者放在整个网页最后
+>可以通过 innerHTML+='<li></li>';往原来的添加新的，而不覆盖原来的
+
+省市联动菜单  
+分析：点击省中的某个市，触发一个事件，这个事件可以动态往另外一个select框添加相应的city  
+
+	function test(){
+		var select = $('prov');
+		var citys;
+		if(select.value==1){
+			citys=['朝阳','海淀','昌平'];
+			$('city').innerHTML="<option>"+citys[0]+
+			"</option><option >"+citys[1]+
+			"</option><option >"+citys[2]+
+			"</option>";
+		}else if(select.value==2) {
+			citys=['1','2','3'];
+			$('city').innerHTML="<option>"+citys[0]+
+			"</option><option >"+citys[1]+
+			"</option><option >"+citys[2]+
+			"</option>";
+		};
+	}
+	//需要注意的是字符串的拼接，==才是逻辑判断  
+	思考：能否通过循环简便输出城市呢？
+	答案是可以的，重复的工作让计算机做！！！  
+	function test(){
+		var select = $('prov');
+		var citys;
+		if(select.value==1){
+			citys=['朝阳','海淀','昌平'];
+				for (var k in citys) {
+					$('city').innerHTML+="<option>"+citys[k]+"</option>";
+				}
+		
+		}else if(select.value==2) {
+			citys=['1','2','3'];
+			for (var k in citys) {
+					$('city').innerHTML+="<option>"+citys[k]+"</option>";
+			}	
+		}
+	}
+
+>需要特别注意的是：对于select下拉列表，它的.value属性对应的是他下面option的value，也就是，你点击了哪个option，select_obj.value的值就是哪个option的值！！！所以，以上的条件判断是多余的  
+在制作联动菜单时，option的value值最好与数组的索引相对应
+
+	function test(){
+
+		var select = $('prov');
+		var citys=areas[select.value];
+		/*alert(citys);
+		return;*/
+		$('city').innerHTML='';//这句很重要，每次点击，清空上一次的
+		for(var k in citys){
+			$('city').innerHTML+=
+		'<option>'+citys[k]+'</option>';
+		}
+	}
+
+	也可以这样写
+	var areas = [['朝阳','海淀','昌平'],['广州','佛山','茂名']]
+	function test(){
+		var select = $('prov');
+		$('city').innerHTML='';//这句很重要，每次点击，清空上一次的
+		//既然下面的for语句只能执行所谓的一维数组，我就给你一维数组！！
+		for(var k in  citys=areas[select.value]){		
+			$('city').innerHTML+=
+		'<option>'+citys[k]+'</option>';
+		}
+	}
+	上面写法是：每生成一个option就追加到父标签中
+	
+	以下写法是：先组织好html部分，在一次性加到父标签中
+	function test(){
+	var select = $('prov');
+	var option= '';
+	for(var k in  citys=areas[select.value]){		
+		option+='<option>'+citys[k]+'</option>';
+	}
+	$('city').innerHTML=option;
+    }
+
+但是如何制作多级联动菜单呢？
+
+function test1(){
+	//动态创建一个select框
+/*	alert($('country'));
+	return;*/
+	if($('country')==null){
+		//判断对象是否存在，不存在就执行函数体，存在即跳过,if(!$('country'))也是可以的
+	var select = document.createElement('select');
+	select.id='country';
+	document.getElementsByTagName('body')[0].appendChild(select);
+	}
+//可不可以用innerHTML的方法来创建呢？
+可以 
+		if($('country')==null){
+		var sel = '<select id="country"></select>';
+		$s('body')[0].innerHTML+=sel;
+		}
+
+//现在的问题是点击一下就创建一个，不符合我们的要求，所以先要判断if
+
+
+	if($('city').value=='茂名'){
+		var option= '';
+		for(var k in  countries[1]){		
+			option+='<option>'+countries[1][k]+'</option>';
+		}
+		$('country').innerHTML=option;
+	};
+
+>对于select框的value属性，一般就是option的value属性的值，但如果option没设置value属性，那么select.value 值为 option标签里面文本的值
+
+现在我想做的是，每一个select框都是动态生成的，里面的onclick,也是动态生成的.也可以，只需在触发函数内部：
+
+	f($('country')==null){
+		var sel = '<select id="country"></select>';
+		$s('body')[0].innerHTML+=sel;
+	}	
+>合理配合onmousechange和onmouseup事件
+
+>使用json或者xml存放数据是不是比数组更方便呢?
+
+var areas = {北京:['朝阳','海淀','昌平'],广东:['广州','佛山','茂名']};
+/*var countries= [['cy1','cy2','cy3'],
+	['高州','化州','电白']
+];*/
+var countries={
+	gz:['天河','海珠','白云'],
+	mm:['高州','化州','电白']
+};
+差异代码块
+for(var k in  citys=areas[select.value]
+for(var k in  countries.mm)
+
+>有一点需要特别注意，就是 json对象在定义的时候，属性/键的引号可以省略，但如果是通过obj['attr']来取值，必须要用引号，除非变量所代表的本身就是字符串
+
+设置定时器
+setIntervel('函数名',1000)毫秒数，每隔一秒执行
+setTimeout('函数名',1000)表示一秒后执行
+清除定时器：cleaarInterval(xxx)
+clearTimeout(xxx)
+在设置定时器是，这个函数是有一个返回值的，用一个变量将他接受，然后在清除定时器的时候，把这个变量传进去即可
+
+	function test(){
+		$s('div')[0].style.backgroundColor='red';
+	}
+	window.setTimeout('test()',3000);
+
+	设置每隔一段时间执行事件
+	function test(){
+		var time = $s('input')[0].value;//这里的值是字符串
+		time=parseInt(time)-1;//这里的time是数字
+		$s('input')[0].value=time;//把计算出来的值放回去
+		if (time==0) {
+			clearInterval(set);
+		}
+	}
+ 	var set = window.setInterval('test()',1000);
+ 	直接改值的方法：
+ 	function test(){
+		$s('input')[0].value=parseInt($s('input')[0].value)-1;
+		if ($s('input')[0].value=='0') {
+			clearInterval(set);
+		}
+	}
+
+常用的事件：
+onmouseover:鼠标经过时  onmouseout
+onmouseup onmousedown onfocus onblur onsubmit(写在form标签中)
+	
+	阻止不按要求操作的提交
+	function test(){
+		if (!$s('input')[0].value) {
+			alert('必须输入数据');
+			return false;//这里必须要有false，否则是阻止不了的
+		}
+	}
+	**注意下面的return语句！！！**
+	<form action="02.html" onsubmit="return test();">
+		<input type="text">
+		<input type="text">
+		<input type="submit">
+	</form>
+
+事件行为结构相分离
+
+-----
+
+js高级部分
+
+变量只声明，没赋值 为undefined
+对象不存在某属性 为undefined
+变量没有声明 为 is not defined
+
+变量的声明和赋值是分开的，var 变量名; 仅用于声明一个变量
+
+变量名 = 变量值;仅仅是为变量赋值 局部内不存在该变量则改变全局的同名变量
+如果全局也没有该变量呢？
+会创建该变量并赋值
+
+function t1(){
+	var a;
+	console.log(a);//undefined
+	a = 2;
+	// console.log(a);//2
+}
+function t2(){
+	console.log(a);//undefined
+	var a = 2;
+}
+t1();
+t2()的写法等同于t1(),函数中定义的变量在函数调用开始时，最先声明，直到运行到赋值语句处才进行赋值
+
+只能输出已经定义的变量 也就是只能输出var 定义的变量
+
+一定要特别注意js运行的顺序
+
+词法分析
+
+分析3样东西
+
+第1步: 先分析参数
+第2步: 再分析变量声明
+第3步: 分析函数声明
+
+一个函数能使用的局部变量,就从上面的3步分析而来
+
+
+具体步骤:
+
+0: 函数运行前的1瞬间, 生成 Active Object (活动对象),下称AO
+1: 
+   1.1 函数声明的参数,形成AO的属性,值全是undefined,
+   1.2 接收实参,形成AO相应的属性的值
+
+2: 分析变量声明声明声明! 如 var age, 
+   如果AO上还没有age属性,则添加AO属性,值是undefined
+   如果AO上已经有age属性,则不做任何影响
+   
+
+3: 分析函数声明,如 function foo() {}, 
+则把函数赋给AO.foo属性
+注: 如果此前foo属性已存在,则被无情的覆盖了
+
+注意：还有一个执行过程
+
+函数声明和函数表达式是完全不一样的效果。
+	function greet(){
+		var speak = ()=>{alert('hello')};
+		//对于这句，分两步走，首先是进行词法分析，在函数运行之前，首先生成一个AO对象，并在里面声明speak属性，并不马上赋值，只有函数真正执行到这一句，才会将右边的函数赋给左边的变量。或者说左边的变量指向右边函数所在的栈地址。
+
+		function speak(){
+			alert('speak in English');
+		}
+		//以上是函数声明，他很霸道，在词法分析阶段会覆盖AO对象中同名属性的值!!!
+
+		alert('xxx');
+	}
+
+ 	var greet = function(){
+
+ 	}
+
+函数声明和函数表达式的区别：
+函数声明在词法分析阶段就已经认识，而函数表达式只有在执行阶段才存在！！！
+
+函数表达式的返回值是函数的返回值。
+
+匿名函数立即执行：
+	(function(){alert('hello');})();
+
+arguments.callee属性表示这个方法本身，作用：递归调用自身。
+
+何为全局污染？
+脚本有一个全局变量a，大家或者所有函数都可以通过给a赋值的方式 a = 1; 改变a的值，这样就不知道a到底是什么，于是对a造成了污染
+避免全局污染的方法：
+1.统一放在一个全局对象上 如 jQuery $.cnt();调用计数器
+因为变量是作为对象的属性和对象绑定的，所以不易被污染
+2.每个人用自己的命名空间
+
+js面向对象：js中，有对象，没有类（有构造函数）
+
+js中的对象不依赖于类而存在，也就是js可以直接造对象
+var obj = {}
+js中的类是 “属性字典” 就像PHP中的关联数组
+
+继承：原型继承，以一个具体的对象为原型。
+
+语法：Tiger.prototype = new Cat();
+var t = new Tiger();
+此时，t对象也具有了Cat类的属性和方法。
+
+简要来说，就是给一个类指定一个原型对象，这个原型对象就相当于类的父类对象。
+
+	function Cat(){
+			this.clime = ()=>{
+				alert('猫会爬树');
+			}
+		}		
+
+		function Tiger(){
+			this.hunt = ()=>{
+				alert('老鼠会打猎');
+			}
+		}
+
+		//最重要是这一句话，prototype属性将两个类联系起来了。
+		Tiger.prototype = new Cat();	
+
+		var tiger = new Tiger();
+		tiger.hunt();
+		tiger.clime();
+		console.log(tiger);
+
+---		
+
+除此之外还可以在prototype原型对象的基础上添加属性或者方法，使得所有子类都具有相应的方法。
+
+	语法：Tiger.prototype.sing = function(){
+		alert('I can sing a song.')
+	}
+
+	tiger.sing();//I can sing a song.
+
+原型链继承 prototype 
+注意：有两个object对象，一个是普通的、含有constructor方法的object对象，在这个普通的object对象之上还有一个顶级的object对象，最后object对象的上一级为null
+
+prototype指这个原型对象，__proto__属性指当前对象的原型对象的名字。
+
+---
+	Tiger.prototype = new Cat();	
+	Tiger.prototype = new Bird();	
+	// tiger.clime();报错！！！
+			tiger.fly();
+	Bird覆盖了Cat，说明，一个类的原型对象有且只有一个，js属于单继承，要想丰富原型对象的功能，只能在prototype这个属性上添加！！！
+---	
+
+对象冒充继承
+也就是把父类的构造方法(实际上就是函数名)拿到子类中执行一遍 
+this.parent = Cat;
+this.parent.call(this,arguments);
+delete this.parent;
+函数.call(对象,参数);这是函数的一种调用方式
+
+	function Good(){
+
+		this.iq = 120;
+		this.study = ()=>{
+			console.log('高效学习');
+		}
+	}
+
+	function Bad(){
+		Good.call(this);//
+		this.play = ()=>{
+			console.log('dota lol');
+		}
+	}
+
+	let bad = new Bad();
+
+	bad.play();
+	bad.study();
+	console.log(bad);
+
+---
+
+复制继承
+有两个类，通过在一个类中循环遍历另一个类的实例，将其属性和方法赋给 this[key] = parent[key];
+
+this.extent = function(parent){
+	for(var key in parent){
+		this[key] = parent[key];
+	}
+}
+注：这里的parent是传过来的父类的一个实例、对象
+
+	function Good(){
+
+		this.iq = 120;
+		this.study = ()=>{
+			console.log('高效学习');
+		}
+	}
+
+	function Bad(){
+		this.extend = function (obj) {
+			for(let key in obj){
+				this[key] = obj[key];
+			}
+		}
+		this.play = ()=>{
+			console.log('dota lol');
+		}
+	}
+
+	let bad = new Bad();
+	let good = new Good();
+	bad.extend(good);//原本复制这个对象
+	bad.study();
+	console.log(bad);
+
+---
+
+函数本身也是对象：
+	function t(a,b,c){}
+	console.log(t.length);//函数的形参个数；t.name 函数的名字。如果是函数表达式，实际上是一个匿名函数。
+
+还是要加深对js 一切皆对象的理解
+
+动态语言谈不上多态，只有java那样的语言中才存在多态的说法
+
+js PHP 等弱类型语言中，本身就是多态 不对函数的参数类型进行检测
+
+java中实现多态的重要方法是：函数传参时指定参数类型为父类，由于“子类都是父类”，所以可以传所有属于这个父类的所有子类进去，进行操作，由于子类的多样性，所以称之为多态
+
+在PHP中也可以像java中那样限定，但不是必须的，不限定时，在语法上也是可以通过的
+
+多态实例：
+当文件夹或者文件名含有中文字符时，PHP是找不到文件的 会提示 no input file specified 
+
+在PHP中，最好通过抽象类来实现多态，子类通过继承抽象类，实现所有抽象方法，得到很多不同的子类，从而可以new很多不同的对象，传入不同的对象，就算执行同样的方法，也是有不同的效果
+abstract class Human{
+	abstract public function execute();
+	
+}
+
+class teacher extends Human{
+	public function execute(){
+		echo 'teach';
+	}
+}
+
+class student extends Human{
+	public function execute(){
+		echo 'study';
+	}
+}
+
+
+class children extends Human{
+	public function execute(){
+		echo 'play';
+	}
+}
+
+function test(Human $t){
+	$t->execute();
+}
+
+$people = new teacher();
+test($people);
+
+接口是功能的抽象
+interface Animal{
+	public function eat();
+}
+
+class Human implements Animal{
+	public function eat(){
+		echo '吃饭';//必须实现接口的所有方法
+	}
+}
+
+js中没有static关键字，如果要声明静态属性或者方法，直接加在类名上，比如有个Dog类，Dog.say = function(){} 这样，可以通过Dog.say()来调用此方法，而不用new对象
+
+/*
+注意：以下定义的是类级别上的静态方法，他只属于类对象本身，
+在对象的构造函数中的this.fangfa = function(){}只能通过有他产生的对象调用，this.xxx 并不是类级别上的。
+类级别上的静态方法，是在定义好类之后，额外通过 类名.xxx定义的。
+ 
+Dog.say = function(){
+	alert('我也会叫');
+}
+*/
+
+与PHP不同，PHP中的静态方法，通过static定义在类内部。
+内部 通过 self::方法名 调用 
+外部 通过 类名::方法名 
+子类调用父类中的所有方法或属性，包括静态的   parent::父类方法
+
+
+js中事件绑定详细解释
+
+<a href='#' onclick = 'test()'>自学网<a>
+function test(){
+	alert('我被点穴了.');
+}
+
+分析： 
+为a标签这个对象绑定一个单击事件，当这个事件发生时就会触发一个test()函数，来进行各种处理
+
+在事件发生的瞬间产生一个事件对象，记录了这个dom和鼠标的相关信息，然后在处理函数中就可以通过 访问事件对象
+
+第二种绑定
+$(#id).onclick = function(){}
+只能绑定一个事件，一个事件触发函数
+
+
+
+第3种绑定方式:
+W3c中的标准--addEventListener
+可以绑定一个事件的多个触发函数 很灵活
+可以绑定多个事件，多个事件触发函数
+1: 绑在哪个事件上?  click,load,change,blur,focus,mouseover,mouseup.....等等
+2: 绑定什么函数---自定义事件函数
+3: 什么方式监听执行事件函数? 捕捉,冒泡?
+
+语法: xxxDomObject.addEventListener();
+
+
+注意细节: 
+1: 事件名,一律不带on 
+2: 绑定事件函数中的"this"指绑定该事件的对象
+3: 执行顺序,是按绑定顺序来执行的!
+
+捕捉模型与冒泡模型
+
+由内->外 捕捉模型
+由外->内 冒泡模型 
+
+obj.addEventListener('click',function(){},false/true);
+这里的第三个参数 ： true 表示捕捉模型 false 表示冒泡模型
+
+例子：
+        <div id="china">
+            china
+            <div id="bj">
+                bj
+                <div id="hd">
+                    hd
+                </div>
+            </div>
+        </div>
+
+js中 
+
+<script>
+//注意这里的书写顺序与实际打印的顺序！！！
+	$('china').addEventListener('click',function(){alert('进入china');},true);
+	$('bj').addEventListener('click',function(){alert('进入北京');},true);
+	$('hd').addEventListener('click',function(){alert('进入海淀');},true);
+	$('china').addEventListener('click',function(){alert('离开china');},false);
+	$('bj').addEventListener('click',function(){alert('离开北京');},false);
+	$('hd').addEventListener('click',function(){alert('离开海淀');},false);
+</script>
+
+深入理解事件的捕捉与冒泡原型
+在内存中有一颗由dom对象组成的dom树，如果给dom对象绑定了某个事件，在addEventListener()的第三个参数中设置了true或者false，在事件触发时，是按照 先由外->内 的捕捉，即是在dom树中由上至下依次执行设置了true的函数，捕捉完成后，再由内->外 依次执行设置了false的函数，也就是向上冒泡。
+所以，捕捉与冒泡的先后，捕捉之间的先后，冒泡之间的先后 都只与dom树中的层次结构有关，而与对象绑定事件的先后顺序无关
+
+事件停止传播与效果阻止
+可以用事件对象的stopPropagation();来停止向下捕捉或者向上冒泡，主要取决于ev.stopPropagation()使用的位置
+
+取消事件本应有的效果!能否做到?
+
+答: 用 事件对象的 ev.preventDefault();
+
+解除绑定：
+ document.getElementsByTagName('p')[0].removeEventListener('click',cry,false);
+ 解释：给事件解除单击事件 这里的触发函数可以用一个不带括号的函数名表示
+
+ IE模型与w3c标准模型比较
+
+
+事件委托
+
+场景：一个父元素下面有多个子元素 比如table下有多个td
+如果希望点击一个td触发同一个事件，那么就可以把这个事件绑定给它的父元素table，在table中的事件触发函数中通过 ev.srcElement属性获得触发该事件的子元素，从而实现对每个子元素的控制，这就是事件委托
+
+例子如下：
+
+<table id=t>
+	<tr><td></td><td></td><tr/>
+	<tr><td></td><td></td><tr/>
+	<tr><td></td><td></td><tr/>
+	<tr><td></td><td></td><tr/>
+	<tr><td></td><td></td><tr/>
+	<tr><td></td><td></td><tr/>
+	<tr><td></td><td></td><tr/>
+	<tr><td></td><td></td><tr/>
+</table>
+
+实现点击单元格给该单元格设置背景
+
+<script>
+	$('t').addEventListener('click',function(ev){
+			ev.srcElement.style.background='url('')';
+		},false);
+</script>
+
+
+利用闭包计棋
+
+var cnt = (function(){
+	var curr = 'black';
+	return function(){
+		var tmp = curr;
+		if(curr=='black'){
+			curr = 'white';
+		}else{
+			curr = 'black';
+		}
+		return tmp;
+	}
+})();
+
+cnt();
+cnt();
+在URL路径中拼接此函数即可实现点击切换背景
+
+利用 ev.srcElement.style.background.indexOf('images')>=0 判断单元格是否已经设置背景，如果设置了，直接return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

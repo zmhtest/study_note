@@ -1,0 +1,1602 @@
+云之梦thinkPHP教程
+
+注意：这里使用的tp版本是5.0，和5.1是有很大区别的！！！
+
+可以在360软件中心下载微软常用的运行库文件！！！
+
+安装TP的三种方式：
+
+1. 直接到官网下载源码包，放到网站目录下
+
+2. 使用composer创建项目的方式安装。
+
+3. 通过git clone命令克隆GitHub上的最新版本
+
+从TP5开始分为核心包和完整包
+
+composer create-project --prefer-dist laravel/laravel mylaravel
+
+之所以打开了 openssl 还是提示没有打开的原因是，phpstudy没有安装完整，需要安装VC库
+
+可以打开 phpinfo 页面查看我们的php环境是否符合要求。
+
+问题：打开 laravel 提示 whools looks something wrong
+解决：将项目根目录下的 .env.example 另存为 .env 
+	  根目录运行 php artisan key:generate
+	  
+MVC的变形：
+1.MC 模型和控制器
+作用：用于api开发，一般返回一串数据
+
+2.VC 视图和控制器
+作用：不需要进行数据库交互
+
+-入口文件：项目目录\public\index.php
+作用：负责整个TP请求
+
+- 应用：项目目录\application
+作用：一个应用代表一个网站
+
+- 模块（前台和后台）项目目录\application\index 或者 admin
+作用：网站的前台或后台
+每个模块下分别有：控制器controller、模型model、视图view三个文件夹
+
+- 控制器：项目目录\application\index\controller
+控制器属于前台或后台
+作用：
+控制器的书写：
+1、声明命名空间：namespace app\index\controller
+2、控制器的文件名必须首字母大写，且控制器类名必须和文件名一致。
+
+------------------------
+
+from manul：
+
+配置：
+系统会按照下面的顺序来加载配置文件：惯例配置->应用配置->模块配置->动态配置
+
+后面的配置会覆盖前面的配置，所以配置的优先级从右到左。
+
+框架惯例配置：thinkphp/convention.php
+
+应用配置：config/app.php
+
+模块配置：app/模块/config目录
+
+动态配置：主要是指在控制器或者行为中进行（动态）更改配置，该配置方式只在当次请求有效，因 为不会保存到配置文件中。
+
+一定注意了，5.1没有 config.php 配置文件，默认配置都在 app.php 配置文件，并且配置参数区 分大小写
+
+如果你需要统一管理所有的配置文件，那么可以把模块目录下面的 config 目录移动到应用配置目录下面 改为模块子目录的方式
+
+一旦模块目录下面存在 config 目录，则应用配置目录下的模块配置则无效，也不会对两个目录的配 置进行合并。
+
+入口文件定义
+
+ 默认的应用入口文件位于 public/index.php 
+
+下面是一个例子（把入口文件放到应用根目录，并且更改应用目录名称为 app ）：
+
+<?php namespace	think;
+//	定义应用目录 define('APP_PATH',	__DIR__	.	'/app/'); //	加载框架基础引导文件 require	__DIR__	.	'/thinkphp/base.php'; //	添加额外的代码 //	...
+//	执行应用并响应 Container::get('app',	[APP_PATH])->run()->send();
+
+特别注意的是，如果你需要调用PHP内置的类库，或者第三方没有使用命名空间的类库，记得在实例 化类库的时候加上	\ 
+
+特别注意的是，如果你需要调用PHP内置的类库，或者第三方没有使用命名空间的类库，记得在实例 化类库的时候加上	\ 
+
+think 系统核心类库 thinkphp/library/think 
+
+app 应用类库 application
+
+如果需要增加新的根命名空间，我们只需要把自己的类库包目录放入 extend 目录，就可以自动注册对应 的命名空间，例如：
+我们在 extend 目录下面新增一个 my 目录，然后定义一个 \my\Test 类（	类文件位于 extend/my/Test.php ）如下：
+namespace	my;
+class	Test	{				public	function	sayHello()				{								echo	'hello';				} }
+我们就可以直接实例化和调用：
+$Test	=	new	\my\Test(); $Test->sayHello();
+
+-------------------------
+
+云之梦：
+
+跨控制器调用；
+
+方法1：
+    public function diaoyong( )
+    {
+    	$model = new \app\admin\controller\User;
+    	$model->index();
+    }
+
+方法2：
+use \app\index\controller\User;
+  	$model = new User();
+    	$model->index();
+
+方法3：调用当前模块的User控制器
+    	$model = controller('user');
+    	$model->index();
+
+    	跨模块调用 模块/控制器
+    	$model = controller('index/user');
+    	$model->index();
+
+---------------------------
+
+调用方法：
+调用当前控制器的方法：
+    	// $this->test();
+    	// self::test();
+    	Index::test();
+
+    	控制器/方法
+    	// action('user/test');
+
+调用跨模块跨控制器的方法：模块/控制器/方法
+    	action('index/user/test');
+
+-----------------------
+
+读取配置
+
+配置类：
+    use \think\Config;
+    echo    Config::get('配置参数1');
+
+个助手函数 config
+    echo config('配置参数1')
+
+如果没有配置 addr 返回null
+    dump(config('addr'));
+
+数组，只能通过dump()函数进行打印，echo 只限于输出字符串。
+    dump(config('myinfo'));
+    dump(config('myinfo.name'));
+
+dump()、config()函数位于 \thinkphp\helper.php
+这里的函数是可以直接调用的。
+
+应用配置目录：application\config.php
+
+扩展配置：就是对我们的配置进行分类管理，比如 config.php 里面有各种各样不同种类的配置。
+
+扩展配置文件直接放入 application/extra 目录会自动加 载。
+
+读取数据库扩展数据：
+
+读取扩展项：
+    dump(config('database.password'));
+
+读取所有的database扩展数据：
+dump(config('database'));
+
+场景配置：
+
+不同的情况下设置自己的状态（或者称之为应用场景），并且加载不同的配置文件。
+
+修改 config.php下的
+'app_status'=>'office
+
+创建：home.php office.php
+
+模块配置：
+就是在模块目录下有 config.php 文件
+
+动态配置：
+
+config('myname','朱宇轩');
+
+Config::set('myname','朱杏梓');
+
+批量设置：
+Config::set([               '配置参数1'=>'配置值',             '配置参数2'=>'配置值' ]); //   或
+
+//  或者使用助手函数 config([               '配置参数1'=>'配置值',             '配置参数2'=>'配置值' ])
+
+配置文件的实现原理：
+后面加载的配置把前面的同名配置项覆盖：
+$a = 2;
+$a=3;
+
+环境变量配置；
+tp5.0才开始支持环境变量配置
+
+设置步骤：
+    1.打开网站根目录；
+
+    2.创建 .env 文件
+
+    3 .env 文件中的配置参数定义格式 采用 ini 方式，例如：
+     name=zhuminghao.env
+    age=23
+    address=高州
+
+    4.读取环境变量：通过 \think\Evn::get('name');
+
+读取.env 文件中的数组：
+[database]
+type=mysql
+user=root
+pass=123   
+
+dump(Env::get('database.pass'));
+注意：并不能读取整个数组，只能每次读取一项。
+
+如何使用环境变量：
+
+.env文件中
+app_debug=true
+app_status=home
+
+任意的配置文件中：
+先引入读取配置文件的类Env
+use \think\Env;
+
+    'app_status'             => Env::get('app_status',''),
+
+环境变量中设置的 app_debug 和 app_trace 参数会自动生效（优先于应用的配置文件），其它参 数则必须通过 Env::get 方法才能读取。
+
+--------------------------
+
+入口文件和路由模式
+
+路由的作用：
+    1.简化URL地址，方便记忆
+    2.有利于搜索引擎优化
+
+前后台分离：
+    1.public目录新建：admin.php
+    2.复制index.php 内容
+
+绑定模块：
+    index.php 只能进前台模块
+    admin.php 只能进后台模块
+
+define('BIND_MODULE','admin');
+
+访问：http://localhost/thinkphp_5.0_full/public/admin.php/index/index
+只能访问后台模块，所以，不用谢模块名
+
+注意：
+    1.路由只针对应用，不针对模块，也就是说针对应用下的所有模块
+    2.如果有些模块不想使用路由
+        需要在入口文件最后设置如下：关闭模块路由：
+        \think\App::route(false);
+
+路由的三个模式：
+    1.普通模式：也就是默认模式PATHINFO
+        'url_route_on' => false;
+    2.混合模式 默认设置就是混合模式，既可以通过路由访问，也可以通过pathinfo方式访问。
+        'url_route_on' => true;
+        'url_route_must' => false;
+    3.强制模式
+        'url_route_on' => true;
+        'url_route_must' => true;
+
+--------------------------
+
+隐藏入口文件；
+
+解决不能重写的问题：
+.htaccess文件中的
+
+RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
+
+在默认情况下会导致No input file specified.
+
+修改成
+
+RewriteRule ^(.*)$ index.php [L,E=PATH_INFO:$1]
+
+虚拟主机的配置
+<VirtualHost *:80>
+    DocumentRoot "D:\www\tp5\public"
+    ServerName www.tp.com
+  <Directory "D:\www\tp5\public">
+     # 特别注意这里 + 不能省略
+      Options +Indexes +FollowSymLinks
+      
+      AllowOverride All
+
+      Require all granted
+  </Directory>
+</VirtualHost>  
+------------------
+
+在Fastcgi模式下，php不支持rewrite的目标网址的PATH_INFO的解析，当我们的 ThinkPHP运行在URL_MODEL=2时，就会出现
+ No input file specified.的情况， 
+
+这时可以修改网站目录的.htaccess文件： 
+将 
+RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L] 
+改为 RewriteRule ^(.*)$ index.php?s=$1 [QSA,PT,L]
+
+-----------------------------
+如果同时在入口文件绑定了模块，又隐藏了入口文件，那么访问形式为：think.com/控制器/方法
+
+
+设置路由；
+    1.动态单个设置
+
+    2.动态批量注册
+
+    3.配置文件批量注册
+
+注意：如果要使用路由，一定要注释掉入口文件的 ：
+// define('BIND_MODULE','index');
+
+请求类型：默认支持所有请求类型（不靠谱）
+
+use think\Route;
+
+//强制路由模式下，/ 同样要设置。
+Route::rule('/','index/index');
+
+//静态路由
+// Route::rule('test','index/index/test');
+
+// 单参数路由
+// Route::rule('test/:id','index/index/test');
+
+// 参数路由
+// Route::rule('test1/:id/:name','index/index/test1');
+
+// 完全匹配路由
+// Route::rule('test1/:id/:name$','index/index/test1');
+
+// 路由额外带参数
+/*Route::rule('test2','index/index/test2?id=1&name=zmh');
+
+dum(input());结果：
+array(2) {
+  ["id"] => string(1) "1"
+  ["name"] => string(3) "zmh"
+}
+*/
+
+// 路由地址格式：模块/控制器/方法
+ 
+// 调用User控制器的index方法
+// Route::rule('user','index/user/index');
+
+// 请求类型：
+Route::rule('type','index/index/type','get');
+
+// 用表单来模拟post请求 method="post" 提交到当前路由表达式即可！！！
+// Route::rule('type','index/index/type','POST');
+
+// 请求类型简写 get post put
+/*Route::post('type','index/index/type');
+
+Route::get('type','index/index/type');*/
+
+// 设置任意类型的访问
+// Route::any('type','index/index/type');
+// 等价于 Route::rule('type','index/index/type','*');
+
+// 设置get和post类型
+// Route::rule('type','index/index/type','get|post');
+
+// 注意：当表单的input输入框没有设置name属性时，通过 input()方法是无法读取出数据的！！！
+
+// 支持put请求，在表单下添加隐藏域 <input type="hidden" name="_method" value="PUT" />
+Route::put('type','index/index/type');
+Route::rule('type','index/index/type','put');
+
+// 支持delete请求
+Route::delete('type','index/index/type');
+Route::rule('type','index/index/type','delete');
+
+动态批量注册路由；
+    1.基本格式：
+    Route::rule([ '路由规则1'=>'路由地址和参数', '路由规则2'=>['路由地址和参数','匹配参数（数组）','变量规则（数组）'] ... ],'','请求类型','匹配参数（数组）','变量规则');
+
+    /*Route::rule([
+        'test/:id'=>'index/index/test',
+        'user'=>'index/user/index'
+    ],'','get');*/
+    /*Route::get([
+        'test/:id'=>'index/index/test',
+        'user'=>'index/user/index'
+    ]);*/
+
+使用配置文件批量配置：
+
+return [
+    'test/:id'=>'index/index/test',
+        'user'=>'index/user/index'
+        ];
+
+资源路由：
+1.后台功能
+
+Route::resourse('blog','Blog')
+会生成一系列的路由，包括
+index、create、delete、update、edit、save、
+
+结合命令行创建资源控制器使用！！！
+
+快捷路由：
+
+//快捷路由 该控制器下有什么方法，就会生成什么路由。
+Route::controller('blog','Blog');
+
+---------------
+
+控制器：
+
+    注意：
+    1.类名首字母大写，类名和文件名一致。
+    2.如果控制器采用驼峰命名法，访问时必须加下划线 _
+    3.命名空间要与文件所在目录的路径一致。
+
+加载页面：
+    1.使用系统函数：return view();
+    注：如果控制器采用驼峰命名法，那么view文件夹下的控制器文件夹也要用下划线 ‘_’ 的形式命名！！！
+
+    2.
+        public function jiazai()
+    {
+
+        $view = new \think\View;//这里有没有括号都行,但是最前面必须要有 \ ,如果使用use来引入，前面则有无 \ 都可以！！！
+        return $view->fetch();
+
+    }
+
+    3.使用系统的控制器 \think\Controller;继承系统的控制器。
+    use think\Controller;
+    class UserInfo extends Controller{}
+    $this->fetch();
+
+数据的输出：
+    1.输出字符串
+    return '朱明浩';
+
+    2.输出数组，首先要转成json字符串 
+    return json_encode($arr);
+
+    关联数组返回json字符串
+    "{\"name\":1,\"age\":2,\"sex\":3}"
+
+    普通索引数组，返回数组字符串
+    "[1,2,3]"
+
+默认返回的是html，可以在配置文件中设置返回json、xml
+
+return '<h2>欢迎光临</h2>';
+页面会直接渲染html
+
+控制器的初始化：访问控制器下的任意方法，都会首先加载 _initialize() 方法！
+    1.public function _initialize(){}
+初始化方法的作用：
+1.提取控制器中公共的代码块。
+2.后台权限把控
+
+前置操作：是更加精确的控制器初始化方法。
+    protected $beforeActionList = [
+
+        'one',//该控制器下所有的方法都可以执行one操作
+
+        'two'=>['except'=>'index'],//只有index不能使用two前置操作
+
+        //仅仅在index方法会执行three这个前置操作
+        'three'=>['only'=>'index']
+
+    ];
+
+    public function one($value='')
+    {
+        echo "one<hr/>";
+    }
+    public function three($value='')
+    {
+        echo "three<hr/>";
+    }
+    public function two($value='')
+    {
+        echo "two<hr/>";
+    }
+
+注：前置操作必须继承系统控制器\thind\Controller
+
+--------------------------------
+
+页面跳转
+    1.成功跳转
+    2.失败跳转
+
+如果在入口文件绑定了模块
+define('BIND_MODULE','index');
+那么在访问时，可以省略模块名，在定义路由时，也可以省略模块名，在用url()生成url时，同样可以省略模块名！！！
+
+在开启混合路由模式的情况下，如果在Route.php文件中设置了某一方法的路由，则不能通过pathinfo的方式访问！！！
+
+用url()方法生成驼峰的控制器，直接按照驼峰的写法，他会自动解释成下划线形式！！！
+
+Login控制器：
+    public function index()
+    {
+
+        echo "login控制器";
+        return view();
+    
+    } 
+
+    public function check()
+    {
+
+        dump($_POST);
+
+        $username = $_POST['user'];
+        $pass = $_POST['pass'];
+
+        if ($username == 'admin'&& $pass== '123') {
+
+            $this->success('登录成功',url('index/test'),'3');
+            
+        }else{
+
+            $this->error('登录失败',url('UserInfo/index'),2);
+        }   
+    }    
+
+login下的index.html
+    <form action="{:url('check')}" method="post">
+        <h3>用户登录界面</h3>
+        <p>user<input type="text" name="user"></p>
+        <p>pass<input type="text" name="pass"></p>
+        <p>
+            <input type="submit" value="登录">
+            <input type="reset" value="注册">
+
+        </p>
+    </form>
+
+修改成功和失败的模板页面：
+
+跳转方法给模板页面的数据：
+1、$code 返回状态码 成功1 失败0
+2.$msg 页面的提示信息
+3.$wait 等待时间
+4.$url 指定跳转页面
+5.$data 用户返回的数据
+
+修改部分
+!-- <h1>:)</h1> --> 
+<img src="/static/xiao.jpg" alt="" />
+注意：/ 表示public目录
+
+自定义模板目录：
+修改配置文件 'diapatch_success_tmpl'
+可以在自定义的模板文件中引入 bootstrap中的dist文件夹，使用bootstrap进行布局。
+
+重定向：
+
+定义：用各种方法将用户的请求转到其他位置。
+
+$this->redirect($url)
+
+    public function cdx( )
+           {
+            echo "cdx";
+                $this->redirect('index/test',['id'=>100,'name'=>'朱明浩']);
+         
+空控制器和空操作：
+
+空操作：主要解决一些用户恶意的地址栏输入
+    public function _empty( )
+    {
+        $this->redirect('index/index',['id'=>100,'name'=>'朱明浩']);
+    }
+
+空控制器：Error类，下面要有_empty方法
+<?php 
+namespace app\index\controller;
+
+use think\Controller;
+
+class Error extends Controller{
+    public function index( )
+    {
+        $this->redirect('index/index');
+    }
+
+        public function _empty()
+    {
+        $this->redirect('index/index');
+    }
+
+}    
+
+注意：
+1.网站上线后每个控制器都要写空操作。
+2.每个木块都要写空控制器！！！
+
+资源控制器：
+利用php think 命令创建一个控制器。
+D:\WWW\think>php think make:controller app\index\controller\Logout
+
+创建模型：
+php think make:model app\index\model\Goods
+
+清除runtime文件：php think clear 
+
+使用系统请求类：
+    1.使用系统函数
+        request();
+
+    2.Request类
+        use think\Request;
+        Request::instance();//单例模式
+
+    3.系统Request类
+        use think\Request;
+        public function index(Request $request)
+        {
+            // $request = Request::instance();
+            // $request = request();
+            dump($request);     
+        }  
+
+
+    public function index(Request $request)
+    {
+    
+        // 域名 http://think.com
+        dump($request->domain()); 
+
+        //域名之后的部分
+        dump($request->url());
+
+        //入口文件      
+        dump($request->basefile());
+
+        //pathinfo 部分，不包括 ?name=zmh&id=10   
+        dump($request->pathinfo());
+
+        //pathinfo部分，但是没有后缀
+        dump($request->path());
+
+        // 获取伪静态后缀 .html
+        dump($request->ext());      
+
+    }
+
+伪静态：
+1.将路径伪装成静态页面，让搜索引擎更好的收录页面
+2.防止让别人知道网站的真实开发语言
+
+获取模块、控制器、方法
+    $request->module();
+
+    $request->controller();
+
+    $request->action();
+
+    $request->method();请求类型
+
+    $request->type();资源类型
+
+    $request->ip();ip地址
+
+    $request->isAjax();是否是ajax请求
+
+    $request->param();获取所有的参数
+
+    $request->only(['name','pass']);只获取name、pass
+    $request->only(['name','pass'],'get');只获取get请求的name、pass
+
+    $request->except(['name','pass']);除了name、pass
+    $request->except(['name','pass'],'get');get请求中除了name、pass
+
+模拟ajax请求：
+
+    引入jQuery.js到static目录，在模板中，$.post("{:url('getType')}"),表示向getType.html页面发送ajax请求。
+
+获取地址栏变量：
+
+    判断参数是否存在
+    $request->has('id','get');判断地址栏有没有id参数，而且是get类型的
+
+    input("?get.id") 同上
+
+    读取指定参数：
+    $request->get('id')
+
+    input('get.id')
+
+    读取所有参数：
+    input('get.')
+
+    $request->get();
+
+可以读取的数据类型：get、post、put、session、cookie、server
+相当于$_POST $_SERVER等超全局数组。
+
+    $request->post()
+    $request->session()
+    $request->cookie()
+    $request->server()
+    $request->delete()
+
+数据过滤:也就是对表单提交过来的数据进行过滤，防止SQL注入。
+    
+    $request->filter('htmlspecialchars');
+
+   全局过滤是没有返回值的，直接对原数组进行更改！！！
+    public function guolv(Request $request)
+    {
+        dump(input('post.'));过滤前
+
+        $request->filter(['htmlspecialchars','strip_tags']);
+
+        dump(input('post.'));过滤后
+        
+
+    }
+
+    针对单个变量进行过滤，返回更改后的数据
+    $request->get('name','','htmlspecialchars');
+
+    //先过滤再加密
+    $request->get('name','','htmlspecialchars,md5');
+
+变量修饰符：修饰变量的类型，为了更好的过滤！
+    
+    /s 字符串  $request->get('id/s')
+    /a 数组
+    /d 整型   input('get.id/d')
+    /f 浮点
+
+变量的更改：
+
+    $request->get(['id'=>29]);
+
+请求类型的判断：
+
+    $request->isGet();
+    $request->isPost();
+    $request->isMobile();
+    $request->isAjax();
+    $request->isDelete();
+
+    也可以使用助手函数 request();
+
+    request()->isGet()
+    request()->isPost()
+
+模拟 PUT和DELETE请求
+1.表单必须以post方法提交
+2.添加隐藏域 <input type="hidden" name="_method" method="PUT" />
+
+模拟ajax和pjax请求：无法测试成功
+地址栏加参数 ?_ajax=10
+
+修改伪静态：'url_html_suffix'        => 'html',
+获取伪静态后缀：$request->ext();
+
+方法中参数的绑定：
+注意：
+1.参数的个数要少于地址栏的参数个数
+2.参数绑定的名字，必须和地址栏的参数名字一样
+3.参数绑定可以设置默认值
+
+    public function bangding($id,$name )
+     {
+        echo $id,'<br />';
+        echo $name;
+     } 
+
+数据库
+
+如何连接数据库：
+1.配置文件连接：
+    修改database.php
+
+2.方法配置
+        //使用配置方法连接数据库
+        $db=Db::connect([
+
+                    // 数据库类型
+            'type'           => 'mysql',
+            // 服务器地址
+            'hostname'       => '127.0.0.1',
+            // 数据库名
+            'database'       => 'test2',
+            // 用户名
+            'username'       => 'root',
+            // 密码
+            'password'       => 'root',
+            // 端口
+            'hostport'       => '3306'
+        ]);
+        dump($db->query('select * from users'));
+
+        还可以使用字符串的方法：
+
+        $db = Db::connect("数据库类型://username:pwd@url:port/databasename#char")
+
+3.模型类定义
+    命令行创建；
+    php think make:model app\index\model\User
+一个模型对应一张表
+
+    protected $connect = "mysql://root:root@localhost:3306/tp5#utf8";
+
+<?php
+
+namespace app\index\model;
+
+use think\Model;
+
+class User extends Model
+{
+    protected $connect = [
+                 // 数据库类型
+            'type'           => 'mysql',
+            // 服务器地址
+            'hostname'       => '127.0.0.1',
+            // 数据库名
+            'database'       => 'tp5',
+            // 用户名
+            'username'       => 'root',
+            // 密码
+            'password'       => 'root',
+            // 端口
+            'hostport'       => '3306'
+
+    ];
+}
+
+    public function test()
+    {
+      $user = new \app\index\model\User;
+      dump($user::all());
+    }
+
+
+控制器中访问数据库：
+
+方法1：
+use think\Db;
+dump(Db::table('user')->select());
+
+方法2：使用Db类发送SQL语句
+dump(Db::query('select * from user'));
+
+传统的数据库操作：
+PDO
+    给SQL语句传递参数。
+    查询数据：
+    public function select()
+    {
+        dump(Db::query('select * from user where id>? and id<?',[2,6]));
+        echo Db::getLastSql();//打印最后一次的SQL语句
+    }
+
+
+select * from user where id>'2' and id<'6'
+
+增加数据：
+    public function insert()
+    {
+        $data = Db::execute("insert into user value(null,'user2','1123132311')");
+        dump($data);
+
+    }
+
+    public function insert()
+    {
+        $data = Db::execute("insert into user value(null,?,?)",['user3','345325']);
+        dump($data);
+    }
+
+    public function insert()
+    {
+        $data = Db::execute("insert into user value(null,:name,:pwd)",['name'=>'zmh','pwd'=>'789']);
+        dump($data);
+    }
+
+// 删除数据
+    public function delete()
+    {
+        $data = Db::execute("delete from user where id=10");
+
+        $data = Db::execute("delete from user where id=?",[10]);
+        dump($data);
+    }
+
+insert、delete、update语句返回的都是影响的行数。
+
+更新数据：
+
+    public function update()
+    {
+        $data = Db::execute("update user set name='user10' where id=10");
+        dump($data);
+    }
+
+如果要使用路由 Route 一定不要在入口文件绑定模块！！！
+
+数据库操作：
+    
+    查询：
+    1.table()方法
+    
+    // 查询所有数据 SELECT * FROM `user`
+        $data = Db::table('user')->select();
+
+    // 查询一条数据 SELECT * FROM `user` LIMIT 1
+         $data = Db::table('user')->find();
+
+    2.name()方法
+
+        // 查询所有数据 SELECT * FROM `user`
+        $data = Db::name('user')->select();
+
+        // 查询一条数据 SELECT * FROM `user` LIMIT 1
+        $data = Db::name('user')->find();
+
+区别：name() 方法会自动添加我们配置的表前缀，如果没有配置表前缀，两个方法是一样的。
+
+    3.助手函数db()
+        $data = db('user')->where('id','>',10)->select();
+        $data = db('user')->find();
+
+where条件匹配：
+
+    SELECT * FROM `user` WHERE `id` > 4
+
+        $data = db('user')->where('id','>',4)->select();
+    
+    多个where连缀表示并列条件    
+    SELECT * FROM `user` WHERE `id` > 4 AND `age` = 22
+
+        $data = db('user')->where('id','>',4)->where('age',22)->select(); //如果是等于 = 可以省略不写
+        
+    SELECT * FROM `user` WHERE `name` LIKE '朱明%' AND `age` < 28
+
+        $data = db('user')->where('name','like','朱明%')->where('age','<',28)->select();
+
+where()方法里面可以直接写条件语句！！！
+
+        $data = Db::table('user')->field('name')->where('id>5')->select();
+
+where() 还可以用数组的形式：
+
+        $data = Db::table('user')->field('name,id')->where(['id'=>['>','5']])->whereOr(['id'=>['<','3']])->select();
+
+whereOr 或者匹配
+
+    SELECT * FROM `user` WHERE `id` < 3 OR `age` > 25
+        $data = db('user')->where('id','<',3)->whereOr('age','>',25)->select();
+
+排序order、限制limit
+默认按照升序排列
+
+    SELECT * FROM `user` WHERE `id` < 3 OR `age` > 25 LIMIT 2
+        $data = db('user')->where('id','<',3)->whereOr('age','>',25)->limit(2)->select();
+
+Limit下标从0开始！
+
+    SELECT * FROM `user` WHERE `id` < 3 OR `age` > 25 LIMIT 2,2
+        $data = db('user')->where('id','<',3)->whereOr('age','>',25)->limit(2,2)->select();
+
+先排序，再截取
+
+     SELECT * FROM `user` WHERE `id` < 3 OR `age` > 25 ORDER BY `id` desc LIMIT 2
+        $data = db('user')->where('id','<',3)->whereOr('age','>',25)->order('id','desc')->limit(2)->select();
+
+设置查询字段：field()
+     $data = db('user')->field('name,age')->limit(2)->select();
+
+     $data = Db::field('name')->table('user')
+     等价于：
+     $data = Db::table('user')->field('name')
+
+    设置别名：表和字段都可以设置别名！
+
+    $data = db('user users')->field('name uname,age')->limit(2)->select();
+ 
+    使用系统函数
+
+        $data = db('user')->field('count(*)')->select(); 
+
+        SELECT count(*) as total FROM `user`
+        $data = db('user')->field('count(*) as total')->select();   
+
+还可以使用数组的形式：
+
+    SELECT `name`,`age` FROM `user`
+        $data = db('user')->field(['name','age'])->select();
+
+    SELECT `name` AS `uname` FROM `user`
+        $data = db('user')->field(['name'=>'uname'])->select();
+
+    SELECT count(*) AS `total` FROM `user`
+        $data = db('user')->field(['count(*)'=>'total'])->select();
+
+    排除字段，将第二个参数设置为true
+        $data = db('user')->field('age,name',true)->select();
+
+        $data = db('user')->field(['age','id'],true)->select();
+
+多表查询：
+
+    select goods.*,type.name tname from type,goods where type.id=goods.cid
+        $data = Db::query("select goods.*,type.name tname from type,goods where type.id=goods.cid");
+
+内连接：inner join
+
+    SELECT `goods`.*,type.name tname FROM `goods` INNER JOIN `type` ON `goods`.`cid`=`type`.`id`
+        $data = db('goods')->join('type','goods.cid=type.id')->field('goods.*,type.name tname')->select();
+
+    SELECT `goods`.*,type.name tname FROM `goods` LEFT JOIN `type` ON `goods`.`cid`=`type`.`id`
+        $data = db('goods')->join('type','goods.cid=type.id','left')->field('goods.*,type.name tname')->select();
+
+设置别名：
+
+    SELECT `g`.*,t.name tname FROM `goods` `g` RIGHT JOIN `type` `t` ON `g`.`cid`=`t`.`id`
+
+        $data = db('goods')->alias('g')->join('type t','g.cid=t.id','right')->field('g.*,t.name tname')->select();
+
+        $data = db('goods g')->join('type t','g.cid=t.id','left')->field('g.*,t.name tname')->select();
+
+注意：一般使用左连接，用商品表左连接栏目表，这样就不会出现NULL
+
+在查出表的所有数据后，其他的操作方法的顺序是可以随便的，只要在table() name() db('tablename')后面即可
+
+
+分组计算：
+
+    SELECT t.id tid,t.name tname,count(*) total FROM `goods` `g` LEFT JOIN `type` `t` ON `g`.`cid`=`t`.`id` GROUP BY `t`.`id`
+        $data = db('goods')->field('t.id tid,t.name tname,count(*) total')->alias('g')->join('type t','g.cid=t.id','left')->group("t.id")->select();
+
+注意：用于分组的字段，必须是商品表中 重复的，或者栏目表的字段。
+如果没有连接到栏目表，就无法取出这个商品所对应的栏目名！！！
+
+
+SELECT `g`.`cid`,count(*) total FROM `goods` `g` GROUP BY `g`.`cid`
+     $data = db('goods')->field('g.cid,count(*) total')->alias('g')->group("g.cid")->select();
+
+以上只能查出每一类商品的记录条数，并不能显示栏目名称，因为栏目名在type表中。
+
+    $data = db('goods g')->join('type t','g.cid=t.id','left')->field('t.id tid,t.name tname,count(*) total')->group('t.id')->select();
+
+union连表查询
+
+    $data = db('user')->field('name')->union('select name from goods')->select();
+
+    $data = Db::table('user')->field('name')->union('select name from goods')->select();
+
+    $data = Db::field('name')->table('user')->union('select name from goods')->select();
+
+感叹：真是太灵活了。
+
+绑定参数：可以有效防止SQL注入
+
+     $data = Db::table('user')->where('id',":id")->bind(["id"=>[$id,\PDO::PARAM_INT]])->delete();
+
+批量插入数据的方法：
+insert into User select * from User
+
+典型的SQL注入：
+delete from User where id=10 or 1;
+这样会删除user表所有的数据，因为 or 1 永远为真！！！
+
+注意：PHP中双引号里面的变量会被解释，而单引号中的变量是不会被解释的！
+
+    $id = input('id');
+
+     $data = Db::table('user')->where('id',$id)->delete();
+
+http://think.com/index/admin/index?id=32 or 1
+
+生成的SQL语句：DELETE FROM `user` WHERE `id` = 32
+
+说明使用tp自带的delete方法会自动过滤掉有害参数！
+
+如果直接用 Db::execute("")执行SQL则没有自动过滤功能！
+
+统计数据：
+    $data=Db::table('user')->max('age')
+    $data=Db::table('user')->min('age')
+    $data=Db::table('user')->avg('age')
+    $data=Db::table('user')->count('age')
+    $data=Db::table('user')->sum('age')
+
+数据库的增删改操作：
+    
+    插入一条数据
+    $data = [
+
+            'name'=>'张三',
+            'pwd'=>'111223',
+            'age'=>24
+        ];
+
+        $code = Db::table('user')->insert($data);
+        返回受影响的行数
+
+        插入多条数据
+        INSERT INTO `user` (`name` , `pwd` , `age`) VALUES ( '张三','111223',24 ) , ( '李四','1113',6 ) , ( '张三二','111233223',29 )
+
+        $data = [
+
+            ['name'=>'张三',
+            'pwd'=>'111223',
+            'age'=>24],
+            ['name'=>'李四',
+            'pwd'=>'1113',
+            'age'=>6],
+            ['name'=>'张三二',
+            'pwd'=>'111233223',
+            'age'=>29],
+        ];
+
+        $code = Db::table('user')->insertAll($data);
+
+        插入一条数据，并返回最后的id
+        $code = Db::table('user')->insertGetId($data);
+
+同样可以使用助手函数实现以上操作。
+    
+    $code = db('user')->insert($data);
+
+    $code = db('user')->insertAll($data);
+
+    $code = db('user')->insertGetId($data);
+
+更新数据：返回受影响的函数，如果更新失败，返回0
+    
+    更新一个字段，使用where可以设定范围
+    $code = Db::table('user')->where('id',1)->update(['age'=>25]);
+
+    如果id是主键，还可以直接写到update数组里
+    $code = Db::table('user')->update(['age'=>10,'id'=>2]);
+
+    修改多个字段
+    UPDATE `user` SET `name`='朱艳尔',`age`=7 WHERE `id` = 2
+    $code = Db::table('user')->update(['name'=>'朱艳尔','age'=>7,'id'=>2]);
+
+    只更新一个字段：
+    $code = Db::table('user')->where('id',3)->setField('age',29);
+
+    设置某条记录的某个字段自增、自减 1
+
+    UPDATE `user` SET `age`=`age`+1 WHERE `id` = 3
+   $code = Db::table('user')->where('id',3)->setInc('age');
+
+   UPDATE `user` SET `age`=`age`-1 WHERE `id` = 3
+    $code = Db::table('user')->where('id',3)->setDec('age');
+
+    使用助手函数实现：
+    $code =db('user')->where('id',3)->setInc('age');
+
+    $code =db('user')->where('id',3)->setDec('age');
+
+删除数据：返回受影响的函数，如果更新失败，返回0
+    
+    删除一条数据：
+    $code = Db::table('user')->where('id',49)->delete();
+
+    $code = Db::table('user')->delete(49);
+
+
+    删除多条数据
+    DELETE FROM `user` WHERE `id` IN (55,56)
+        $code = Db::table('user')->delete([55,56]);
+    
+        $code = Db::table('user')->where("id in(52,53,54)")->delete();
+
+        使用助手函数db()
+        $code = db('user')->delete([57,58]);
+
+        $code = db('user')->where('id in(59,60)')->delete();
+
+        删除区间范围：
+        $code = db('user')->where('id>40 and id<50')->delete();
+
+事务机制：
+简单理解就是将一件事，分成几件小事，只要其中任意一件小事没有完成，就会回到原点。
+
+mysql中的事务：
+要求：只有InnoDB引擎才支持事务！
+default-storage-engine=INNODB
+#支持 INNODB 引擎模式。修改为　default-storage-engine=INNODB　即可。
+#如果 INNODB 模式如果不能启动，删除data目录下ib开头的日志文件重新启动。
+
+使用：
+    1、自动控制事务（一般不用）
+    Db::transaction(function(){
+        Db::table('user')->delete(40);
+        Db::table('user')->deletes();//此句出错，所以将不会执行上一句的删除操作！
+    })
+
+    2.手动控制事务：
+
+    // 启动事务
+       Db::startTrans();
+       try{
+           Db::table('think_user')->find(1);
+           Db::table('think_user')->delete(1);
+           // 提交事务
+           Db::commit();    
+       } catch (\Exception $e) {
+           // 回滚事务
+            Db::rollback();
+        }
+
+---------------
+
+        Db::startTrans();
+       try{
+           $a = Db::table('user')->delete(1);
+           if(!$a){
+            throw new \Exception("删除5失败", 1);
+            
+           }
+           $b = Db::table('user')->delete(51);
+           if(!$b){
+            throw new \Exception("删除5失败", 2);
+            
+           }
+           // 提交事务
+           Db::commit(); 
+           echo "删除成功";   
+       } catch (\Exception $e) {
+           // 回滚事务
+           echo "删除失败";
+            Db::rollback();
+            echo $e->getMessage();
+        }
+
+--------------
+
+     $a = Db::table('user')->delete(51);
+     $b = Db::table('user')->delete(52);
+
+     if($a && $b){
+
+        //提交事务
+        Db::commit();
+     }else{
+
+     //回滚事务
+        DB::rollback():
+     }
+
+视图查询：原理类似多表查询
+
+
+模型 model
+
+    数据模型
+
+    1.新建数据模型
+    php think make:model app\index\model\User
+
+    <?php 
+    namespace app\index\model;
+
+    use think\Model;
+
+    class User extends Model
+    {
+        
+        protected $table = "user";
+        
+    }
+
+    <?php
+    namespace app\index\controller;
+    use app\index\model\User;
+    class Index
+    {
+        public function index()
+        {
+            $user = new User();
+            dump($user::get(36)->toArray());
+        }
+    }
+
+注意：在model没有设置表名的时候，默认就是model类名对应的表。
+设置表名： protected $table = "user";
+
+如果表名带前缀zmh_user，数据模型名为：ZmhUser
+
+模型的实例化：
+
+        1、使用静态方法
+        dump(User::get(29)->toArray());
+
+        2、实例化对象
+        $user = new User();
+        dump($user::get(36)->toArray());
+
+        3、使用Loader类
+        use think\Loader;
+
+        $user = Loader::model('user');
+        $res = $user::get(9);
+        dump($res->toArray());
+
+        4、使用助手函数
+        $user = model('user');
+        $res = $user::get(9);
+        dump($res->toArray());        
+
+获取数据：
+    
+    查询单条数据：    
+        1、传递数组
+        $res = User::get(['name'=>"丁佳乐"]);
+        dump($res->toArray());
+
+        2、使用闭包函数
+        $res = User::get(function($query){
+            $query->where('id',322);
+        });
+        dump($res->toArray());
+
+        3、使用find()方法
+        $res = User::where('id',327)->find();
+        dump($res->toArray());        
+
+    查询多条数据：
+        1.查询所有数据
+        $res = User::all();
+        foreach ($res as $key => $value) {
+            dump($value->toArray());
+        }
+
+        2.查询指定id数据
+        $res = User::all('5,6,7');
+
+        3.数组形式
+        $res = User::all([5,6,7]);
+
+        4.其他字段
+        $res = User::all(['name'=>'丁佳乐']);
+
+        5.闭包
+        $res = User::all(function($query){
+            $query->where('name','朱明浩')->order('id','desc');
+        });
+
+        6.select()方法：
+        $res = User::select('7,8,9');
+
+        $res = User::limit(5)->select();
+
+    获取数据的值：
+        1.获取某个值
+        $res = User::where('id=67')->value('name');
+
+        2.获取列的值
+        $res = User::column('name','age');
+
+        $res = User::limit(7)->column('name','age');
+
+    动态查询：
+        $res = User::getByName('丁佳乐');
+        $res = User::getById('500');
+
+        getByXXX('xxx') XXX部分可以是表中任意的字段名！！！
+
+增加操作：
+    
+    1.直接给对象增加属性
+    $user = new User();
+    $user->name='沈佳宜';
+    $user->age=32;
+    $user->pwd='324543';
+
+    $user->save();
+
+    2.通过对象的data() 方法
+    $user = new User();
+        $user->data([
+
+            'name'=>'沈梦辰',
+            'pwd'=>'324',
+            'age'=>35
+        ]);
+
+    $res = $user->save();
+
+    3.实例化时传入数据
+    $user = new User([
+        'name'=>'周星驰',
+        'pwd'=>'324453',
+        'age'=>53
+    ]);
+        
+    $res = $user->save();
+
+    增加多条数据：
+     $list = [
+        ['name'=>'周笔畅','pwd'=>'398353','age'=>33],
+        ['name'=>'周渝民','pwd'=>'398353','age'=>38],
+        ['name'=>'周六福','pwd'=>'398353','age'=>45]
+    ];
+
+    $user = new User;
+    $res = $user->saveAll($list);
+
+    获取自增的id：echo $user->id
+    注意这里的id是主键！
+
+    过滤非数据表字段的数据：
+
+    $user = new User([
+        'name'=>'周杰伦',
+        'pwd'=>'324353',
+        'age'=>38,
+        'sex'=>'男'
+    ]);
+
+    $res = $user->allowField(true)->save();
+
+    插入指定字段：
+    $res = $user->allowField(['name','age'])->save();
+
+    还可以直接静态调用create方法创建并写入
+
+删除数据：
+    
+    1.先获取数组再删除
+        $user = User::get(1);
+        $user->delete();
+
+    2.根据主键删除
+    User::destroy('1');
+    User::destroy('1,2,3');
+    User::destroy([1,2,3]);
+
+    3.根据条件删除
+    User::destroy(['status' => 0]);
+
+    4.闭包删除
+    User::destroy(function($query){
+        $query->where('id','>',10);
+    });
+
+    5.where()后再delete()
+    User::where('id','>',10)->delete();
+
+更新数据：
+    $user = User::get(27);
+    $user->age = 25;
+    $res = $user->save();    
+    dump($res);
+
+直接更新数据
+    $user = new User;
+    // save方法第二个参数为更新条件
+    $user->save([
+    'name'  => 'thinkphp',
+    'email' => 'thinkphp@qq.com'
+    ],['id' => 1]);
+
+修改器、聚合器：
+    
+    数据模型中 get属性Attr()
+    function getSexAttr($val)
+    {
+        switch ($val) {
+            case '0':
+                return '未知';
+                break;
+            case '1':
+                return '女';
+                break;
+            case '2':
+                return '男';
+                break;
+            
+            default:
+                // code...
+                break;
+        }
+    }
+
+
+    // 获取器的学习
+    public function getSex()
+    {
+        $user = User::get(4);
+        
+        // 经过获取器的操作
+        dump($user->toArray());
+        dump($user->sex);
+        echo Db::getLastSql();
+
+        // 不经过获取器处理
+        dump($user->getData());
+
+    }
+
+
+如果表的字段带有下划线 如 user_status,在模型中应该写成 getUserStatusAttr()
+
+    public function getUserStatusAttr($val){
+
+        $status = [0=>'禁用',1=>'正常',2=>'VIP'];
+        return $status[$val]
+    }
+
+-------------------
+
+修改器：
+
+用户密码的修改器：
+    模型中
+    public function setPwdAttr($val){
+        return md5($val);
+    }
+
+    控制器中：
+        public function setpass()
+    {
+        $user = User::get(3);
+        
+        $res = $user->save(['pwd'=>'111'],['id'=>2]);
+
+        dump($res);
+
+    }
+
+    注意：修改器的触发条件是save()方法，不能是update();
+
+自动完成：
+    
+    
+
+-------------------
+
+系统变量：可以直接在页面输出，不需要分配
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：第三十节 系统变量

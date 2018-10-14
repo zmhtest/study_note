@@ -1,0 +1,139 @@
+爬虫程序：模拟浏览器向服务器发送请求，并接收服务器返回的资源，可以做搜索引擎，数据挖掘
+
+搜索引擎原理:以百度搜索为例说明
+首先百度有很多个数据中心机房，里面有n多台服务器，每台服务器上都运行着爬虫程序，每时每刻都在运行着，它们会不断向互联网上的网站发送请求，抓取它们的数据（html网页），然后保存到自己的数据中心，通过分析，提取出网页中的关键字作为索引，把索引存储到数据中心的索引库，当用户用百度搜索时，匹配到索引库的索引，然后访问第三方网站
+
+数据分析：
+
+
+爬虫流程：有一台专门抓取网络上URL地址的服务器(这个服务器上也是有爬虫程序，专门爬取整个网络的URL)，爬虫程序先从服务器获取URL再进行发请求，抓数据。不断循环
+
+传智-爬虫
+
+# 随机从列表中取一个元素
+import random
+
+urllist = [
+    "www.baidu.com",
+    "www.sogou.com",
+    "www.souhu.com"
+]
+
+url = random.choice(urllist)
+print(url)
+
+--------------
+
+# coding=utf-8
+# 如果不指定编码,是会报错的!!!
+import urllib2
+
+# 构建自己的请求头 这是反爬虫的第一步 如果不构建请求头,"User-Agent"的值将会是Python-urllib/2.7
+
+header  = {
+"User-Agent": "Mozilla/5.0"
+}
+
+request = urllib2.Request("http://www.baidu.com/",headers=header)
+
+# 向指定的URL地址发送请求,返回服务器响应的类文件对象
+response = urllib2.urlopen(request)
+
+# 服务器返回的类文件对象支持Python的文件对象的操作方法
+html = response.read()
+
+print(response.getcode()) # 响应状态码
+print(response.geturl()) # 响应的url地址
+print(response.info())  # 响应头信息
+# print(html) 
+
+--------------------
+#coding=utf-8
+
+import urllib2
+import random
+
+ua_list = [
+    "aaaaaaaaaaa",
+    "bbbbbbbbbbb",
+    "ccccccccccc",
+    "ddddddddddd"
+]
+# 随机从列表中取一个
+user_agent = random.choice(ua_list)
+
+request = urllib2.Request("http://www.baidu.com/")
+
+# 给header设置值
+request.add_header("User-Agent", user_agent)
+
+# 获取header中的值
+print(request.get_header("User-agent")) # 只能第一个字母大写,其他小写
+
+---------------------------
+
+urlencode()
+
+# 转码的时候用 urllib ,因为urllib2没有转码函数,所以这两个模块常常是一起使用过的.
+
+In [4]: import urllib
+In [3]: wd={'wd':'传智'}
+
+# 接收的是一个字典
+In [5]: urllib.urlencode(wd)
+Out[5]: 'wd=%E4%BC%A0%E6%99%BA'
+
+# 将编码后的转成 GBK
+In [7]: urllib.unquote(a)
+Out[7]: 'wd=\xe4\xbc\xa0\xe6\x99\xba'
+
+# 直接终端打印:
+In [9]: print urllib.unquote(a)
+wd=传智
+
+---------------------------
+
+get请求和post请求的区别:
+
+做爬虫最需要关注的不是页面信息,而是页面信息的来源
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+学习进度：4

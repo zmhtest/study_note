@@ -1,0 +1,36 @@
+陈华yii2.0教程笔记
+
+可以把 .bat文件直接拖到命令行执行
+
+安装yii：
+1.依次运行ini.bat 、yii.bat,在命令行中执行
+2.在mai-local.php中配置数据库
+dbname=yii_advanced',
+            'username' => 'root',
+            'password' => '',
+            'charset' => 'utf8',
+3.创建数据库yii_advanced
+4.命令行运行  yii.bat migrate 命令，进行生成相关表
+5.浏览器中登录前台、后台查看
+localhost/yii_advanced/frontend/web
+localhost/yii_advanced/backend/web  
+
+basic版，更改'cookieValidationKey' => 'a',即可
+
+亮点：使用php依赖管理工具，gii生成器，活动记录orm,强大的缓存机制
+
+在命令行输入token是隐藏的，什么也看不见
+
+使用composer创建yii项目
+
+composer global require "fxp/composer-asset-plugin:^1.2.0"
+
+composer require yiisoft/yii2
+
+D:\>composer create-project yiisoft/yii2 yii
+Installing yiisoft/yii2 (2.0.10)
+  - Installing yiisoft/yii2 (2.0.10)
+    Loading from cache
+
+
+        

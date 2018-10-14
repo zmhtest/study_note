@@ -1,0 +1,113 @@
+授课笔记:
+-----------------------------------
+
+linux系统启动流程:
+一.初始化阶段:
+1.grub引导界面
+2.识别硬件
+3.初始化驱动
+
+二.加载/etc/rc.d/rc.sysinit系统初始化脚本
+4.进入欢迎页面
+5.设置时钟
+6.设置主机名
+7.挂载文件系统
+8.挂载光驱
+9.进入3级别
+10.启动虚拟内存
+11.设置磁盘阵列
+
+三.加载/etc/rc.d/rc进程管理脚本
+12.设置防火墙
+13.检测硬件变化
+14.启动网络服务
+15.启动3级别下允许启动的进程(比如sshd)
+
+四.加载/etc/rc.d/rc.local自定义脚本
+
+五.进入登录界面
+
+
+如何设置服务脚本在某个级别下开启或关闭:
+1.查看sshd服务在所有级别下的开启关闭状态
+chkconfig --list sshd
+
+2.sshd服务在35级别下开启
+chkconfig --level 3 sshd on
+
+3.sshd服务在35级别下关闭
+chkconfig --level 3 sshd off
+
+4.快速设置sshd服务在2345级别下开启
+chkconfig sshd on
+
+5.快速设置sshd服务在2345级别下关闭
+chkconfig sshd off
+
+
+实例:安装apache应用程序，然后让apache服务脚本在3级别可以开机启动?
+1.yum -y install httpd
+2.chkconfig httpd on
+
+源代码安装三步曲:
+1.生成配置文件
+./configure --prefix=/usr/local/apache
+
+2.编译
+make
+
+3.安装
+make install
+
+源代码程序:
+1.服务脚本 
+/usr/local/apache/bin/apachectl
+
+2.如何开启或关闭
+/usr/local/apache/bin/apachectl start
+/usr/local/apache/bin/apachectl restart
+/usr/local/apache/bin/apachectl stop
+
+3.如何开机启动
+vi /etc/rc.d/rc.local
+
+/usr/local/apache/bin/apachectl start
+
+
+自定义服务脚本:
+#!/bin/bash
+#mytest
+
+case $1 in
+	start)
+		echo 'mytest starting!!!'
+		sleep 1
+		;;
+	stop)
+		echo 'mytest stoping!!!'
+		sleep 1
+		;;
+	restart)
+		echo 'mytest restarting!!!'
+		sleep 1
+		;;
+	*)
+		echo 'please input start|stop|restart!!!!'
+		;;
+esac
+
+
+把服务脚本改选成标准rpm脚本:
+# chkconfig: 2345 90 20
+# description: Mytest server daemon
+
+
+通过service把自定义脚本进行开启和关闭:
+service mytest start|stop|restart
+
+通过chkconfig把自定义脚本设置开机启动:
+chkconfig mytest on
+chkconfig mytest off
+
+
+

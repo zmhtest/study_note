@@ -1,0 +1,271 @@
+传智响应式网站制作课程笔记-邵老师
+
+视口设置，所有的移动响应式界面都要设置这个
+	
+	如果不加视口约束，手机等移动设备都会以980的宽度显示一个web页面，但980对于手机来说太大了。
+
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+	解释：
+	width=device-width 命令视口的宽度为设备的宽度（以 1024*768为标准，注：并不是设备本身的宽度）
+
+	initial-scale=1.0 命令视口默认缩放等级为1
+
+	minimum-scale=1.0 命令视口最小缩放等级为1
+
+	maximum-scale=1.0 命令视口最大缩放等级为1
+
+	user-scalable=no 不允许用户缩放页面
+
+---
+
+<!-- IE9开始兼容媒体查询 -->
+媒体查询是css3.0新增的特性！
+-行内媒体查询
+	<link rel="stylesheet" href="1.css" media="(min-width:800px)">
+
+	<link rel="stylesheet" href="2.css" media="(min-width:500px) and (max-width:799px)">
+
+	<link rel="stylesheet" href="3.css" media="(max-width:499px)">
+
+style内的媒体查询
+
+	<style>
+		@media (min-width: 900px){
+			body{
+				background: red;
+			}
+		}	
+		@media (min-width: 600px) and (max-width: 899px){
+			body{
+				background: green;
+			}
+		}
+		@media (max-width: 599px){
+			body{
+				background: blue;
+			}
+		}	
+	</style>	
+
+---
+
+通过js更改样式
+
+<link rel="stylesheet" href="1.css">
+<script>
+	
+	//只能是函数名，不能带括号，带括号表示调用后的返回值！！！
+	window.onload =  gaibian;
+	window.onresize =gaibian;
+
+	 function gaibian(){
+
+	 //document.querySelector('css选择器')方法返回的是第一个符合条件的元素。
+
+	 //window.innerWidth和document.documentElement.clientWidth 是一样的！！！
+
+
+	 	document.querySelector('h1').innerHTML=window.innerWidth;
+	 	if(window.innerWidth<600){
+	 		document.querySelector('link').href = '1.css';
+	 	}else{
+	 		document.querySelector('link').href = '2.css';
+	 	}	
+
+	}
+</script>
+
+---
+
+设备检测
+
+device.js 不依赖于jQuery，是一个轻量级js库。
+
+	<title>设备检测</title>
+	<script src="device.js"></script>
+
+	<h1 id="biaoti"></h1>
+	<script>
+		let myh1 = document.getElementById('biaoti');
+		console.log(device);
+
+		//通过调用device的方法，判断是什么设备。
+		if(device.mobile()){
+
+		//location.href可以简写为location
+			location = 'mobile.html';
+		}else if(device.ipad()){
+			myh1.innerHTML = "ipad";
+		}else{
+			myh1.innerHTML = "台式机";
+		}
+	</script>
+
+---
+
+	<h1>更改样式</h1>
+	<button onclick="changeRan()">点我变色</button>
+	<script>
+
+	let count = 0;
+ 	let myh1 = document.querySelector('h1');
+
+ 	//双色切换
+	 function change(){
+		count++%2==0?myh1.style.color='red':myh1.style.color='blue';
+	}
+
+	// 实现随机变色
+	function changeRan(){
+		myh1.style.background = `#${Math.floor(Math.random()*256**3).toString(16)}`;
+	}
+</script>
+
+---
+
+百分比的形式只能写在 margin、padding、width上，不能写在border上.
+
+流式布局：
+
+
+box-sizing：border-box
+盒子模型默认的width、height指的是内容的宽高，加了这个属性就是指整个盒子的总宽高，padding、border设置了值，只能从width、height减去，而不是外增！！！
+注意：margin部分不再border-box范畴
+
+其他值：padding-box
+
+---
+
+jquery mobile基础
+
+jQuery mobile的骨架
+
+<link rel="stylesheet" href="jquery.mobile-1.4.5.min.css">
+<script src="jquery.js"></script>
+<script src="jquery.mobile-1.4.5.min.js"></script>
+
+<body>
+	<div data-role="page">
+		<div data-role="header">
+			<h1>这是JQ的骨架</h1>
+		</div>
+		<div data-role="content">内容</div>
+		<div data-role="footer" data-position="fixed">页脚</div>
+	</div>
+</body>
+</html>
+
+一个大的div包含三个小的div是固定的结构
+
+data-开头的属性是jQuery固定的写法。
+
+data-role="page" 定义一个页面
+data-role="header" 定义头部
+data-role="footer" 定义尾部
+
+data-position="fixed" 固定每一部分的位置
+
+jQuery mobile的作用原理：
+它检测到div的data-role属性为header，所以，自动添加了一些类。
+就是检测属性，然后添加相应的的类！！！
+
+---
+
+多页面跳转
+同一时间，只显示一个页面
+
+引包
+<body>
+	<div data-role="page" id="page1">
+		<div data-role="header">
+			<a href="#" data-icon="arrow-d">按钮1</a>
+			<h1>这是JQ的骨架1</h1>
+			<a href="#" data-icon="calendar">按钮2</a>
+
+			<div class="fenduan">
+				<div data-role="controlgroup" data-type="horizontal">
+					<a href="" data-role="button">按钮</a>
+					<a href="" data-role="button">按钮</a>
+					<a href="" data-role="button">按钮</a>
+					<a href="" data-role="button">按钮</a>
+				</div>
+			</div>
+
+
+		</div>
+		<div data-role="content">
+			<a href="#page2" data-role="button" data-transition="flip">去2！</a>
+		</div>
+		<div data-role="footer" data-position="fixed">
+			<h1>页脚1</h1>
+		</div>
+	</div>
+
+	<div data-role="page" id="page2">
+		<div data-role="header">
+			<h1>这是JQ的骨架2</h1>
+		</div>
+		<div data-role="content">
+			<a href="#page1" data-role="button" data-transition="turn">去1！</a>
+			
+		</div>
+		<div data-role="footer" data-position="fixed">
+			<h1>页脚2</h1>
+		</div>
+	</div>
+</body>
+
+实现步骤：
+1.在两个页面设置锚点id
+2.添加一个a标签，data-role="button" href="#page1" data-transition="slide"
+3.其中转场效果有：slide pop turn flip
+
+页面头部标题两边添加两个按钮，并添加图标：
+<a href="#" data-icon="arrow-d">按钮1</a>
+	<h1>这是JQ的骨架1</h1>
+<a href="#" data-icon="calendar">按钮2</a>
+
+图标的名字只需要在 img-png 文件夹中找，去掉文件名后的 -black 即可
+
+调整图标的位置：
+data-iconpos="right"
+可以设置：left、right、top、bottom
+
+列表视图
+
+	<ul data-role="listview" data-inset="true" data-filter="true">
+		<li data-role="list-divider">港台歌手</li>
+		<li>
+			<img src="01.jpg" alt="周润发">
+			<h3>周润发</h3>
+			<p>简介</p>
+		</li>
+		<li>周杰伦</li>
+		<li data-role="list-divider">内地歌手</li>
+		<li>周笔畅</li>
+		<li>韩红</li>
+		<li>鹿晗</li>
+	</ul>
+
+data-inset="true" 列表不左右撑满
+
+data-role="list-divider" 列表小分类
+
+data-filter="true" 给列表添加一个过滤搜索框，强大！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

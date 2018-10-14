@@ -1,0 +1,2088 @@
+centos7 的使用
+
+三、yum 配置
+
+yum 的配置文件分为两部分：main 和repository
+
+main 部分定义了全局配置选项，整个yum 配置文件应该只有一个main。常位于/etc/yum.conf 中。
+
+repository 部分定义了每个源/服务器的具体配置，可以有一到多个。常位于/etc/yum.repo.d 目录下的各文件中。
+
+# cat /etc/yum.conf
+
+在CentOS安装软件的时候，可能缺少一部分支持库，而报错。这里首先安装系统常用的支持库。那么在安装的时候就会减少很多的错误的出现。
+
+# yum install -y gcc gdb strace gcc-c++ autoconf libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs patch e2fsprogs-devel krb5-devel libidn libidn-devel openldap-devel nss_ldap openldap-clients openldap-servers libevent-devel libevent uuid-devel uuid mysql-devel  
+
+# rpm -qa | grep pcre
+就可以看到你安装的版本是不是你要的了。
+
+yum 安装多个 或卸载多个软件包
+
+安装多个类似软件时
+yum -y install httpd*
+
+安装多个非类似软件时
+yum -y install httpd PHP php-gd MySQL
+
+卸载一个软件时 
+yum -y remove httpd
+卸载多个相类似的软件
+yum -y remove httpd*
+卸载多个非类似软件时
+yum -y remove httpd php php-gd mysql
+
+------------------华丽的分割线------------------
+
+以下是centos7中的一些教程：
+
+设置网卡自启：
+	1.vim /etc/sysconfig/network-scripts/ifcfg-ens33 
+
+	2.将ONBOOT no 改为 ONBOOT yes
+
+	3.重启网络：service network restart
+
+临时修改ip地址：
+	ifconfig ens33 192.168.221.138
+	
+重启网络后恢复原来的ip
+	systemctl restart network
+
+如果是centos6以下：service network restart
+	
+单独查看某个网卡的信息：
+	ifconfig ens33
+   
+增加多个临时ip：
+		ifconfig ens33:0 192.168.211.137
+		ifconfig ens33:1 192.168.211.138
+	
+删除临时的ip：
+	ifconfig ens33:0 del 192.168.211.137
+	
+主机地址：cat /etc/hostname	   
+
+网卡文件：/etc/sysconfig/network-scripts/ifcfg-ens33
+
+其中：ifcfg-lo是网络回环
+
+DNS配置文件：/etc/resolv.conf
+
+主机名和ip地址的绑定信息：/etc/hosts
+
+注意：虚拟机操作系统的网卡ip要与vmnet8在同一个网段才能上外网，才能通过ssh工具进行连接。
+
+永久修改ip地址：
+
+1.nmtui命令，改好后重启网络：service network restart
+
+2.手动更改 ifcfg-ens33网卡配置文件
+	DEVICE=ens33
+	ONBOOT=yes
+	IPADDR=192.168.211.122
+	PREFIX=32
+	IPADDR1=192.168.211.123
+	PREFIX1=32
+	GATEWAY=192.168.211.1
+	DNS1=114.114.114.114
+
+	[root@xuegod63 ~]# vim /etc/sysconfig/network-scripts/ifcfg-ens33	
+	TYPE=Ethernet
+	BOOTPROTO=none	   # 等号后面写：dhcp 表示动态获取IP地址，	 satic 表示表态IP，none表示不指定，就是静态。
+	DEFROUTE=yes
+	IPV4_FAILURE_FATAL=no
+	IPV6INIT=yes
+	IPV6_AUTOCONF=yes
+	IPV6_DEFROUTE=yes
+	IPV6_FAILURE_FATAL=no
+	NAME=ens33	 #网卡名
+	UUID=50eff37c-72b4-407a-a3ee-9ef8ca746b95
+	DEVICE=ens33
+	ONBOOT=yes
+	DNS1=8.8.8.8
+	DNS2=192.168.1.1
+	NETMASK=255.255.255.0
+	IPADDR=192.168.1.222
+	PREFIX=24
+	GATEWAY=192.168.1.1
+
+查看防火墙状态：
+	systemctl status firewalld
+	关：systemctl stop firewalld
+	开：systemctl start firewalld
+
+	开机不启动：systemctl disable firewalld
+	开机自动启动：systemctl enable firewalld
+
+查看SELinux是否开机启动：
+	getenforce
+
+	临时关闭SELinux：setenforce 0
+	此时getenforce变为：permissive
+	
+	永久关闭SELinux：vim /etc/selinux/config 
+	设置成 disabled
+	
+挂载光盘开机自动启动：vim /etc/fstab
+/dev/cdrom		/mnt	iso9660 defaults 0 0   
+
+注意：/dev/sr0 和 /dev/cdrom 是同一个东西
+
+挂载：mount -a
+会直接挂载在fstab文件中设置好的硬件挂载到指定目录。
+
+查看磁盘的分区情况： fdisk -l
+
+查看挂载点：df -hT
+
+设置光盘yum源： 
+1.进入目录：cd /etc/yum.repos.d/
+2.删除目录原来的所有文件：rm -rf ./*
+3.重新配置：
+[root@localhost yum.repos.d]# vim centos7.repo 
+[CentOS7] #yum ID
+name=CentOS-server #描述信息
+baseurl=file:///mnt
+enabled=1 #启用
+gpgcheck=0 #取消验证
+
+清空 yum 的缓存；yum clean all
+
+查看yum源的所有包：yum list
+
+从系统删除软件包：yum erase git
+
+查看当前终端：tty
+
+不同终端的通信：echo xuegod >/dev/pts/1
+
+shutdown +10 十分钟后关机
+shutdown -c 取消关机，在其他终端都会收到信息
+
+广播消息：wall "aaa" 所有的终端都会收到消息
+
+查看支持的shell
+cat /etc/shells
+/bin/sh
+/bin/bash
+/sbin/nologin
+/usr/bin/sh
+/usr/bin/bash
+/usr/sbin/nologin
+/bin/tcsh
+/bin/csh
+
+内部命令与外部命令：
+区别	：内部命令是常住内存的，运行速度快
+可以通过 type 来查看一个命令的类型。
+
+[root@localhost ~]# type head
+head 是 /usr/bin/head
+[root@localhost ~]# type pwd
+pwd 是 shell 内嵌
+
+linux系统中不同的颜色代表了不同的文件类型
+颜 色	代表内容	举 例
+蓝色	目录	/etc
+黑色	文件	/etc/passwd
+浅蓝色	链接	/etc/grub2.cfg
+红色	压缩包	boot.tar.gz
+绿色	可执行文件	/etc/init.d/network
+黑底黄字	设备文件	/dev/sda
+
+ll -Sh 以文件的大小进行排序
+
+ll 是 `ls -l --color=auto' 的别名
+
+临时设置别名：alias vimens33="vim /etc/sysconfig/network-scripts/ifcfg-ens33"
+删除别名：unalias vimens33
+
+配置当前用户永久别名：如果换了用户，设置的别名将不会生效
+1.vim ~.bashrc
+2.添加：alias vimens33="vim /etc/sysconfig/network-scripts/ifcfg-ens33"
+3.source ~/.bashrc
+注意：在其他已经打开的终端也要source一下才能生效，重新打开的终端直接生效！！！
+注意：如果多人同时打开一个文件进行修改会产生一个交换文件 .swap副本
+
+使用别名的好处：可以将很长的命令简化，很爽！！！
+
+如果想设置的别名对所有的使用bash的用户口有效，可以修改 vim /etc/bashrc文件，在最后添加 alias即可
+同样这个只对新打开的终端生效，对于已经打开的终端需要重新打开才生效。
+
+cd 命令的特殊用法：
+cd - 在两个最近的目录之间切换：
+[zmh@zmh ~]$ cd -
+/etc/sysconfig/network-scripts
+[zmh@zmh network-scripts]$ cd -
+/home/zmh
+
+~/表示当前用户的家目录
+
+3个快速查找Linux历史命令的技巧：
+方法1： 光标上下键
+方法2： ctrl+r -》输入某条命令的关键字-》找出来对应的命令，按右光标键
+方法3： !数字   //执行历史命令中第N条命令
+
+时间管理：
+硬件时钟：在centos7中时间同步了
+[root@zmh ~]# hwclock 
+2018年05月02日 星期三 08时51分41秒  -0.084920 秒
+
+配置文件：/etc/localtime
+系统时钟：
+[root@zmh ~]# date
+2018年 05月 02日 星期三 08:53:43 CST
+
+CST表示中国时间
+UTC表示0时区的时间
+
+修改系统时间：注意，硬件时间并没有改变
+在shell中单引号和双引号是一样的！
+[root@zmh ~]# date -s "2018-11-2 11:22:56"
+2018年 11月 02日 星期五 11:22:56 CST
+
+[root@zmh ~]# hwclock 
+2018年05月02日 星期三 08时56分51秒  -0.601273 秒
+
+格式化输出时间：注意：以 + 开头
+[root@zmh ~]# date '+%Y-%m-%d %H:%M:%S'
+2013-12-22 12:33:15
+
+查看帮助：
+[root@zmh ~]# date --help |grep %F
+  %F	完整日期格式，等价于 %Y-%m-%d
+[root@zmh ~]# date --help |grep %s
+  %s	自UTC 时间 1970-01-01 00:00:00 以来所经过的秒数
+[root@zmh ~]# date --help |grep %S
+  %S	秒(00-60)
+  %T	时间，等于%H:%M:%S
+
+增加时间，用于设置定时任务
+[root@zmh ~]# date
+2013年 12月 22日 星期日 12:39:35 CST
+[root@zmh ~]# date -d '+1 months'
+2014年 01月 22日 星期三 12:39:31 CST
+
+同步服务器时间：
+[root@zmh ~]# date
+2013年 12月 22日 星期日 13:17:50 CST
+[root@zmh ~]# ntpdate asia.pool.ntp.org
+ 2 May 09:54:41 ntpdate[22240]: step time server 218.186.3.37 offset 137536561.032426 sec
+[root@zmh ~]# date
+2018年 05月 02日 星期三 09:54:53 CST
+
+#此时date显示时间已经改变，还用同步到硬件时间
+[root@zmh ~]# hwclock -w
+[root@zmh ~]# hwclock 
+2018年05月02日 星期三 09时55分59秒  -0.069042 秒
+[root@zmh ~]# clock
+2018年05月02日 星期三 09时56分03秒  -0.225539 秒
+
+测试一个命令的运行时间：可以是任何命令
+time ls /etc
+real	0m0.006s #实际使用的时间
+user	0m0.003s #用户使用的时间
+sys		0m0.002s #系统所用的时间
+
+帮助文档的使用：
+man find
+/mtime #查找
+n 向下翻
+N 向上翻
+
+b 下翻页面
+f 上翻页面
+
+开机和关机：
+
+shutdown -h 23:30 #23:30关机
+shutdown -h 10 #十分钟后关机
+shutdown -h now #马上关机
+
+shutdown -r 23:30 #指定时间重启
+
+Linux 7个启动级别：
+0 系统停机模式，系统默认运行级别不能设置为0，否则不能正常启动，机器关的
+1 单用户模式，root权限，用于系统维护，禁止远程登陆，就像Windows下的安全模式登录
+2 多用户模式，没有NFS和网络支持
+3 完整的多用户文本模式，有NFS和网络，登陆后进入控制台命令行模式
+4 系统未使用，保留一般不用，在一些特殊情况下可以用它来做一些事情。例如在笔记本电脑的电池用尽时，可以切换到这个模式来做一些设置
+5 图形化模式，登陆后进入图形GUI模式，X Window系
+6 重启模式，默认运行级别不能设为6，否则不能正常启动。运行init 6机器就会重启
+
+实操：
+init 3 进入文本界面，
+在文本界面输入 init 5 进入图形界面，前提是已经安装图形界面。
+
+设置默认级别：重启后会进入相应的级别
+3级别
+[root@zmh ~]# systemctl set-default multi-user.target 
+
+5级别
+[root@zmh ~]# systemctl set-default graphical.target 
+
+注意：
+ssh终端输入以下，centos会进入相应的运行级别
+[root@zmh ~]# init 5
+[root@zmh ~]# init 3
+
+#查看运行级别：3到5
+[root@zmh ~]# runlevel
+3 5
+或者：
+[root@zmh ~]# systemctl get-default 
+graphical.target
+
+设置来电开机自动启动：
+进入BIOS->Integrated Pe...->Restore On AC Power Loss [Power on]或者[Last State]
+
+设置服务器定时开机
+
+注意：Linux下一个文件可以挂在在多个目录下。
+
+mount /dev/cdrom /mnt
+mount /dev/cdrom /media
+
+安装光盘的文件：rpm -ivh /media/Packages/tree-1.6.0-10.el7.x86_64.rpm 
+
+可以看出：
+ cdrom -> sr0
+
+ 查看文件的大小：
+[root@zmh ~]# du -sh /etc  
+42M		/etc
+
+查看内存和CPU的信息：
+cat /proc/meminfo
+cat /proc/cpuinfo
+
+注意凡是sbin目录下的可执行文件，只有root用户才能执行！
+[root@zmh ~]# which mkfs.xfs 
+/usr/sbin/mkfs.xfs
+所以说，并不是谁都可以格式化磁盘的！！！
+
+/opt : 通常是放置一些第三方软件的目录，比如php72
+/proc ：该目录的内容只在内存中，只能访问，不能修改。
+/mnt、/media ：都是约定的挂载点
+/run ：系统运行时，比如进程id，pid
+/tmp、/var/tmp：都是存放临时文件的，所以重要的文件千万不要存在 tmp 目录 
+
+查看目录的详细信息：
+[root@zmh ~]# ll -d /tmp/
+drwxrwxrwt. 21 root root 4096 5月   2 12:04 /tmp/
+权限 t 表示：这个目录只能被所有者和root删除，其他人无法删除。
+
+/var:主要存放系统的日志信息
+
+lib、lib64都是存放库文件：
+lib -> usr/lib #实际位置
+lib64 -> usr/lib64
+
+*.a 静态库文件
+*.so 动态库文件
+
+查看文件信息：
+[root@zmh log]# stat /etc/passwd
+  文件："/etc/passwd"
+  大小：2482			 块：8		  IO 块：4096	  普通文件
+设备：fd00h/64768d		 Inode：19225899	   硬链接：1
+权限：(0644/-rw-r--r--)  Uid：(	   0/	 root)	 Gid：(	  0/	root)
+最近访问：2018-11-02 00:00:17.050297787 +0800
+最近更改：2018-04-29 08:31:56.184579577 +0800
+最近改动：2018-04-29 08:31:56.185665795 +0800
+
+访问时间：atime	查看内容   cat	a.txt
+修改时间：mtime	修改内容  vim a.txt
+改变时间：ctime	文件属性，比如权限  change time。	 chmod +x a.sh
+
+创建文件：
+touch file1 file2
+touch file{3..5}
+touch {a,b,c}-{1,2,3} #笛卡尔创建 9个
+
+删除文件：rm -f 
+如果是软连接，删除的只是这个链接，源文件不会被删
+
+删除目录：rm -rf
+
+复制目录：cp -r 
+	cp -a 连同权限复制
+
+移动多个文件：
+[root@zmh ~]# mv a1 a3	下载
+[root@zmh ~]# ls 下载
+a1	a3
+
+使用echo创建
+ echo hello world > hello.txt
+>会覆盖，>> 表示追加
+echo heiiikik >> hello.txt 
+
+查看文件：more 
+空格：翻屏
+回车：下一行
+但是more不支持后退，只能一直往下翻
+
+less：more的升级版
+B上翻
+F下翻
+
+head默认显示前十行
+head passwd 
+head -n 3 passwd 
+
+tail默认显示后10行
+tail passwd 
+tail -n 3 passwd 
+
+实时监控：tailf /var/logs/secure
+远程链接：ssh root@192.168.211.129
+只要有远程连接，就会有信息输出。
+
+磁盘操作：
+挂载一块20G的磁盘：
+[root@zmh ~]# ls /dev/sd*
+/dev/sda  /dev/sda1	 /dev/sda2	/dev/sdb
+
+主要步骤：分区，格式化
+fdisk /dev/sdb -> n(创建分区) ->p(主分区)->2048(起始扇区)->+1G(大小)->p(查看分区信息)->w(保存)
+
+查看是否创建成功：
+[root@zmh ~]# ls /dev/sdb*
+/dev/sdb  /dev/sdb1
+
+格式化分区：mkfs.xfs /dev/sdb1
+
+挂载：
+创建挂载点：mkdir /sdb1
+挂载：mount /dev/sdb1 /sdb1
+
+必须挂载才能使用！！！
+
+备份分区： 备份到的目录	备份分区（只能精确到分区的根）
+xfsdump -f /opt/dump_sdb1	/sdb1
+或者：
+xfsdump -f /opt/dump_sdb1 /dev/sdb1
+
+做成避免交互的脚本：
+ xfsdump -f /opt/dump_bbb /dev/sdb1 -L dump_sdb -M sdb1	   
+也就是指定标签和设备
+
+备份目录下的文件:比如：/boot/grub2/grub.cfg
+xfsdump -f /opt/dump_grub2 -s grub2/grub.cfg /boot -L dump_grub2 -M grub2
+
+增加了 -s 目录（grub2/grub.cfg） 根分区（/boot ） 
+
+查看备份的分区或文件：xfsdump -I
+
+从备份恢复：从/opt/dump_sdb1 恢复到/sdb1
+xfsrestore -f /opt/dump_sdb1  /sdb1
+
+恢复备份的单文件：从/opt/dump_grub2中恢复grub2/grub.cfg，注意：是相对于这个分区的路径
+xfsrestore -f /opt/dump_grub2 -s grub2/grub.cfg /var/test
+
+
+1、xfsdump 不支持没有挂载的文件系统备份！所以只能备份已挂载的！
+2、xfsdump 必须使用 root 的权限才能操作 (涉及文件系统的关系)
+3、xfsdump 只能备份 XFS 文件系统
+4、xfsdump 备份下来的数据 (档案或储存媒体) 只能让 xfsrestore 解析
+5、xfsdump 是透过文件系统的 UUID 来分辨各个备份档的，因此不能备份两个具有相同 UUID 的文件系统
+
+增量备份文件系统：一定要声明备份级别
+xfsdump -l 1 -f /opt/sdb_back1 /dev/sdb1 -L sdbdump -M sdb1_dump
+
+恢复增量备份：
+1、先恢复完全备份	 
+2、
+情况1: 恢复最后一次增量备份（如果两次增量备份都是1级的，所以只需要恢复最后一个增量就可以了。
+情况2：如果你做的是第一次是1级备，第二次是2级备，那么你在恢复的时候就需要先恢复完全备份，然后是1级备，最后是2级备）
+
+代码演示：
+1.删除原来的所有文件：rm -rf *
+2.恢复全备份：xfsrestore -f /opt/sdb1_full /sdb1
+	.
+	├── dir1
+	├── full.txt
+	└── passwd
+
+3.恢复level1增量备份：xfsrestore -f /opt/sdb1_back1 /sdb1
+	├── dir1
+	│   └── 1.txt
+	├── full.txt
+	└── passwd
+4.恢复level2增量备份：xfsrestore -f /opt/sdb1_back2 /sdb1
+	├── dir1
+	│   ├── 1.txt
+	│   └── dir2
+	│  		└── 2.txt
+	├── full.txt
+	└── passwd	
+
+通过实验说明：顺序按照back2->back1也是可以恢复的。
+
+vim编辑器的使用：
+查看某个命令由什么包安装的：
+[root@zmh sdb1]# rpm -qf `which vim`
+vim-enhanced-7.4.160-2.el7.x86_64
+[root@zmh sdb1]# rpm -qf `which vi` 
+vim-minimal-7.4.160-2.el7.x86_64
+
+插入：
+	I：当前行首插入
+	O：上面插入空行
+	o：下面插入空行
+
+	i：当前位置插入，插入的内容在光标之前
+	a：光标后插入
+	s:删除当前光标字符，并插入
+
+	5gg:跳到第5行
+	e：跳到单词尾
+	b：跳到单词头
+	{：跳到段落开头
+	}：跳到段落结尾
+	gg:文档结尾
+	G：文档开头
+	0：行首
+	$:行尾
+	u：撤销
+	Ctrl+r:反撤销
+	:e! 直接恢复到刚打开时的状态。
+	v：可视块，可以快速选择块，然后复制（yy) p粘贴
+
+	/string 查找string关键字
+	如果找到多个可以通过 n N 来进行跳转
+	？string 向前查找字符串，n进行切换
+
+	显示行号：:set nu
+	取消行号：：set nonu
+	取消高亮：:noh
+
+	dd:剪切一行，p粘贴
+	yy：复制一行，p粘贴
+
+	3yy：复制3行
+	3dd：剪切3行
+
+	D：删除光标之后部分
+
+光标能跳到哪，就能删到哪里？
+先按d，再移动光标
+
+可视块：Ctrl+v
+使用可视块实现块注释：
+	Ctrl+v ->使用光标选中需要注释的行->I->#->esc
+
+取消块注释：
+同样是 选中，然后d删除，或者x
+
+	:w passwd-change 相当于另存为
+
+	:1,10 w passwd-change  另存1-10行
+
+在vim中调用外部命令：
+	:!ifconfig
+	:r /etc/hostname 读取外部文件到vim中
+
+替换命令；
+	:1,3 s/bin/sbin 表示，将1-3行的bin替换成sbin，注意：只是替换每行中配到的首个。
+	
+替换所有匹配到的：加多 /g 参数
+	:1,3 s/bin/sbin/g
+
+只替换第三行：
+	:3 s/bin/sbin/g
+
+%表示全文范围内执行替换，gi表示不区分大小写匹配所有
+	:% s/bin/sbin/gi 
+
+配置vim
+永久设置环境
+vim /etc/vimrc	设置后会影响到系统所有的用户
+~/.vimrc   #在用户的家目录下，创建一个.vimrc。这样只影响到某一个用户，没有自己建一个
+
+实战:在 .vimrc 文件中添加 set nu
+
+vim打开多个文件
+方法1：以上下形式，打开两个文档
+	vim -o /etc/passwd /etc/hosts
+
+方法2：以左右方式打开两个文档
+	vim -O /etc/passwd /etc/hosts
+
+注：ctrl+ww  在两文档之间进行切换编辑。大写O左右分屏，小写的o上下分屏
+:qa关闭所有打开的文件
+
+对比文件的差异：
+diff file1 file2
+vimdiff file1 file2
+
+rm -rf /* 是可以删除服务器所有文件的。
+rm -rf / 是无法执行成功的
+
+每一个文件系统的恢复方式都不一样。
+
+文件的组成：
+inode：
+[root@zmh ~]# ls -i hello.txt 
+34537250 hello.txt
+
+查看文件的详细信息：
+[root@zmh ~]# stat hello.txt 
+可以查看 inode 各种时间
+
+为什么删除比创建更快？
+因为删除只是删除了文件的名字，inode还没有删，所以可以通过inode找回被删的文件。
+
+数据被覆盖了，还是可以被找回来的，需要专业的软件。
+
+误删后，需要做的操作：
+1.避免误删的文件内容被覆盖，卸载文件所在的分区或以只读的方式挂载。
+
+可以使用 extundelete 软件恢复ext4删除的文件，注意，只能在centos6中使用。因为centos7的文件系统已经是xfs
+extundelete 的安装：
+	1.在sourceforge下载
+	2.tar -jxvf 解压 .bz2文件
+	3.安装依赖：rpm -ivh /mnt/package/e2fsprogs-devel
+	4.make -j 4 #表示4核编译
+	5.make install
+
+开始恢复：
+
+1.先删除/tmp/sda4下面的所有内容
+
+2.卸载分区 umount /dev/sda4
+
+3.创建一个目录 mkdir /tmp/test
+
+4.extundelete /dev/sda4 --inode 2 #从磁盘的根开始扫
+可以看出：曾经删除的文件 
+   
+5.恢复：
+	1.根据节点恢复：extundelete /dev/sda4 --restore-inode 12
+
+	2：根据文件名恢复：extundelete /dev/sda4 --restore-file hello.txt
+	
+ 可以通过diff file1 file2 进行对比。	  
+	
+	3.恢复目录：extundelete /dev/sda4 --restore-directory a	 #注意：只会恢复文件夹的子节点文件，不会恢复子目录中的文件
+	
+	4、恢复所有文件：extundelete /dev/sda4 --restore-all 空文件是没有的！！！
+	  
+可以看出根分区的节点为2，应该就是 . ..	  
+[root@localhost test]# ls -id /boot
+2	  
+	
+如何在Linux下安装rz/sz命令
+sudo apt-get install lrzsz 
+
+sz：将linux文件发送（send）到windows
+
+rz：运行该命令会弹出一个文件选择窗口，从本地选择文件上传到服务器(receive)
+
+rz，sz便是Linux/Unix同Windows进行ZModem文件传输的命令行工具。
+
+install 和 cp 的区别：
+都是可以拷贝文件：但是，install可以指定权限
+install /bin/find /opt/a.sh
+cp /bin/find /opt/b.sh
+install -m 777 /bin/find /opt/c.sh
+
+如果要卸载某个分区，必须在这个分区的挂载点之外进行卸载。
+
+make -j 4
+
+分区保存提示如下信息：
+WARNING: Re-reading the partition table failed with error 16: 设备或资源忙.
+The kernel still uses the old table. The new table will be used at
+the next reboot or after you run partprobe(8) or kpartx(8)
+
+操作：partprobe /dev/sdb 或者重启
+格式化：mkfs.xfs /dev/sdb2
+挂载： mount /dev/sdb2 /tmp/sdb2/
+必须格式化才能挂载！
+
+提示错误：
+configure: error: in `/root/Desktop/extundelete-0.2.4':
+configure: error: C++ compiler cannot create executables
+解决：yum install gcc-c++
+
+关机或者重启之前最好运行 sync 命令，将内存数据同步到硬盘上！！！
+
+reboot重启
+
+注销：logout
+logou在图形界面是无效的。
+
+yum的使用：
+1.配置好yum源：
+cd /etc/yum.repos.d/
+vim centos7.repo #一定要是 .repo 文件后缀
+	[CentOS7] #yum ID
+	name=CentOS-server #描述信息
+	baseurl=file:///mnt
+	enabled=1 #启用
+	gpgcheck=0 #取消验证
+
+2.yum clean all && yum list#会生成新的缓存文件
+
+为什么yum能够解决依赖关系呢？
+答：因为 [root@zmh mnt]# ls repodata/ 这个目录下有很多xml文件描述了各个软件包之间的依赖关系。
+
+yum install -y #静默安装
+yum check-update #检测升级
+yum update #升级
+yum info #查看某个包的信息
+yum remove #卸载 不用写软件的版本号
+
+yum groupinstall "安全组工具" #组安装
+通过中文、英文都可以！！！
+
+注意：改变语言会对所有的用户都生效。
+注销，重新登录就会生效！！！
+
+可以通过 yum grouplist 查看可用的分组
+[root@zmh mnt]# yum grouplist
+已加载插件：fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+	可用的环境分组：
+	   最小安装
+	   基础设施服务器
+	   计算节点
+	   文件及打印服务器
+	   基本网页服务器
+	   虚拟化主机
+	   带 GUI 的服务器
+	   GNOME 桌面
+	   KDE Plasma Workspaces
+	   开发及生成工作站
+	已安装的组：
+	   开发工具
+	可用组：
+	   传统 UNIX 兼容性
+	   兼容性程序库
+	   图形管理工具
+	   安全性工具
+	   控制台互联网工具
+	   智能卡支持
+	   科学记数法支持
+	   系统管理
+	   系统管理工具
+	完成
+
+源码安装的好处：可以安装最新版的软件，不受限与rpm包，非常灵活，可以自定义安装参数。
+
+centos7 修改yum源为阿里源
+cd /etc/yum.repos.d 
+备份旧的配置文件：mv CentOS-Base.repo CentOS-Base.repo.bak 
+下载阿里源的文件： wget -O CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo 
+清理缓存 
+yum clean all 
+重新生成缓存 
+yum makecache
+
+实验环境：centos6
+源码安装nginx并指定用户 nginx
+指定shell为nologin，就是不能登录的用户，-M 指定用户名，并且home目录不会生成相应的目录。
+
+	1.添加一个nginx用户：useradd -s /bin/nologin -M nginx
+
+	2 ./configure --prefix=/usr/local/nginx --user=nginx --group=nginx #此时生成Makefile文件，说明成功
+	或者： echo $? 返回0表示成功
+
+	3.make -j 2 && make install
+
+启动：/usr/local/nginx/sbin/nginx
+检查是否启动：netstat -antup |grep nginx
+添加nginx到环境变量：.bashrc
+注意：凡是修改 .bashrc 文件，必须source，而且要退出终端，重新登入才生效，因为只有加载bash才会读取这个文件！！！
+方法1：
+export NGINX_HOME=/usr/local/nginx
+export PATH=$PATH:$NGINX_HOME/sbin
+
+方法2：alias nginx='/usr/local/nginx/sbin/nginx'
+
+方法3：cp usr/local/nginx/sbin/nginx /usr/sbin
+在Windows访问：
+1.先关闭防火墙。
+iptables -F #清空防火墙规则
+iptables -L #查看防火墙规则
+
+2.浏览器输入 ip:80
+
+杀进程：pkill 进程名 p表示program
+		kill  -9  进程号
+		killall httpd
+
+打包与压缩：
+注意：Linux中不以文件的后缀确定文件类型，可以通过file filename 查看当前文件类型。
+
+[root@localhost ~]# file install.log
+install.log: UTF-8 Unicode text
+[root@localhost ~]# file extundelete-0.2.4
+extundelete-0.2.4: directory
+[root@localhost ~]# file extundelete-0.2.4.tar.bz2 
+extundelete-0.2.4.tar.bz2: bzip2 compressed data, block size = 900k
+
+#c创建、v详情、f文件名（任意）- 是可有可无的！！！
+打包一个目录： tar cvf boot.tar /boot/grub/
+打包多个目录和文件：tar cvf all.tar /boot/grub/ /etc/passwd 
+[root@localhost ~]# ll -h boot.tar 
+270K 5月	  3 19:43 boot.tar
+
+[root@localhost ~]# du -sh /boot/grub/
+276K	/boot/grub/
+经过打包，文件比原来更大了。
+
+查看打包文件中的内容：
+tar tvf boot.tar 
+
+压缩：z表示gz压缩，c表示创建压缩
+tar zcvf boot.tar.gz /boot/grub/
+270K 5月	  3 19:43 boot.tar
+101K 5月	  3 20:07 boot.tar.gz
+
+# -C 指定解压到哪个目录：
+解压缩：tar zxvf boot.tar.gz -C /opt/boot 
+
+bz2压缩，主要区别是用 j 来代替 z ！！！
+格式为：.tar.bz2 
+
+zip 压缩与unzip解压 -r表示递归
+zip -r boot.zip /boot/
+
+进程是运行中的程序，一个程序运行起来可能会有多个进程。
+
+进程的pid是唯一的
+父进程id：ppid
+
+父进程管理子进程，当父进程结束，子进程一定终止；而父进程不会因为子进程终止而终止。
+
+进程的状态：R运行，S休眠，Z僵尸
+
+ Ss+进程下有子进程，+表示运行在前台的。
+ 
+top 动态查看进程信息：
+top - 20:56:53（当前时间） up	 7:16（开机多长时间）,	3 users（3用户在线）,	 load average: 0.00, 0.00, 0.00
+Tasks: 166 total,	1 running, 165 sleeping,   0 stopped,	0 zombie （僵尸进程数）
+Cpu(s):	 0.0%us, 11.1%sy,  0.0%ni, 88.9%id,	 0.0%wa,  0.0%hi,  0.0%si,	0.0%st
+Mem:   1019996k total,	 894544k used,	 125452k free,	  30808k buffers
+Swap:  2047996k total,	  16988k used,	2031008k free,	 331508k cached 
+
+3s刷新一次，空格：马上刷新，p：按cpu使用排序；m：按内存使用排序
+
+手机释放内存，实际上释放的是 cached 和 buffers
+
+Linux的内存使用规则：尽最大可能使用内存，因为快。
+
+centos6中的主进程是init
+centos7中的主进程是systemd
+
+技巧：!命令 ：执行上一次执行的这个命令
+
+查看进程信号： kill -l
+其中 9 表示关闭
+
+pstree #查看进程树
+
+由于cpu是分时的，所以可以同时打开多个应用程序。
+
+可以通过 nice 设置进程的优先级。
+优先级范围：（-20，19）
+越小，优先级越高，默认优先级是0
+
+	nice -5 vim 
+	nice -n -5 vim 
+	ps -aux |grep vim
+	top -p 3549 #可以看出 NI 5
+	
+renice -n 5 pid #改变正在运行程序的优先级。
+
+系统所有服务的文件夹：
+	ls /usr/lib/systemd/system
+
+查找find grep
+find的作用一般是，查找文件夹中符合条件的文件 
+	find 目录 -name 'host*'
+	find dir  -name "*service"
+	find dir -mtime -3 #修改时间3天以内的文件
+	find dir -mtime +3 #修改时间3天之前的文件
+	find dir -type d #根据文件类型来查，这里返回所有目录和子目录
+	find dir -perm 755 #根据权限来查找
+	find dir -user zmh #根据用户找
+	find dir -group zmh #根据用户组找
+
+	文件类型：
+	d 目录
+	f 文件 
+	l 链接
+	c 字符设备
+    b 块设备
+
+grep ：查找文件内容中的符合条件的子内容	  
+	grep ^$ test.tx #匹配空行	 
+	grep ^# test.txt  #匹配#开头  #33333
+	grep '#' test.txt #匹配包含#的行，由于#是特殊符号，所以要 加 ''
+	grep 2 test.txt #匹配包含2的行，不需要加''
+	grep 5$ test.txt #匹配 5 结尾的行
+
+解决克隆centos7后无法上网的问题：
+	办法，关闭NetworkManager 套件；
+	1、systemctl stop NetworkManager
+	2、systemctl disable NetworkManager
+	然后重启下网络服务就可以了：
+	3、systemctl start 	network.service
+
+	centos6克隆直接可以使用网络！！！
+	
+Linux的计划任务：
+
+at ：一次性的任务：
+1.首先开启 atp服务：systemctl status atd.service 
+	at 20:30 2018-5-5 #at now+10min 
+	>touch a.txt
+	>mkdir dir1
+	ctrl+D 退出
+
+	at -l #查看当前的所有at任务
+删除任务：atrm 任务编号
+
+cron和crond周期性的计划任务
+系统级别的文件说明：/etc/crontab文件
+格式：min hour date month day(星期) 任务 
+
+首先查看crond服务是否开启：
+	systemctl status crond
+	一般会开启：
+如果没有开启：
+	systemctl start crond #启动
+	systemctl enable crond #设置开机启动
+
+使用crond
+crontab -e 进入编辑状态
+	1 	1 	1,10,20 	*   	* /usr/local/back.sh 
+	分	时	 日期	  每个月  每周 执行的脚本
+
+查看所有任务：crontab -l
+
+删除计划任务：crontab -r 
+
+日期范围：1 	1 	5-22(5-22号) 	*   *
+每五分钟：*/5   *   *   *   * /root/back.sh
+
+--------------------------------------------------
+
+网络相关：
+tcp和udp都是采用16位端口号来识别应用程序：2*16=65536
+tcp/ip临时分配1024-5000之间端口号
+大于 5000 的为其他服务保留的
+
+	端口 服务
+	123  ntp：时间同步服务器
+	161  snmp：简单网络管理
+	69   tftp：简单文件传输协议
+	23   telnet：远程连接服务
+	22   ssh：安全远程连接服务
+	21   ftp
+	443  https 安全web服务
+
+查看端口号：cat /etc/service
+
+网络管理：NetworkManager
+	systemctl start NetworkManager  #开启网络管理
+	systemctl status NetworkManager #查看状态
+	systemctl enable NetworkManager #设置开机启动
+
+	Active: active (running) since Fri 2018-05-04 09:33:09 CST; 5s ago
+
+临时修改hostname：hostname zmh@zmh 重启就没了
+
+永久修改hostname：/etc/hostname
+需要重启机器才能生效
+
+查看网关、路由：route -n 
+
+云主机的网卡配置
+	BOOTPROTO=none
+	DEFROUTE=yes
+	DEVICE=eth0
+	GATEWAY=172.16.0.1
+	HWADDR=52:54:00:46:17:8d
+	IPADDR=172.16.0.3
+	NETMASK=255.255.240.0
+	NM_CONTROLLED=no
+	ONBOOT=yes
+	TYPE=Ethernet
+	USERCTL=no
+
+--------------------------------------------------	
+	
+shell 编程：
+
+zsh：会自动把详细的路径显示出来。
+
+	set 1 2 3 4 5 6 7 8 9 a b c 
+	echo ${10}
+	echo $# 个数
+	echo $* 所有变量
+
+[root@forever ~]# echo $HISTFILESIZE
+	3000
+
+read语句如果没有指定变量名，默认赋值给 $REPLY这个环境变量
+	[root@forever ~]# read -p "输入："
+		输入：12
+	[root@forever ~]# echo $REPLY
+		12
+在shell脚本中，用 双引号，单引号有特殊的含义！！！
+变量在双引号中是可以解释的。
+
+数组：
+	root@forever ~]# arr=(a b c d e)
+	[root@forever ~]# echo ${arr[0]}
+	a
+	[root@forever ~]# echo ${arr[@]}
+	a b c d e
+	[root@forever ~]# echo ${arr[*]}
+	a b c d e
+	[root@forever ~]# echo ${!arr[*]}
+	0 1 2 3 4
+	[root@forever ~]# echo ${#arr[*]}
+	5
+
+定义只读变量：
+  declare的作用：1、可以定义一个只读变量，
+  				2、如果变量存在，则可以通过 declare -r varname 将其转为只读变量
+	[root@forever ~]# declare -r b=1
+	[root@forever ~]# b=2
+	-bash: b: 只读变量
+
+.bash_history 文件存放了所有的历史命令
+	set | grep HIS 
+
+~/.bash_logout 专门存放，当用户退出时，执行的命令。
+	可以添加 histroy -c 
+	表示退出登录时，清理所有的历史命令。
+
+aaa()表示声明一个函数。
+
+分号表示命令结束，多个命令在同一行，可以用分号隔开
+	echo hello ;ls
+
+脚本的编写：
+	#!/bin/bash
+	ifconfig
+
+脚本的运行：
+	1.相对路劲： ./a.sh  #需要加权限 chmod +x a.sh 
+	2.绝对路径：/root/a.sh #如果没有X权限，不会自动补全
+	3.sh a.sh #有无权限都可以这样执行
+
+sh和bash是同一个东西：
+	[root@forever ~]# ll /usr/bin/sh
+	lrwxrwxrwx./usr/bin/sh -> bash
+
+变量：
+	设置变量：linux=12
+	引用变量：$linux 或者 ${linux}
+
+交互的方式设置变量：
+	read a b
+	1 2
+
+	echo $a $b 
+
+	增加提示信息：
+	 read -p "input your passwd：" pwd
+
+特殊shell变量：
+	1.环境变量：env
+	echo $PWD
+	
+	全局环境变量的配置文件：/etc/profile
+	用户的环境变量配置文件：~/ .bash_profile
+	配置好后要source才能生效。
+	
+	echo $PATH
+	/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin	
+
+注意：只有命令在$PATH中才能通过tab补全。
+
+	[root@forever ~]# echo $USER
+	root
+
+	[root@forever ~]# echo $HOSTNAME
+	forever
+
+	[root@forever ~]# echo $SHELL
+	/bin/bash
+
+	[root@forever ~]# echo $BASH
+	/bin/bash
+
+	[root@forever ~]# echo $HOME
+	/root
+
+	[root@forever ~]# echo $LANG
+	en_US.utf8
+
+通过locale可以查看语言设置。
+
+设置语言
+0.安装语言包
+	yum install kde-l10n-Chinese
+	yum reinstall glibc-common
+	
+1. 编辑配置文件 vim /etc/locale.conf          将这个文件里面的LANG="XXXX" 改为LANG="zh_CN.utf8"
+
+2. 重启计算机
+
+expr 表达式计算
+
+  操作数和操作符之间要有空格！！！
+
+	[root@zmh ~]# echo $a
+	11
+	[root@zmh ~]# echo $b
+	10
+	[root@zmh ~]# expr $a + $b
+	21
+	[root@zmh ~]# expr $a - $b
+	1
+	[root@zmh ~]# expr $a / $b
+	1
+	[root@zmh ~]# expr $a % $b
+	1
+	[root@zmh ~]# expr $a \* $b  #特别注意 * 需要转义
+	110
+
+	expr的嵌套使用：
+	[root@zmh ~]# echo $b
+	10
+	[root@zmh ~]# expr `expr 10 + 10` / $b
+	2
+
+变量测试语句：
+  test 测试条件
+
+	#测试字符串
+	test a == b
+	test a != b
+	test str   如果不为空，返回真
+
+	test -n str 如果不为空，返回真
+	test -z str 如果为空，返回真
+
+	[root@zmh ~]# if test $n ;then echo 'ok';else echo 'null';fi
+	ok
+
+	等价于
+	[root@zmh ~]# if [ $n ] ;then echo 'ok';else echo 'null';fi
+	ok
+
+
+	[root@zmh ~]# if [ -z $a ];then echo '$a is null';else echo '$a is not null';fi
+	$a is null
+
+
+
+	#测试整数
+	  test int1 -eq int2 		=
+	  test int1 -gt int2 		>
+	  test int1 -lt int2 		<
+
+	  test int1 -ge int2 		>=
+	  test int1 -le int2 		<=
+	  test int1 -ne int2 		!=
+
+	  也可以写成 [int1 -eq int2]
+
+	  #测试文件
+	   test -d file #测试是否为目录
+
+	   test -f file #测试文件是否为文件
+
+	   test -x file #测试文件是否为可执行
+
+	   test -r file #测试文件是否为可读
+
+	   test -w file #测试文件是否为可写
+
+	   test -e file #测试文件是否存在
+
+	   test -s file #测试文件是否为空文件文件
+
+	   都可以简写成 [-e file]
+	     #注意：比较运算符两边需要空格，否则，将始终执行后面的语句！！！
+	    [root@zmh ~]# if  [ $str1 == $str2 ]; then /bin/ls; fi
+	    [root@zmh ~]# if  [ $str1 != $str2 ]; then /bin/ls; fi
+	    [root@zmh ~]# if [ -z "$str1" ]; then /bin/ls; fi 
+		[root@zmh ~]# if [ -n "$str1" ]; then /bin/ls; fi #相当于下句
+		[root@zmh ~]# if [ "$str1" ]; then /bin/ls; fi
+		                   有无双引号都可以
+
+流程控制：
+
+  1.if语句
+	if [ -e a.txt ];then
+		cat a.txt
+	fi
+
+	#特别注意：if 空格 [ 两边有空格 ]
+	[root@zmh ~]# if [ -e a.txt ];then cat a.txt; fi
+
+	if  [ -x 1.sh ]; then ./1.sh; fi 
+
+	可以在命令行直接输入if 回车 
+		[root@zmh ~]# if 
+		> [ -f 1.sh ]
+		> then
+		> ./1.sh
+		> fi
+
+  if/else语句
+  	if [ -e a.txt ]; then
+  		cat a.txt
+  	else
+  		touch a.txt
+  	fi
+  相当于： if [ -f a.txt ]; then   cat a.txt;   else   touch a.txt;   fi
+
+  if/elif 条件 then/elif 条件 then /else fi
+	  if [ cont1 ]; then
+	  	pass1
+	  elif [ cont2 ]; then
+	  	pass2
+	  elif [ cont3 ]; then 
+	  	pass3 
+	  else
+	  	pass4
+	  fi
+
+多个条件联合：
+	-a 或 && 与 两个条件同时成立，返回真
+	-o 或 || 或 其中一个条件成立返回真
+	都有自动短路功能，也就是 && ，有一个为假，就为假，断开，不在对后面的语句进行判断
+						   || ，有一个为真，即为真，断开
+案例：
+	[root@zmh ~]# cat if.sh 
+	#!/bin/bash
+	echo "this is a test about if"
+	read file_name
+
+	if [ -d $file_name ];then
+	        echo "${file_name} is a directory."
+	elif [ -f $file_name ];then
+	        echo "${file_name} is a file."
+	elif [ -c $file_name -o -b $file_name ];then
+	        echo "${file_name} is a device."
+	else
+	        echo "${file_name} is a unknow file."
+	fi
+
+case语句：
+	#!/bin/bash
+	#打印菜单，注意是两个箭头，而不是三个
+	cat <<EOF
+	        请选择您要进行的操作：
+	        1.delete
+	        2.copy
+	        3.update
+	EOF
+
+	read op
+
+	case $op in
+	1|3) #表示 1和3都符合条件
+		echo "delete"
+	;;
+	2)
+		echo "copy"
+	;;
+	3)
+		echo "update"
+	;;
+	*) 
+		echo "无效操作！"
+	;;
+	esac	
+
+	 *) 匹配所有
+
+for循环语句
+
+  语法：
+  	for 变量 in 名字列表
+  	do
+  		命令列表
+  	done
+
+  案例：打印星期
+
+	#!/bin/bash
+
+	#这是一个打印出星期的脚本
+
+	for day in Monday Tuesday Wendsdan Tursday Friday Saturday Sunday
+	do
+	    echo "today is : $day"
+	done
+
+while循环语句
+	#!/bin/bash
+
+	#练习while循环
+	num=1
+	while [ $num -le 10 ]
+	do
+	square=`expr $num \* $num `
+	echo $square
+	num=`expr $num + 1`
+	done
+
+	#!/bin/bash
+
+	#练习while循环
+	num=1
+	while [ $num -le 10 ]
+	do
+	   echo "`expr $num \* $num`" #合并两句为一句
+	   num=`expr $num + 1` #注意这里是重新赋值，不能用 $ 
+	done
+
+语法糖：(())  
+
+	#!/bin/bash
+	num=1
+	while (($num <100))  #[ $num -le 100 ]
+	do
+	echo $num
+	((num=$num * 2))  # num=`expr $num \* 2`
+	done
+
+使用 (())完全可以像其他语言一样书写条件表达式和赋值运算表达式
+	#!/bin/bash  如果不写就以当前shell执行这个脚本
+	#练习(()) 
+
+	num=1
+	while (($num < 100))  #这里  < 两边空格可有可无
+	do
+	echo $num
+	((num = $num * 2))  #这里 = 两边的空格也是可有可无
+	done
+
+循环语句的嵌套：
+	
+同一行中输出：echo -n hello 
+
+	打印正三角形：
+
+		#!/bin/bash
+		read -p "please input line char:" line char
+		num=1
+
+		while (($num<=$line))
+		do
+
+		  b=1
+		  while (($b<=$num))
+		  do
+		    echo -n "$char"
+		    ((b=$b+1))
+		  done
+
+		  echo 
+		 ((num=$num+1))
+		done
+
+	打印倒三角
+	#!/bin/bash
+
+	read -p "please input line char:" line char
+
+	while (($line>=1))
+	do
+	  b=1
+	  while (($b<=$line))
+	  do
+	    echo -n "$char"
+	    ((b=$b+1))
+	  done
+	  echo 
+	 ((line=$line-1))   #让行数倒着来控制
+	done
+
+	打印正三角 for do done ，内层两个 for 循环 类似 C 的写法
+
+	#!/bin/bash
+
+	read -p "please input line char:" line
+
+	for ((i=1;$i<=$line;i++))
+	do
+	    for ((j=$line-$i;j>0;j--))
+	    do
+	        echo -n ' '
+	    done
+
+	    for ((h=1;h<=2*$i-1;h++))
+	    do
+	        echo -n "*"
+	    done
+	  echo
+	done
+
+跳出循环：break continue
+
+	与其他语言类似：
+	break：跳出整个循环
+	continue ：跳出当前循环
+
+	#!/bin/bash
+	while true
+	do 
+	cat <<EOF
+	        请选择您要进行的操作：
+	        1.delete
+	        2.copy
+	        3.update
+	        Q.exit
+	EOF
+
+	read op
+
+	case $op in
+	1)
+	continue   #退出当前，下面语句将不会输出
+	echo "delete"
+	;;
+	2)
+	echo "copy"
+	;;
+	3)
+	echo "update"
+	;;
+	Q)
+	echo "exit"
+	break            #退出整个循环
+	;;
+	*)
+	echo "无效操作！"
+	;;				#此处可以不写，因为已经是最后一个条件！！！
+	esac
+	done
+
+解决windows下编辑的文件在linux下无法运行的情况：
+	原因：换行的表示方法不一样
+	解决：yum install -y dos2unix
+	运行：dos2unix 文件名
+
+shift的使用：
+	实现简单的计算器：无论输入多少个都可以计算
+	#!/bin/bash
+
+	if (($#==0));then
+	    echo "参数不能为空"
+	    exit 124   # echo $? 时显示
+	fi
+	sum=0
+	while (($#>0))  
+	do
+	    ((sum=$sum+$1))  
+	    shift 			#将最左边的参数左移出去，下一个就变为 $1,$#会相应减1
+	done
+	echo $sum
+
+函数的使用：
+	语法：
+		函数名 ()
+		{
+
+		}
+函数的调用不需要小括号，
+	函数名 参数1 参数2 
+
+	#!/bin/bash
+	a=123
+	echo $a
+	main ()
+	{
+		a=456
+	}
+
+	main	#调用函数
+	echo $a
+
+函数的传参：是根据位置变量的形式来传参的
+
+	main ()
+	{
+	   echo $1
+	   echo $2
+	}
+	main aaa bbb
+
+配置vim一个tab的长度：.vimrc 中添加
+	set tabstop=4
+
+使用脚本备份MySQL数据库：
+	MySQL数据库的默认root密码为root，修改root的密码：
+
+		1. update user set password=password("123") where user="root";
+
+		2.flush privileges;
+
+		3.quit退出，重新进入，输入新密码
+
+备份数据库时提示出错：mysqldump: Couldn‘t execute ‘SHOW VARIABLES LIKE 
+
+解决：1）mysql_upgrade -u root -p --force #更新
+
+      　2）service mysqld restart  #restart mysql service
+
+　　　3）mysqldump -u root -p -d test > test.sql #重新备份数据
+
+错误处理：
+	[root@zmh ~]# ./test.sh    
+	bash: ./test.sh: /bin/bash^M: 坏的解释器: 没有那个文件或目录
+	原因：回车的表示方法不同
+	解决：dos2unix test.sh  
+
+不解压，直接查看压缩包的文件
+	tar ztfv web.sql.tar.gz 
+
+备份数据库的脚本：
+	#!/bin/bash
+	#这是一个备份mysql数据库的脚本
+
+	BACKUPDIR=/data/mysql/`date +%Y-%m-%d`
+	USER=root
+	DB=test
+
+	#判断是否为root用户
+	if [[ $UID -ne 0 ]]; then
+	    echo "permition denied"
+	    sleep 2
+	    exit 1
+	fi
+
+	#判断备份目录是否存在，如果不存在，则创建
+	if [[ ! -d $BACKUPDIR ]]; then
+	    mkdir -p $BACKUPDIR
+	fi
+
+	#开始备份
+	/usr/bin/mysqldump -u $USER -p123 -d $DB > $BACKUPDIR/web.sql
+
+	#打包备份的数据
+	cd $BACKUPDIR ; tar -zcvf web.sql.tar.gz *.sql
+
+	#删除原数据
+	find . -type f -name *.sql -exec rm -rf {} \;
+
+	#打印是否备份成功的信息
+	[ $? -eq 0 ] && echo "`date +%Y-%m-%d` backup is success."
+
+	#删除30天以前的备份
+	cd $BACKUPDIR/../; find . -type d -mtime +30 | xargs rm -rf 
+
+	echo "the mysql backup is successfully!"
+
+正则表达式：
+
+	grep ：
+		-v 不匹配，除了，相当于反向匹配
+		-n 显示行号，就是这一行在文中的第几行显示出来
+
+	^过滤以什么开头的一行出来
+		grep ^root passwd	
+
+	$过滤结尾匹配的行：
+		grep bash$ passwd
+
+		[root@zmh ~]# grep bash$ passwd -n #显示行号
+		1:root:x:0:0:root:/root:/bin/bash
+		12:root:x:0:0:root:/root:/bin/bash
+		18:root:x:0:0:root:/root:/bin/bash
+
+    特殊符号的匹配：用 \ 进行转义
+    	\;		\*		\# 	\! 
+
+    在正则中 * 表示任意个，配合 . 来使用 才表示bash中的*
+    	.* 任意个任意字符
+
+    原子表 [abcd] [a-zA-Z0-9]
+
+    grep ^[^az#dnmltspg] passwd #表示不是以原子表里面字母开头的行
+
+    grep ^[az#] passwd #表示以 原子表中字母开头的行
+
+    匹配空行
+    	grep ^$ passwd  -n
+
+    匹配至少两个o
+    ooo* 前面两个是固定的，第三个o可有无
+
+	vim的操作技巧
+		vim a.txt +2 #启动后跳到第2行
+		vim + a.txt   #启动后跳到最后
+
+	保存文件：w
+		sed '/root/w root.txt' passwd #将文件中含有root的全部取出来，病保存在 root.txt这个文件中。
+
+环境变量以 : 作为分隔符！！！
+将一个目录添加到环境变量：PATH="$PATH:/usr/local/nginx/sbin/nginx"
+
+位置变量：$0,$1....
+
+	vim add.sh 
+	sum=$(expr $1 + $2) #也可以写成 sum=`$1+$2`
+	echo $sum
+	./add.sh 1 2
+
+可以使用 set | more 查看系统的所有环境变量
+
+shell中的多行注释 :开头<<<!
+				 结束 !
+
+--------------------------------------------------				   
+				   
+sed和awk
+sed 
+awk 非交互编辑
+
+sed并不会改变原文件：
+
+sed ：stream editor 流编辑器 在线编辑器
+
+	sed是一行一行处理文本的，正在处理的内容放在缓冲区内，处理完后按照选项规定进行输出或文件修改。
+
+	p 打印输出 -n指定行
+	 sed -n '3p' passwd    
+
+	显示文件前三行：
+		sed -n '1,3p' passwd
+
+	显示文件除了前三行：
+		sed -n '1,3!p' passwd
+
+	显示第三行和第三行以后的3行
+		sed -n '3,+3p' passwd
+
+	插入：ni##### 表示在第n行前面插入######
+		sed '1i##########' passwd
+		源文件并没有改变，可以通过重定向改变 > 
+
+	在文件的最后追加：a表示追加
+		sed '$a####' passwd
+
+	在文件第n行后追加：
+		sed '2a####' passw #文件第2行后下一行追加
+
+	替换操作：c
+		sed '3c$$$' passwd #第三行替换成 $$$
+
+	复制粘贴操作 H表示复制 G表示粘贴，中间用分号隔开
+		sed '2,3H;$G' passwd > a.txt #把2、3行复制到文本最后
+
+	删除操作，sed同样是支持正则的，正则表达式要放在 // 之间
+		sed '/^$/d' passwd
+
+	1、对文件的第三行进行输出，p表示打印输出
+		sed -n 3p /etc/passwd
+	
+	2、显示1-3行：
+		sed -n '1,3p' /etc/passwd
+
+	3、除了前三行：
+		 sed -n '1,3!p‘ /etc/passwd
+
+	
+	4、从第三行开始，增加3行显示
+		sed -n '3,+3p' passwd
+
+	5、第一行开头添加，i表示插入
+		sed '1i###' passwd >~/a.txt
+
+	6、文件末尾追加，$表示文件末尾，a表示追加
+		sed '$a@@@@@@' passwd >> ~/a.txt
+
+	7、替换 c 
+		sed '3c$$$$$$$' passwd
+
+总结：sed更多是对行的操作，打印，复制粘贴，替换，插入，追加
+凡是可以在屏幕输出的字符都是可以重定向到文本中的 ！！！
+awk主要是用来操作文本的列
+	
+awk：是一个优良的文本处理工具	更多的是用来操作文本的列
+
+	默认的 分隔符是空格，同样支持正则表达式
+	print表示打印
+	$0表示这个文件的所有内容
+	$n表示这个文件按照指定分隔符的第nlie
+
+
+	1.显示所有的内容 
+		awk '{print $0}' result.txt 
+
+	2.显示指定的列
+		awk '{print $1}' result.txt  
+		
+	3.指定分割符，显示第几列，默认的分割符为空格
+		awk -F: '{print $1}' /etc/passwd
+
+	4.显示1、3列
+		awk -F: '{print $1,$3}' /etc/passwd
+
+	5.输出的时候添加头部和尾部信息
+		awk 'BEGIN {print "name level result \n"}{print $1,$2,$3} END {print "\n result of class"}' result.txt 
+
+	6.类似sql语句查询记录，第2列值>20的输出
+		awk '$2>20 {print $0}' result.txt 
+
+	7.if语句，注意里面是双引号！！！
+		awk '{ if($1=="zmh" || $2=="12" ) print $0 }' result.txt   
+
+	8.自定义打印日期格式
+		date | awk '{print "year:" $1 "\t month:" $2 "\t day:" $3}'
+		date | awk '{print "year:"$1 "\tmonth:"$2 "\tday:"$3}' #去掉空格也是可以的
+
+磁盘相关：
+
+	##. df -Th #查看已挂载分区的详细信息
+		/dev/sdb1  xfs  97M  5.2M   92M    6% /tmp/tmp
+	 
+	##.lsblk -f #可以清楚看出所有磁盘分区情况，以及分区格式化的文件系统，挂载点
+	 
+	 sdb                                                   
+		└─sdb1       xfs         /tmp/tmp
+
+	##.file -s /dev/sdb1 单独查看分区的信息
+	
+		/dev/sdb1: SGI XFS filesystem data (blksz 4096, inosz 512, v2 dirs)
+
+注意：在添加第二个分区后，需要运行 partprobe /dev/sdb 命令来更新分区表，有时候还要重启。
+新建第一个分区时，不用执行 partprobe		
+		
+分区只有被格式化才能成功挂载！！！
+
+设置卷标：e2label /dev/sda1 home 
+注意：这个命令只在centos6中好使！！！		
+e2label只能给ext2/ext3/ext4文件系统设卷标或查看卷标。		
+blkid  /dev/sdb1
+	/dev/sdb1: UUID="aaf39125-bef4-441c-92ae-b0a636750c85" TYPE="xfs" 		
+		
+设置磁盘开机自动挂载 光盘格式 ：iso9660
+1.vim /etc/fstab
+2.mount -a #会马上读取 fstab 这个文件，马上挂载！！！
+
+umount 分区或者挂载点  都可以卸载
+
+通过卷标来挂载：好处是可以避免调换插线导致的显示有误。
+LABEL=test   /opt/mnt    xt4    defaults     0 0
+		
+查看UUID：tune2fs只能在ext4以下有用。
+	tune2fs -l /dev/sda1 |grep UUID
+		Filesystem UUID:          2994a2d6-6fda-4212-9776-cd72eabb319a
+		
+UUID是全球唯一的，可以使用UUID来挂载分区！！！		
+		
+以只读的方式重新挂载：重新挂载的前提是 已经挂载 ！！！
+注意：remount,ro中间不能有空格！！
+	mount -o remount,ro /dev/sda4
+	touch /opt/mnt/a.txt
+	touch: 无法创建"/opt/mnt/a.txt": 只读文件系统
+	
+可以通过 mount 查看所有挂载的设备。
+
+如果出现无法卸载：可能是有程序打开了文件
+lsof /dev/sda4  #查看占用磁盘的程序。
+
+
+学习进度：10
+--------------------------------------------------
+
+2015兄弟连linux
+
+互联网基础：
+	接入方式：
+	1.ADSL 非对称数字用户环路 使用的是电话线
+		上传速度1Mbps，下载速度 8Mbps。
+		缺点：带宽限制，动态ip地址（不能用来给企业搭建网站），铜线的成本远比光纤贵
+		
+	2.FTTH：光纤入户
+	
+	3.小区宽带，就是一个大的局域网，在同一个网段，共享带宽，外网接口是FTTH，或者固定ip
+	
+	4.固定ip，非常贵，一般给服务器使用
+
+--------------------------------------------------	
+	
+OSI/ISO七层模型和TCP/IP模型
+	
+应用层->表示层(编码，压缩，数据的表示形式)->会话层(是否要远程)->传输层(tcp，udp)->网络层(选路写入ip)->数据链路层(写入MAC地址)->物理层(负责数据的发送和接收)
+
+应用层<-表示层<-会话层<-传输层<-网络层<-数据链路层<-物理层
+
+
+TPC/IP协议四层模型：
+应用层（osi上三层）->传输层->网际互联->网络接口层（数据链路+物理层）
+
+发送数据，就是层层加包的过程，
+接收数据，就是层层解包，直到应用层，显示给用户
+
+ARP地址解析协议：就是将ip地址转为MAC地址
+RARP：Mac转IP
+
+TCP/IP的三次握手：确保了连接是可靠的。
+1.请求对方主机是否在线
+2.对方主机相应
+3.我再次发信息给对方确认，然后真正发送数据
+
+虽然不一定可靠，旦已经够用了。
+
+UDP：不管对方是否能接收到，始终发送，所以不可靠，但是由于没有三次握手，传输的速度快，多用于视频的在线播放。
+
+支持断点传输，丢失了重新发送。
+
+ip相当于收件地址，端口相当于收件人，只有确定收件人才能确保有人收件。
+
+所以，端口是传输层到应用层之间的一个接口。
+
+端口的个数：2^16
+
+tcp\udp:都是65535个端口，而且是重复的。
+
+一个服务可以有多个端口，端口还可以改。
+
+发送的端口是随机的，但是接收的端口一定是确定的。
+
+--------------------------------------------------
+
+ssh 
+telnet 使用的是明文传递
+
+安装vsftp
+rpm -ivh /mnt/Packages/vsftpd-2.2.2-24.el6.x86_64.rpm 
+
+开启vsfptd服务：
+service vsftp start
+
+useradd zxz
+
+给指定用户设置密码：
+passwd zxz
+
+linux中的网络抓包：tcpdump -i eth1 -nnX port 21
+-nnX表示以16进制拆分数据。
+
+	关闭防火墙：
+		iptables -F
+		iptables -Z
+		iptables -X
+		iptables -L
+
+否则无法通过 ：ftp 192.168.211.132 连接ftp服务器
+
+错误：
+	500 OOPS: cannot change directory:/home/zxz
+	500 OOPS: priv_sock_get_cmd
+	远程主机关闭连接。
+
+	关闭SELinux ： setenforce 0
+	重启vsftp ：service vsftp restart 
+				tcpdump -i eth1 -nnX port 21
+	重新连接：成功。
+	
+可怕的是，即使开启SELinux，无法登陆，tcpdump照样可以抓包，并且解释出我们的用户名和密码！！！
+
+[root@localhost ~]# which ssh
+/usr/bin/ssh #客户端，所有的用户都可以使用
+
+[root@localhost ~]# which sshd
+/usr/sbin/sshd #服务器，只有root用户才能使用
+
+传统的加密技术是对称加密，也就是，一个密码，既是加密的密码，也是解密的密码。如果其他人想查看加密的文件，我们就必须把密码告诉他，这样并不安全！！！
+
+非对称加密技术：公钥和私钥。
+	就好比，锁和钥匙之间的关系，公钥是用来加密的，只能用对应的私钥+密码才能解开；而且，同一个文件可以由多个公钥加密，这样每个人就可以用自己的私钥去打开加密的文件，这样就很好的避免了要知道对法密码的尴尬。
+
+ssh加密技术的原理：
+采用的是非对称加密：
+	当客户端首次登陆服务器时，服务器把公钥给客户端，服务器上有相对应的私钥，用户发送的所有数据，都经过公钥进行加密，在传输的过程中是相对安全的，到了服务器，用对应的私钥就可以解密数据。
+	
+ssh的配置文件：
+服务器配置文件：sshd_config 
+客户端配置文件：ssh.config	
+
+端口
+#Port 22
+
+2代协议
+Protocol 2
+
+1、2代的私钥
+# HostKey for protocol version 1
+#HostKey /etc/ssh/ssh_host_key
+# HostKeys for protocol version 2
+#HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_dsa_key
+
+日志和日志等级，日志也就是 /var/log/secure
+SyslogFacility AUTHPRIV
+#LogLevel INFO
+
+ #需要DNS服务来解释主机名
+GSSAPIAuthentication yes
+建议注释客户端的这个配置，他会导致登录缓慢
+关闭后重启服务：service sshd restart
+
+linux下客户端连接： ssh user@192.168.211.132
+
+#是否允许root用户登录
+#PermitRootLogin yes #centos默认是允许root用户登录的
+
+#是否开启公钥认证
+#PubkeyAuthentication yes
+
+#公钥保存的位置
+#AuthorizedKeysFile     .ssh/authorized_keys
+
+#开启密码登录，并不好，密码有可能被拦截，最好是配置公钥
+PasswordAuthentication yes  
+
+是否允许空密码登录
+#PermitEmptyPasswords no
+
+相当于复制！！！
+远程复制：scp -r root@192.168.211.132:/root/hello.txt .
+
+ssh的ftp
+sftp root@192.168.211.132
+进入后，输入help查看帮助
+可以实现文件的上传 put ，下载get
+
+操作远程的文件和目录。
+
+使用秘钥对登录：
+1、生成密钥对：
+ssh-keygen -t rsa
+
+上传公钥到服务器：
+scp id_rsa.pub root@193.112.134.36:/root
+
+3.把公钥放到指定用户的家目录 .ssh/authorized_keys这个文件中
+cat id_rsa.pub >>.ssh/authorized_keys 
+#注意：用追加的方式，因为这个文件可能会配置多个用户的公钥！！！
+
+最好修改 authorized_keys这个文件的权限，防止其他用户修改
+	chmod 600 authorized_keys #只有文件所有者具有读写权限，其他人没有权限。
+
+4.修改配置文件 vim /etc/ssh/sshd_config
+
+
+关闭SELinux： vim /etc/selinux/config 
+	SELINUX=disabled
+	#需要重启才能生效
+
+在客户端直接可以登录，而不用输入密码：
+[root@localhost .ssh]# ssh root@193.112.134.36
+Last login: Sun May  6 14:50:55 2018 from 120.239.38.88
+[root@forever ~]# 
+
+如果私钥丢失，是无法登录的：
+[root@localhost .ssh]# mv id_rsa id_rsa_back
+[root@localhost .ssh]# ssh root@193.112.134.36
+Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
+
+注意：只有设置成如下才能让普通用户通过密钥登录！！！
+StrictModes no
+当 .ssh 的权限为700，authorized_keys的权限为600时，可以设为yes，或者注释掉，默认就是yes
+
+总结：
+有服务器A，客户端B
+
+客户端B有root、zmh两个用户，都生成了公钥，私钥
+
+root的公钥复制到A的root/.ssh/authorized_keys
+
+zmh的公钥复制到A的zmh/.ssh/authorized_keys
+不能将zmh的公钥复制到root/.ssh/authorized_keys，因为登录时根本无权读取root目录的 authorized_keys 文件！！！
+
+A存放公钥的目录.ssh和文件 authorized_keys 的权限必须是
+				700 		600
+
+注意：不能将普通用户的公钥放到root/.ssh/authorized_keys下，因为普通用户登陆根本没有权限读取到该目录的数据。
+
+B在root用户的条件下，既可以登陆root用户，又可以登陆zmh用户，因为root用户可以读取到zmh的私钥，并拿到服务器开锁。
+但如果B在zmh登陆的条件下，无法使用root登陆，因为无权读取root的私钥。				
+
+普通用户是无权查看或者进入root目录的！！！
+[zmh@localhost root]$ cd /root
+bash: cd: /root: 权限不够
+
+[zmh@localhost root]$ ls /root
+ls: 无法打开目录/root: 权限不够
+
+只要拿到服务器用户的私钥，并保存到自己 ~/.ssh/ 目录下，是可以登陆服务器相应的用户的！！！
+案例：zxz用户，拷贝zmh用户的私钥到自己的家目录.ssh目录下
+
+
+-rw------- 1 zmh zmh 1196 5月   6 17:33 authorized_keys
+
+-rw------- 1 root root 789 5月   6 17:30 authorized_keys
+
+root用户切换到普通用户不需要输入密码；普通用户之间的切换su username,然后输入密码。
+
+即使普通用户拿到root的私钥，并且改变了权限，都是无法登陆服务器root用户的！！！
+
+--------------------------------------------------
+
+DHCP服务：
+	四次握手
+
+安装：rpm -ivh /mnt/Packages/dhcp-4.1.1-53.P1.el6.centos.x86_64.rpm
+
+端口号：udp67 dup68 
+
+服务名称dhcpd 
+d就是守护进程的意思 daemon 
+
+复制配置文件到指定目录
+cp /usr/share/doc/dhcp-4.1.1/dhcpd.conf.sample  /etc/dhcp/dhcpd.conf 
+
+
+配置文件： 
+#authoritative; 是否将其设置为权威dhcp
+
+
+配置如下：
+	option domain-name "example.org";
+	option domain-name-servers 8.8.8.8;
+
+	default-lease-time 600;
+	max-lease-time 7200;
+
+	log-facility local7;
+
+	subnet 192.168.211.0 netmask 255.255.255.0{
+	  range 192.168.211.50 192.168.211.200;
+	  option routers 192.168.211.1;
+	  option broadcast-address 192.168.211.255;
+	  default-lease-time 600;
+	  max-lease-time 7200;
+	}
+开启服务：
+	service dhcpd restart
+
+重启客户端网络：service network restart
+	
+查看客户端的ip：ifconfig 	
+	
+确定是从dhcp服务器获取ip
+客户端查看：vim /var/lib/dhclient/dhclient--ens33.lease 
+服务器端查看：vim /var/lib/dhcpd/dhcpd.leases
+
+是可以上网的！！！
+

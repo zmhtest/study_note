@@ -1,0 +1,134 @@
+在Ubuntu中可以使用： sudo apt-cache show vim 
+来查看某个包的详细信息。
+
+通过 apt --help查看详细的使用说明：
+
+为了可以使用ssh客户端连接Ubuntu，需要安装 openssh-server ,启动sshd：service sshd start
+
+更改Ubuntu的apt源：先备份原来的。
+vim /etc/apt/source.list 
+
+设置root用户密码：
+发现，虽然设置了root密码，但在Ubuntu17中还是无法通过root用户登录。
+解决办法：
+	1.进入/etc/pam.d/目录
+	首先将两个文件的权限改成 777
+	sudo chmod 777 gdm-autologin
+	sudo chmod 777 gdm-password
+
+	2.# 注释里面的
+	#auth        required        pam_succeed_if.so user != root quiet_success
+
+	3.改回文件的原来的权限
+	sudo chmod 644 gdm-autologin
+	sudo chmod 644 gdm-password
+
+	4.重启
+设置好密码，还是无法通过ssh登录？关闭防火墙！！！
+	ufw disable 
+	ufw enabled
+	ufw status
+	
+Ubuntu防火墙的详细用法：
+ubuntu 系统默认已安装ufw.
+	1.安装
+	sudo apt-get install ufw
+	
+	2.启用
+	sudo ufw enable
+	sudo ufw default deny
+	运行以上两条命令后，开启了防火墙，并在系统启动时自动开启。关闭所有外部对本机的访问，但本机访问外部正常。
+	
+	3.开启/禁用
+	sudo ufw allow|deny [service]
+	
+	打开或关闭某个端口，例如：
+	sudo ufw allow smtp　允许所有的外部IP访问本机的25/tcp (smtp)端口
+
+	sudo ufw allow 22/tcp 允许所有的外部IP访问本机的22/tcp (ssh)端口
+
+	sudo ufw allow 53 允许外部访问53端口(tcp/udp)
+
+	sudo ufw allow from 192.168.1.100 允许此IP访问所有的本机端口
+
+	sudo ufw allow proto udp 192.168.0.1 port 53 to 192.168.0.2 port 53
+
+	sudo ufw deny smtp 禁止外部访问smtp服务
+
+	sudo ufw delete allow smtp 删除上面建立的某条规则
+
+	4.查看防火墙状态
+	sudo ufw status	
+
+在刚修改完root权限自动登录后，发现开机出现以下提示：
+
+Error found when loading /root/.profile
+stdin:is not a tty
+
+解决方法：在终端中用命令gedit /root/.profile，打开文件后找到 mesg n，
+将其更改为 tty -s && mesg n
+
+解决Ubuntu无法通过 root 用户远程ssh登录的问题：
+	1.编辑ssh的配置文件,命令：vim /etc/ssh/sshd_config
+
+	2.在Authentication部分，注释掉“PermitRootLogin without-password”
+
+	3.在Authentication部分，添加“PermitRootLogin yes”
+
+	4.重新启动ssh服务，命令：sudo service ssh restart
+
+	
+查看可更新的软件： apt list --upgradable
+	
+默认安装位置在/usr/share/applications（所有软件都能在这找到）：
+	
+apt-get remove xxx 卸载xxx  
+	
+apt-cache search 搜索软件包  
+
+dpkg的使用：	
+	dpkg -i package.deb	安装包
+
+	dpkg -r package	删除包
+
+	dpkg -P package	删除包（包括配置文件）
+
+	dpkg -L package	列出与该包关联的文件
+
+	dpkg -l package	显示该包的版本
+
+	dpkg –unpack package.deb	解开 deb 包的内容
+
+	dpkg -S keyword	搜索所属的包内容
+
+	dpkg -l	列出当前已安装的包
+
+	dpkg -c package.deb	列出 deb 包的内容
+
+	dpkg –configure package	配置包	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

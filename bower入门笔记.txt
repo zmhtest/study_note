@@ -1,0 +1,234 @@
+bower入门笔记
+
+Bower是一个客户端技术的软件包管理器，它可用于搜索、安装和卸载如JavaScript、HTML、CSS之类的网络资源。
+
+首先要安装node.js 
+
+使用npm，打开终端，输入：
+npm install -g bower  注意：一定要加-g 
+其中-g命令表示全局安装，不加的话只是在当前目录安装，全局安装的好处是，会自动配置环境变量，在哪里都可以运行！！！
+
+
+bower的用法和composer差不多，都是要进入到项目目录，再进行各种操作
+
+问题：
+一、bower 不是内部或外部命令
+
+在实际的项目中，我们会经常用npm来安装项目所依赖的模块。在全局安装bower时，报错提示bower不是内部或外部命令。这是因为没有配置好全局模块的存放位置
+
+首先安装nodejs ,我的位置是D:\Program Files\nodejs
+
+配置模块安装路径
+npm config set prefix "D:\Program Files\nvm\node_global"
+npm config set cache  "D:\Program Files\nvm\node_cache"
+
+添加到环境变量
+1）再去配置环境变量，在系统变量里新建NODE_PATH,值为D:\Program Files\nvm\node_global， 
+2）在用户变量上的path变量添加 D:\Program Files\nvm\node_global
+
+总结：命令行提示，找不到，有两种可能：
+1.没有下载相关软件，也就是本地还没有安装好
+2.没有配置系统的环境变量
+
+bower初始化
+命令行进入项目目录中，输入命令如下：bower init
+会提示你输入一些基本信息，根据提示按回车或者空格即可，然后会生成一个bower.json文件，用来保存该项目的配置
+
+包的安装
+(前提是系统已经安装好了git)
+bower install jquery --save
+其中--save参数是保存配置到你的bower.json，你会发现bower.json文件已经多了一行：
+  "dependencies": {
+    "jquery": "^3.1.1"
+  }
+
+包的信息，查看所有的jQuery包
+bower info jquery
+
+包的更新
+上面安装的是最新版的高版本jquery，假如想要兼容低版本浏览器的呢？
+已经查到兼容低版本浏览器的jquery版本为2.0.0，下面直接修改bower.json文件中的jquery版本号如下：
+
+  "dependencies": {
+    "jquery": "^2.0.0"
+  }
+然后执行如下命令：
+bower update
+bower就会为你切换jquery的版本了
+
+指定版本时，^ 和 ~ 分别表示什么意思呢？
+比如有如下版本
+  - 3.1.0
+  - 3.0.0
+  - 2.2.4
+  - 2.2.3
+  - 2.2.2
+  - 2.2.1
+  - 2.2.0
+  - 2.1.4
+  - 2.1.3
+  - 2.1.2
+  - 2.1.1
+  - 2.1.0
+  - 2.0.3
+  - 2.0.2
+  - 2.0.1
+  - 2.0.0
+
+jquery": "^2.0.0"  安装的是2.2.4
+jquery": "~2.0.0"  安装的是2.0.3 
+
+所以区别就是：~ 是最低位的最新版
+^ 是中间位的最新版
+
+如果不用^ 或 ~ 来指定则安装指定的那个版本
+比如 2.0.0 就是直接安装这个版本
+
+使用bower install jquery --save
+安装的永远是最新版！！！
+
+包的查找
+比如我想要安装bootstrap的某个插件，但是记不住名字了，就可以直接在命令行输入：
+bower search bootstrap
+
+包的卸载
+
+bower uninstall jquery
+
+所有包的列表
+如果你想找出所有安装在应用程序中的包，可以使用list命令：
+
+$ bower list
+
+理清关系：
+npm是一个包管理工具，先用他来下载bower工具，然后在用bower下载各种类库
+
+当你安装或者更新依赖，bower.json里的相关项也会跟着改变！！！
+
+安装指定版本
+D:\WWW\bower>bower install jquery@1.11.1
+
+查找类库的主页：
+bower lookup dojo
+dojo https://github.com/dojo/dojo.git
+
+跳转到类库主页
+D:\WWW\bower\nodejs-bower>bower home https://github.com/dojo/doj
+
+模糊查找类库：
+D:\WWW\bower\nodejs-bower>bower search dojo
+
+bower的强大之处在于：他会检测依赖，如果依赖不正确，会标红
+
+#正常情况：
+D:\WWW\bower\nodejs-bower>bower list
+bower check-new     Checking for new versions of the project dependencies...
+nodejs-bower D:\WWW\bower\nodejs-bower
+├─┬ bootstrap#3.0.3 extraneous (latest is 4.1.0)
+│ └── jquery#3.3.1
+├── d3#5.0.0 extraneous
+└── jquery#3.3.1 extraneous
+
+#卸载jQuery，提示依赖
+D:\WWW\bower\nodejs-bower>bower uninstall jquery
+bower conflict      bootstrap depends on jquery
+? Continue anyway?
+
+提示jQuery没有安装：
+D:\WWW\bower\nodejs-bower>bower list
+bower check-new     Checking for new versions of the project dependencies...
+nodejs-bower D:\WWW\bower\nodejs-bower
+├─┬ bootstrap#3.0.3 extraneous (latest is 4.1.0)
+│ └── jquery not installed
+└── d3#5.0.0 extraneous
+
+#安装不兼容的jQuery
+D:\WWW\bower\nodejs-bower>bower install jquery#1.7.2
+
+Unable to find a suitable version for jquery, please choose one by typing one of the numbers below:
+    1) jquery#1.7.2 which resolved to 1.7.2
+    2) jquery#>= 1.9.0 which resolved to 3.3.1 and is required by bootstrap#3.0.3
+
+
+#如果装了不兼容依赖
+D:\WWW\bower\nodejs-bower>bower list
+bower check-new     Checking for new versions of the project dependencies...
+nodejs-bower D:\WWW\bower\nodejs-bower
+├─┬ bootstrap#3.0.3 extraneous (latest is 4.1.0)
+│ └── jquery#1.7.2 incompatible with >= 1.9.0 (3.3.1 available)
+├── d3#5.0.0 extraneous
+└── jquery#1.7.2 extraneous (latest is 3.3.
+
+
+#使用 express 创建一个项目
+
+1.安装 cnpm install -g express-generator
+
+2.express -e node-bower
+
+3.进入目录，利用bower安装各种依赖
+
+类库提交：要用到GitHub
+
+1.建立本地git仓库
+	git init
+
+2.git add . 
+
+3.git commit -m 'fist commit'
+
+4.在GitHub上创建一个新的仓库
+
+5.复制仓库地址，添加到本地 origin
+	git remote add origin https://github.com/zmhtest/node-bower.git
+
+6.设置本地仓库的用户名和email
+
+	git config --global user.name "forever"
+	git config --global user.email "1780858508@qq.com
+
+7.提交之前，先运行 git pull
+
+8.提交到远程仓库：
+	D:\WWW\bower\nodejs-bower>git push -u origin master
+
+	强制提交：git push -u origin master -f
+
+9.注册到bower
+	D:\WWW\bower\nodejs-bower>bower register nodejs-bower-zmhtest https://github.com/zmhtest/node-bower.git
+
+10.注册成功后，可以用bower search nodejs-bower-zmhtest查看
+
+11.利用bower安装我们自己注册的项目
+
+12.取消注册：
+	1. 登录GitHub账号：
+	D:\WWW\bower\nodejs-bower>bower login
+		? Username zmhtest
+		? Password *******
+	2. bower unregister nodejs-bower-zmhtest
+
+远程仓库是哪个用户的，push时就输入哪个用户的账号、密码！！！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
